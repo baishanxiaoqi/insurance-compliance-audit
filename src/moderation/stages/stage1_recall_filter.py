@@ -2,14 +2,14 @@
 Stage 1: 路由召回与大模型粗筛
 ==============================
 Hybrid 检索工具 + 32B 大模型 Agent。
-1. 混合检索：关键词正则 + 基于 jieba 分词的 TF-IDF 向量检索，为每个 chunk 召回 Top-K 候选 rule_id
+1. 混合检索：AC自动机关键词匹配 + 基于 jieba 分词的 TF-IDF 向量检索，为每个 chunk 召回 Top-K 候选 rule_id
 2. Agent 过滤：使用 32B 充当 Filter Agent，从 Top-K 中筛选最可能相关的 Top-3
 """
 
 import re
 import math
 import asyncio
-from collections import Counter
+from collections import Counter, defaultdict
 from typing import Dict, List, Set, Tuple
 
 import jieba
@@ -20,6 +20,7 @@ from ..log import get_logger
 from ..schemas import (
     Chunk, RuleCard, ChunkCandidates, FilterResult, DocumentState
 )
+from ..ac_matcher import AhocorasickMatcher
 
 logger = get_logger(__name__)
 
@@ -31,10 +32,16 @@ logger = get_logger(__name__)
 class SimpleTfidf:
     """基于 jieba 分词的轻量 TF-IDF 向量化器"""
 
-    def __init__(self):
+    def __init__(self, custom_terms: List[str] = None):
         self.vocab: Dict[str, int] = {}
         self.idf: Dict[str, float] = {}
         self.doc_vectors: List[Dict[str, float]] = []
+
+        # 加载自定义词典（保险领域专业术语）
+        if custom_terms:
+            for term in custom_terms:
+                if term:  # 过滤空字符串
+                    jieba.add_word(term)
 
     @staticmethod
     def _tokenize(text: str) -> List[str]:
@@ -125,11 +132,74 @@ class HybridRetriever:
             self._condition_distance[rid] = card.condition_distance
             self._exclusion_distance[rid] = card.exclusion_distance
 
-        # 构建 TF-IDF 索引
+        # 构建 AC自动机（用于高效关键词匹配）
+        self._build_ac_matchers()
+
+        # 构建 TF-IDF 索引（传入自定义词典）
         self._build_tfidf_index()
+
+    def _build_ac_matchers(self):
+        """构建5个AC自动机用于高效多模式匹配"""
+        # 收集所有唯一的terms并建立term→rule_ids映射
+        violation_term_to_rules: Dict[str, List[str]] = defaultdict(list)
+        condition_term_to_rules: Dict[str, List[str]] = defaultdict(list)
+        exclusion_term_to_rules: Dict[str, List[str]] = defaultdict(list)
+        prefix_term_to_rules: Dict[str, List[str]] = defaultdict(list)
+        suffix_term_to_rules: Dict[str, List[str]] = defaultdict(list)
+
+        for rid in self.rule_ids:
+            for term in self._violation_terms.get(rid, []):
+                violation_term_to_rules[term].append(rid)
+            for term in self._condition_terms.get(rid, []):
+                condition_term_to_rules[term].append(rid)
+            for term in self._exclusion_terms.get(rid, []):
+                exclusion_term_to_rules[term].append(rid)
+            for term in self._prefix_no_match.get(rid, []):
+                prefix_term_to_rules[term].append(rid)
+            for term in self._suffix_no_match.get(rid, []):
+                suffix_term_to_rules[term].append(rid)
+
+        # 构建5个独立的AC自动机
+        self.ac_violation = AhocorasickMatcher(
+            list(violation_term_to_rules.keys()),
+            dict(violation_term_to_rules)
+        )
+        self.ac_condition = AhocorasickMatcher(
+            list(condition_term_to_rules.keys()),
+            dict(condition_term_to_rules)
+        )
+        self.ac_exclusion = AhocorasickMatcher(
+            list(exclusion_term_to_rules.keys()),
+            dict(exclusion_term_to_rules)
+        )
+        self.ac_prefix = AhocorasickMatcher(
+            list(prefix_term_to_rules.keys()),
+            dict(prefix_term_to_rules)
+        )
+        self.ac_suffix = AhocorasickMatcher(
+            list(suffix_term_to_rules.keys()),
+            dict(suffix_term_to_rules)
+        )
+
+        logger.info(
+            f"AC自动机构建完成: "
+            f"violation={self.ac_violation.term_count}, "
+            f"condition={self.ac_condition.term_count}, "
+            f"exclusion={self.ac_exclusion.term_count}, "
+            f"prefix={self.ac_prefix.term_count}, "
+            f"suffix={self.ac_suffix.term_count}"
+        )
 
     def _build_tfidf_index(self):
         """为所有规则的 violation_definition 构建 TF-IDF 向量"""
+        # 提取所有违规词作为自定义词典（保险领域专业术语）
+        all_violation_terms = []
+        for rid in self.rule_ids:
+            all_violation_terms.extend(self._violation_terms[rid])
+
+        # 去重
+        unique_violation_terms = list(set(all_violation_terms))
+
         rule_texts = []
         for rid in self.rule_ids:
             card = self.rule_cards[rid]
@@ -146,7 +216,8 @@ class HybridRetriever:
             ])
             rule_texts.append(text)
 
-        self.tfidf = SimpleTfidf()
+        # 初始化 SimpleTfidf 并传入自定义词典
+        self.tfidf = SimpleTfidf(custom_terms=unique_violation_terms)
         self.tfidf.fit(rule_texts)
 
     @staticmethod
@@ -177,24 +248,43 @@ class HybridRetriever:
     ) -> List[int]:
         """
         前缀/后缀不匹配规则：拼接词命中时，该位置不计入违规词命中。
-        例：违规词=免税，后缀不匹配=店，命中“免税店”则该次命中剔除。
+        例：违规词=免税，后缀不匹配=店，命中"免税店"则该次命中剔除。
         """
         blocked_positions: Set[int] = set()
 
+        # 使用AC自动机匹配前缀和后缀
+        all_prefix_matches = self.ac_prefix.find_all(text)
+        all_suffix_matches = self.ac_suffix.find_all(text)
+
         for p in prefixes:
             phrase = f"{p}{term}"
+            # 查找拼接词的位置
             for idx in self._find_positions(text, phrase):
+                # 阻断的是term的起始位置（即prefix之后）
                 blocked_positions.add(idx + len(p))
 
         for s in suffixes:
             phrase = f"{term}{s}"
+            # 查找拼接词的位置
             for idx in self._find_positions(text, phrase):
+                # 阻断的是term的起始位置
                 blocked_positions.add(idx)
 
         return [pos for pos in positions if pos not in blocked_positions]
 
     def _keyword_recall(self, chunk_text: str) -> Dict[str, float]:
-        """结构化关键词匹配，返回 {rule_id: score}"""
+        """结构化关键词匹配，返回 {rule_id: score}
+
+        优化策略：
+        1. 使用 AC 自动机一次性扫描所有违规词、条件词、排除词
+        2. 在规则循环中直接使用预计算的匹配结果
+        3. 避免在规则循环内重复调用 find_all()
+        """
+        # 一次性扫描所有词汇（移到规则循环外部）
+        all_violation_matches = self.ac_violation.find_all(chunk_text)
+        all_condition_matches = self.ac_condition.find_all(chunk_text)
+        all_exclusion_matches = self.ac_exclusion.find_all(chunk_text)
+
         scores: Dict[str, float] = {}
         for rid in self.rule_ids:
             violation_terms = self._violation_terms.get(rid, [])
@@ -203,10 +293,14 @@ class HybridRetriever:
 
             v_positions_map: Dict[str, List[int]] = {}
             total_hits = 0
+
+            # 从预计算的 AC 结果中提取该规则的违规词匹配
             for term in violation_terms:
-                positions = self._find_positions(chunk_text, term)
+                positions = all_violation_matches.get(term, [])
                 if not positions:
                     continue
+
+                # 应用前后缀过滤
                 positions = self._filter_positions_by_no_match(
                     text=chunk_text,
                     term=term,
@@ -226,9 +320,10 @@ class HybridRetriever:
             # 条件词：违规词 + 条件词 同时出现才有效
             condition_terms = self._condition_terms.get(rid, [])
             if condition_terms:
+                # 直接使用预计算的条件词匹配结果
                 cond_positions: List[int] = []
                 for cond in condition_terms:
-                    cond_positions.extend(self._find_positions(chunk_text, cond))
+                    cond_positions.extend(all_condition_matches.get(cond, []))
 
                 if not self._has_near_pair(
                     all_v_positions,
@@ -240,9 +335,10 @@ class HybridRetriever:
             # 排除词：违规词 + 排除词 同时出现则排除
             exclusion_terms = self._exclusion_terms.get(rid, [])
             if exclusion_terms:
+                # 直接使用预计算的排除词匹配结果
                 excl_positions: List[int] = []
                 for ex in exclusion_terms:
-                    excl_positions.extend(self._find_positions(chunk_text, ex))
+                    excl_positions.extend(all_exclusion_matches.get(ex, []))
 
                 if self._has_near_pair(
                     all_v_positions,

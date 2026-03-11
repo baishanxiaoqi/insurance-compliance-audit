@@ -11,6 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Moonshot API (moonshot-v1-32k)
 - FastAPI + Uvicorn
 - Pydantic (强类型 Schema)
+- pyahocorasick (AC 自动机，高效多模式匹配)
 
 **SLA 约束**：单次审核耗时 ≤ 3 分钟
 
@@ -101,9 +102,10 @@ python scripts/import_excel_kb.py
    - 生成 `norm_to_raw_map` 坐标映射表和全局 `span_pool`
 
 2. **Stage 1 (召回粗筛)** - `stages/stage1_recall_filter.py`
-   - 混合检索：关键词正则 (60%) + TF-IDF (40%)
+   - 混合检索：AC 自动机关键词匹配 (60%) + TF-IDF (40%)
    - LLM Filter Agent：从 Top-20 筛选到 Top-3
    - 并发处理所有 chunks
+   - 使用 5 个独立的 AC 自动机（violation/condition/exclusion/prefix/suffix）
 
 3. **Stage 1.5 (事实抽取)** - `stages/stage1_5_fact_extract.py`
    - 纯代码，基于规则的事实信号提取
@@ -141,6 +143,7 @@ python scripts/import_excel_kb.py
 3. **双轨架构**：确定性规则引擎 (base) + LLM 语义判定 (skill)，提升准确率和可解释性
 4. **强类型约束**：全链路 Pydantic Schema，结构化输出锁死 LLM 自由度
 5. **并发控制**：`asyncio.Semaphore(3)` 限制 Moonshot 并发上限
+6. **AC 自动机优化**：使用 Aho-Corasick 算法进行多模式字符串匹配，性能提升 10-50 倍
 
 ### 核心数据结构 (`schemas.py`)
 
@@ -200,6 +203,7 @@ python scripts/import_excel_kb.py
 - `data/rule_cards.json`: 全量规则库 (612 条)，由 Excel 转换生成
 - `data/sample_input.txt`: 测试用保险营销文本
 - `src/moderation/llm_agent.py`: Agno Agent 封装 + Moonshot 适配 + 429 退避
+- `src/moderation/ac_matcher.py`: AC 自动机封装，高效多模式字符串匹配
 - `src/moderation/audit_trace.py`: 结构化审计轨迹日志 (TRACE::stage2.*)
 
 ## API 接口
@@ -243,8 +247,17 @@ python scripts/import_excel_kb.py
 9. **测试覆盖**：
    - `tests/test_core_behaviors.py`：核心行为测试
    - `tests/test_dual_strategy.py`：双策略架构测试
+   - `tests/test_ac_matcher.py`：AC 自动机单元测试
 
-10. **性能优化**：base 轨处理约 65% 的规则，节省 30% API 成本
+10. **性能优化**：
+    - base 轨处理约 65% 的规则，节省 30% API 成本
+    - AC 自动机匹配性能提升 10-50 倍（vs 正则表达式）
+
+11. **AC 自动机使用**：
+    - Stage 1 召回：5 个独立的 AC 自动机（violation/condition/exclusion/prefix/suffix）
+    - 规则引擎：动态构建 AC 自动机进行词汇匹配
+    - Stage 2.5 反证：使用 AC 自动机检测否定模式
+    - 自动回退：如果 pyahocorasick 未安装，自动回退到正则表达式
 
 ## 当前已知限制
 

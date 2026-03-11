@@ -185,39 +185,57 @@ class TestCoreBehaviors(unittest.TestCase):
         self.assertTrue(report_ok.condition_pass)
 
     def test_stage25_refute_negated_violation(self):
-        text = "请不要退保，建议保留原保单"
-        doc = preprocess(original_text=text, working_text=text, doc_id="DOC_REFUTE_001")
+        """测试 Stage 2.5 否定语境检测（包括多空格和换行场景）"""
+        # 测试用例：不同空白字符分隔的否定结构
+        test_cases = [
+            ("请不要退保，建议保留原保单", "compliant"),  # 无空格
+            ("请不要 退保，建议保留原保单", "compliant"),  # 单空格
+            ("请不要   退保，建议保留原保单", "compliant"),  # 多空格
+            ("请不要\n退保，建议保留原保单", "compliant"),  # 换行
+            ("请不要\n\n退保，建议保留原保单", "compliant"),  # 多换行
+            ("请不得误导客户", "compliant"),  # 不得+违规词
+            ("请不得\n误导客户", "compliant"),  # 不得+换行+违规词
+        ]
+
         rule = RuleCard(
             rule_id="KB0061",
             rule_name="知识库规则-退保 / 减保",
             risk_level="high",
             violation_definition="出现退保词且引导退保视为违规",
-            keywords=["退保"],
-            violation_terms=["退保"],
+            keywords=["退保", "误导"],
+            violation_terms=["退保", "误导"],
             reason_codes=["RC_KB0061"],
         )
-        judgments = [
-            JudgmentResult(
-                rule_id="KB0061",
-                chunk_id=doc.chunks[0].chunk_id,
-                verdict="violation",
-                reasoning_cot="初判为违规。",
-                evidence_span_ids=[doc.chunks[0].spans[0].span_id],
-                evidence_texts=["退保"],
-                reason_codes=["RC_KB0061"],
-                draft_suggestion="建议修改",
-            )
-        ]
 
-        revised = run_stage2_5_refute(
-            judgments=judgments,
-            document=doc,
-            rule_cards={"KB0061": rule},
-            chunk_facts=None,
-        )
+        for text, expected_verdict in test_cases:
+            with self.subTest(text=text):
+                doc = preprocess(original_text=text, working_text=text, doc_id="DOC_REFUTE_001")
+                judgments = [
+                    JudgmentResult(
+                        rule_id="KB0061",
+                        chunk_id=doc.chunks[0].chunk_id,
+                        verdict="violation",
+                        reasoning_cot="初判为违规。",
+                        evidence_span_ids=[doc.chunks[0].spans[0].span_id],
+                        evidence_texts=["退保"],
+                        reason_codes=["RC_KB0061"],
+                        draft_suggestion="建议修改",
+                    )
+                ]
 
-        self.assertEqual(len(revised), 1)
-        self.assertEqual(revised[0].verdict, "compliant")
+                revised = run_stage2_5_refute(
+                    judgments=judgments,
+                    document=doc,
+                    rule_cards={"KB0061": rule},
+                    chunk_facts=None,
+                )
+
+                self.assertEqual(len(revised), 1)
+                self.assertEqual(
+                    revised[0].verdict,
+                    expected_verdict,
+                    f"Text: {repr(text)} should be {expected_verdict}",
+                )
 
 
 if __name__ == "__main__":

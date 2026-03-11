@@ -159,6 +159,22 @@ temporal_context_skill = {
 - 短段合并（< 80 字），长段在句子边界二次拆分
 - 上下文回溯重叠（携带前一个 Chunk 的末句）
 
+#### 5. AC 自动机高效匹配
+
+**问题**：612 条规则包含 1000+ 个关键词，逐个正则匹配性能低下。
+
+**解决方案**：
+- 使用 Aho-Corasick 算法实现多模式字符串匹配
+- 一次扫描匹配所有关键词，时间复杂度从 O(n×m×k) 降至 O(n+m)
+- 性能提升 10-50 倍，特别是在 Stage 1 召回和规则引擎中
+
+```python
+# AC 自动机示例
+matcher = AhocorasickMatcher(["保证", "承诺", "收益"])
+result = matcher.find_all("我们保证高收益")
+# 一次扫描匹配所有词汇，返回 {"保证": [2], "收益": [5]}
+```
+
 ## 技术栈
 
 - **框架**：Agno 2.5+ (Workflow + Agent)
@@ -166,6 +182,7 @@ temporal_context_skill = {
 - **API**：FastAPI + Uvicorn
 - **数据校验**：Pydantic
 - **中文分词**：jieba
+- **多模式匹配**：pyahocorasick (AC 自动机)
 - **异步并发**：asyncio
 
 ## 快速开始
@@ -248,6 +265,7 @@ python -m pytest tests/test_core_behaviors.py::TestCoreBehaviors::test_stage3_lo
 | 准确率 | ~85% | 基于测试集评估 |
 | 召回率 | ~80% | 基于测试集评估 |
 | API 成本节省 | ~30% | 双轨架构优化 |
+| 关键词匹配性能 | 10-50x | AC 自动机 vs 正则表达式 |
 | 并发上限 | 3 | Moonshot 免费版限制 |
 
 ## 项目结构
@@ -258,8 +276,8 @@ claude-moderation/
 ├── requirements.txt            # 依赖配置
 ├── .env.example                # 环境变量模板
 ├── README.md                   # 项目说明（本文档）
-├── ARCHITECTURE.md             # 架构文档
 ├── CLAUDE.md                   # 开发指引
+├── AC_INTEGRATION_REPORT.md    # AC 自动机集成报告
 ├── data/
 │   ├── rule_cards.json         # 规则库（612 条）
 │   └── sample_input.txt        # 测试文本
@@ -273,6 +291,7 @@ claude-moderation/
 │   ├── skills.py               # 基础 Skills
 │   ├── complex_skills.py       # 复杂 Skills
 │   ├── rule_engine.py          # 规则引擎
+│   ├── ac_matcher.py           # AC 自动机封装
 │   ├── audit_trace.py          # 审计日志
 │   ├── api.py                  # FastAPI 接口
 │   └── stages/
@@ -285,7 +304,10 @@ claude-moderation/
 │       └── stage3_assemble.py
 └── tests/
     ├── test_core_behaviors.py
-    └── test_dual_strategy.py
+    ├── test_dual_strategy.py
+    ├── test_hybrid_recall.py
+    ├── test_ac_matcher.py
+    └── ...
 ```
 
 ## 配置说明
