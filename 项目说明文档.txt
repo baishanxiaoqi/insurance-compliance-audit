@@ -1,0 +1,170 @@
+### **保险领域文本合规审核大模型方案升级说明**
+
+#### **一、 项目背景与现状**
+
+当前，我们针对保险领域的文本材料建立了一套基于大模型的合规审核系统。该系统的核心目标是：精准定位违规内容、标记违规位置，并输出针对性的合规建议。
+
+**现有方案运行机制：**
+
+1. **策略基座：** 采用“关键词召回”策略。系统维护一个关键词库，每个关键词映射到一个具体的违规审查点（包含：合规/违规判断依据、正反Case、合规建议模板）。
+2. **处理流程：** 对输入材料进行关键词匹配 -> 命中后，截取关键词所在完整句子 -> 将句子与对应的规则/Case拼装成专属 Prompt -> 交由 32B 大模型进行分类判断 -> 若判定违规，则由 32B 模型结合建议模板输出具体修改建议。
+3. **当前基线数据（Baseline）：** 当前文本平均长度约为【5000】字，现有关键词策略的准确率（Precision）约在【60%】，召回率（Recall）约在【60%】。
+
+#### **二、 升级需求与核心痛点**
+
+随着业务深入，纯关键词召回策略的局限性日益凸显，主要表现为**无法进行语义层面的违规匹配，且极度缺乏对全文上下文的理解**。具体面临以下四大核心痛点：
+
+1. **审查点繁杂且高度依赖上下文（语境歧义）：** 合规细则多达几百条，且判定标准极其精细。**例如：**使用“薪资”表述介绍代理人当前收入属违规，但若描述其过往经历中的岗位收入则合规。几百条规则无法全部塞入单个 Prompt，且脱离上下文的单句判定极易误判。
+2. **违规位置的精准坐标定位困难：**
+不仅需要大模型识别出违规语义，还需要精准输出违规内容在原始长文本中的确切索引（Index）。大模型对字符级索引天然不敏感，直接生成极易出现“幻觉”。
+3. **语义泛化导致的过度召回（高误报率）：**
+向语义层面升级时，大模型的泛化能力容易导致很多相似但不违规的表述被错误召回，如何控制语义识别的边界和阈值是一大挑战。
+
+## 三、 总体架构升级方向
+
+鉴于当前业务场景对单篇文档的审核耗时容忍度较高（**最高可达 3 分钟**），我们拥有充足的算力时间窗口来深挖大模型能力上限。
+
+这份技术文档已经按照你的要求进行了彻底的重构。去除了数据飞轮部分，将焦点完全集中在**“如何让另一个大模型（或 AI 编程助手）准确无误地理解并写出这套系统代码”**上。
+
+因此，这份文档大幅强化了**数据结构定义（Schema）、输入输出边界（I/O）以及 Agent 的执行逻辑**。你可以直接把这份文档喂给 Cursor、Windsurf 或者任何大模型，让它帮你生成基于 Agno (Phidata) 的底层代码。
+
+---
+
+# 保险文本合规审核系统架构升级技术蓝图
+
+**（Agentic Workflow 纯血大模型版 · 面向代码生成）**
+
+## 0. 系统上下文与架构原则
+
+* **系统目标**：对单篇 ~5000 字的保险材料进行合规审核，定位违规文本块并给出修改建议。
+* **SLA 约束**：单次处理全流程耗时 **≤ 3 分钟**。
+* **核心架构原则（LLM 编程器请严格遵循以下约束）**：
+1. **纯血大模型架构**：仅使用 32B 基础大模型。禁止引入额外的 Reranker 小模型或润色小模型。
+2. **绝对定位隔离**：大模型（Agent）**绝对禁止**输出原文字符串或字符索引来进行定位。定位只能通过输出预处理阶段固化的 `span_id` 来实现。
+3. **单规则注入**：在深度精判阶段，每次 LLM 调用只能注入**单条**规则卡片（Rule Card），严禁将多条规则拼接塞入同一个 Prompt。
+4. **状态机流转**：基于 Agno (Phidata) 框架的 Workflow 模式，各 Stage 之间通过强类型的 `State` 对象传递数据。
+
+
+
+---
+
+## 1. 核心数据结构定义 (Pydantic Schema)
+
+以下是贯穿整个 Workflow 的核心数据结构，请在底层代码中严格定义并校验。
+
+### 1.1 文本底座结构 (Text Assets)
+
+```python
+class Span(BaseModel):
+    span_id: str          # 唯一标识，例如 "S_chunk1_01"
+    span_text: str        # 最小语义单元的文本内容
+    start_index: int      # 在规范化文本中的绝对起始位置
+    end_index: int        # 在规范化文本中的绝对结束位置
+    chunk_id: str
+
+class Chunk(BaseModel):
+    chunk_id: str
+    chunk_text: str
+    spans: List[Span]     # 该 Chunk 包含的所有 Span
+
+class DocumentState(BaseModel):
+    doc_id: str
+    original_text: str
+    normalized_text: str
+    norm_to_raw_map: Dict[int, int]  # 规范化坐标到原始坐标的映射表
+    chunks: List[Chunk]
+    span_pool: Dict[str, Span]       # 全局 span_id 索引池
+
+```
+
+### 1.2 规则底座结构 (Rule Card)
+
+```python
+class RuleCard(BaseModel):
+    rule_id: str
+    rule_name: str
+    risk_level: Literal["high", "medium", "low"]
+    violation_definition: str
+    exceptions: List[str]            # 例外情况（什么情况下合规）
+    reason_codes: List[str]          # 允许输出的理由码枚举
+    suggestion_template: str         # 合规建议模板（带槽位）
+
+```
+
+---
+
+## 2. 核心流水线设计 (Agno Workflow Pipeline)
+
+整个处理流程分为 4 个 Stage，串行执行。
+
+### Stage 0: 预处理与资产固化 (纯代码节点)
+
+* **节点性质**：纯 Python 工程代码，无 LLM 参与。
+* **输入**：`original_text` (原始字符串)。
+* **执行逻辑**：
+1. 文本清理与规范化，生成 `norm_to_raw_map`。
+2. 按 200-300 字将文本切分为 `chunks`（带 50 字 overlap）。
+3. 在每个 Chunk 内部，按标点（逗号、句号、分号）切分为最小语义单元 `spans`，并生成全局唯一的 `span_id`。
+
+
+* **输出**：完整的 `DocumentState` 对象。
+
+### Stage 1: 路由召回与大模型粗筛 (Context & Filter Agent)
+
+* **节点性质**：Hybrid 检索工具 + 32B 大模型 Agent。
+* **执行逻辑**：
+1. **混合检索 (Skill)**：遍历 Stage 0 产生的 `chunks`，通过关键词正则 + 向量检索（Embedding），为每个 chunk 召回 Top-20 候选 `rule_id`。
+2. **Agent 过滤 (32B)**：由于取消了 Reranker 小模型，使用 32B 充当 `Filter_Agent`。
+* **Prompt 任务**：“阅读以下文本块及 20 条候选规则简介，排除明显无关的规则，仅返回最可能相关的 Top-3 `rule_id` 列表。无需输出解释。”
+
+
+
+
+* **输出**：生成《初步疑似卷宗》：`List[Dict{"chunk_id": str, "candidate_rule_ids": List[str]}]`。
+
+### Stage 2: 深度精判与对齐 (Critic Agent)
+
+* **节点性质**：核心 32B 大模型 Agent。并行处理 Stage 1 输出的候选组合。
+* **执行逻辑**：
+* **单规则注入**：对于每一个 `(chunk_id, rule_id)` 对，发起一次独立的 LLM 调用。
+* **输入组装**：当前 Chunk 文本 + 对应 RuleCard 完整内容 + 该 Chunk 内的 `span_id` 字典列表。
+* **强制思维链 (CoT) 与结构化输出**：要求 LLM 严格遵守以下 `response_model`：
+
+
+
+```python
+class JudgmentResult(BaseModel):
+    rule_id: str
+    chunk_id: str
+    verdict: Literal["violation", "compliant", "unsure"]
+    reasoning_cot: str             # 必须大于50字的逻辑推演（结合例外条款分析）
+    evidence_span_ids: List[str]   # 如果违规，必须从此前的 span 字典中选择 ID 填入。严禁捏造。
+    reason_codes: List[str]        # 必须从 RuleCard 中提取
+    draft_suggestion: str          # 结合 RuleCard 的模板直接生成润色后的建议文本
+
+```
+
+### Stage 3: 确定性定位与 API 组装 (纯代码节点)
+
+* **节点性质**：纯 Python 工程代码，无 LLM 参与。
+* **输入**：Stage 2 输出的所有 `verdict == "violation"` 的 `JudgmentResult`。
+* **执行逻辑**：
+1. **零幻觉定位**：遍历 `evidence_span_ids`，直接从 `DocumentState.span_pool` 中获取对应的 `start_index` 和 `end_index`。
+2. **坐标还原**：使用 `norm_to_raw_map` 将规范化坐标还原为原始文本坐标。
+3. **结果聚合**：将还原后的坐标、原始违规文本切片、`reasoning_cot` 以及 `draft_suggestion` 打包为最终对外的 API JSON 响应体。
+
+
+
+---
+
+## 3. 框架实现约定 (针对 Agno 框架)
+
+1. **State 共享**：定义一个继承自 `WorkflowState` 的类，将 Stage 0 到 Stage 3 的产物统一定义在 State 中，避免参数乱传。
+2. **并发控制**：在 Stage 2 中，由于存在多个 `(chunk, rule)` 候选对，必须使用异步 (`asyncio.gather`) 并发调用 32B 模型，以确保整体 3 分钟的 SLA 不超时。
+3. **Structured Output**：在定义 Stage 1 和 Stage 2 的 Agent 时，必须强制启用结构化输出特性（例如给 Agent 传入 `response_model=JudgmentResult`），彻底锁死大模型的自由发挥空间。
+
+
+
+
+  base_url="https://api.moonshot.cn/v1",
+    api_key=os.getenv("sk-ANXhvmy6rsqpH0K8opssV4HeNAkHsy1sOdNWK6wrM3pJ1l3F")

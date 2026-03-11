@@ -1,0 +1,25 @@
+# Core
+pydantic>=2.0.0
+
+# Agentic Framework
+agno>=2.5.0
+
+# LLM Integration
+openai>=1.0.0
+
+# Web Framework
+fastapi>=0.104.0
+uvicorn>=0.24.0
+
+# Chinese Text Processing
+jieba>=0.42.1
+
+# Environment
+python-dotenv>=1.0.0
+
+# Async HTTP
+httpx>=0.25.0
+
+# Knowledge Base Import (Excel)
+pandas>=2.0.0
+openpyxl>=3.1.0
