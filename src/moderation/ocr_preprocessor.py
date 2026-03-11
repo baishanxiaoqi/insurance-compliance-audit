@@ -84,24 +84,27 @@ def fix_ocr_spacing(text: str) -> str:
     - 中文之间多余的空格："保 险 产 品" -> "保险产品"
     - 数字和单位之间缺少空格："100元" -> "100 元"
     - 英文单词之间缺少空格："HelloWorld" -> "Hello World"
+
+    注意：此函数只处理空格问题，不处理换行符，以保留文本的段落结构。
     """
-    # 1. 循环移除中文字符之间的空格，直到收敛
+    # 1. 循环移除中文字符之间的空格（只匹配普通空格和全角空格，不匹配换行）
     max_iterations = 10
     for _ in range(max_iterations):
-        new_text = re.sub(r'([\u4e00-\u9fff])\s+([\u4e00-\u9fff])', r'\1\2', text)
+        # 只匹配普通空格 \x20 和全角空格 \u3000
+        new_text = re.sub(r'([\u4e00-\u9fff])[ \u3000]+([\u4e00-\u9fff])', r'\1\2', text)
         if new_text == text:
             break  # 收敛，没有更多空格可移除
         text = new_text
 
-    # 2. 移除中文标点前后的空格
-    text = re.sub(r'\s+([，。；！？、：])', r'\1', text)
-    text = re.sub(r'([，。；！？、：])\s+', r'\1', text)
+    # 2. 移除中文标点前后的空格（只处理普通空格和全角空格）
+    text = re.sub(r'[ \u3000]+([，。；！？、：])', r'\1', text)
+    text = re.sub(r'([，。；！？、：])[ \u3000]+', r'\1', text)
 
     # 3. 确保数字和单位之间有空格（可选）
     # text = re.sub(r'(\d+)(元|万|亿|%|年|月|日)', r'\1 \2', text)
 
-    # 4. 移除多余的连续空格
-    text = re.sub(r'\s{2,}', ' ', text)
+    # 4. 压缩连续的普通空格和全角空格（不处理换行符）
+    text = re.sub(r'[ \u3000]{2,}', ' ', text)
 
     return text
 

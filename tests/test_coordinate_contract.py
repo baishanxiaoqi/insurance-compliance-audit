@@ -127,6 +127,90 @@ class TestCoordinateContract(unittest.TestCase):
         # working_text 应该是 OCR 修复后的版本
         self.assertEqual(doc.working_text, ocr_modified)
 
+    def test_multiple_newlines_insertion_mapping(self):
+        """测试：多个连续换行插入的坐标映射"""
+        original_text = "第一段。第二段。"
+        working_text = "第一段。\n\n第二段。"  # 插入了两个换行
+
+        doc = preprocess(
+            original_text=original_text,
+            working_text=working_text,
+            doc_id="TEST_MULTI_NEWLINES"
+        )
+
+        # 找到包含"第二段"的 span
+        target_span = None
+        for span in doc.span_pool.values():
+            if "第二段" in span.span_text:
+                target_span = span
+                break
+
+        self.assertIsNotNone(target_span, "应该找到包含'第二段'的 span")
+
+        # 模拟 Stage 2 判定结果
+        judgment = JudgmentResult(
+            rule_id="TEST_RULE",
+            chunk_id=target_span.chunk_id,
+            verdict="violation",
+            reasoning_cot="测试判定",
+            evidence_span_ids=[target_span.span_id],
+            evidence_texts=["第二段"],
+            reason_codes=["TEST"],
+            draft_suggestion="测试建议",
+        )
+
+        # Stage 3 定位
+        locations = locate_violation_spans(judgment, doc)
+
+        self.assertGreater(len(locations), 0, "应该有定位结果")
+        location = locations[0]
+
+        # 验证坐标对应原文
+        extracted = doc.original_text[location.raw_start:location.raw_end]
+        self.assertIn("第二段", extracted, f"多个换行插入后，提取的文本应包含'第二段'，实际为: {extracted}")
+
+    def test_mixed_insertion_deletion_mapping(self):
+        """测试：混合插入和删除的坐标映射"""
+        original_text = "第一段。  第二段。"  # 有两个空格
+        working_text = "第一段。\n第二段。"   # 空格被换行替换
+
+        doc = preprocess(
+            original_text=original_text,
+            working_text=working_text,
+            doc_id="TEST_MIXED"
+        )
+
+        # 找到包含"第二段"的 span
+        target_span = None
+        for span in doc.span_pool.values():
+            if "第二段" in span.span_text:
+                target_span = span
+                break
+
+        self.assertIsNotNone(target_span, "应该找到包含'第二段'的 span")
+
+        # 模拟 Stage 2 判定结果
+        judgment = JudgmentResult(
+            rule_id="TEST_RULE",
+            chunk_id=target_span.chunk_id,
+            verdict="violation",
+            reasoning_cot="测试判定",
+            evidence_span_ids=[target_span.span_id],
+            evidence_texts=["第二段"],
+            reason_codes=["TEST"],
+            draft_suggestion="测试建议",
+        )
+
+        # Stage 3 定位
+        locations = locate_violation_spans(judgment, doc)
+
+        self.assertGreater(len(locations), 0, "应该有定位结果")
+        location = locations[0]
+
+        # 验证坐标对应原文
+        extracted = doc.original_text[location.raw_start:location.raw_end]
+        self.assertIn("第二段", extracted, f"混合修改后，提取的文本应包含'第二段'，实际为: {extracted}")
+
 
 if __name__ == "__main__":
     unittest.main()

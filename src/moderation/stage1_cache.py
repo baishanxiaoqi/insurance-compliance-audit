@@ -18,10 +18,26 @@ _filter_agent_cache: Optional[object] = None
 
 
 def _compute_rules_hash(rule_cards: Dict[str, RuleCard]) -> str:
-    """计算规则卡片的 hash 值，用于缓存键"""
-    # 使用规则 ID 列表的排序结果作为 hash 输入
-    rule_ids = sorted(rule_cards.keys())
-    hash_input = json.dumps(rule_ids, ensure_ascii=False)
+    """
+    计算规则卡片的 hash 值，用于缓存键。
+
+    基于规则的完整内容计算 hash，确保规则内容变化时缓存失效。
+    """
+    # 使用规则的完整内容计算 hash
+    # 按 rule_id 排序以确保稳定性
+    sorted_rules = sorted(rule_cards.items(), key=lambda x: x[0])
+
+    # 将每个规则序列化为 JSON
+    rules_data = []
+    for rule_id, rule_card in sorted_rules:
+        # 使用 model_dump() 获取完整的规则数据
+        rule_dict = rule_card.model_dump()
+        # 转换为稳定的 JSON 字符串
+        rule_json = json.dumps(rule_dict, ensure_ascii=False, sort_keys=True)
+        rules_data.append(rule_json)
+
+    # 计算整体 hash
+    hash_input = "\n".join(rules_data)
     return hashlib.md5(hash_input.encode()).hexdigest()
 
 

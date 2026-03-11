@@ -53,9 +53,8 @@ def _build_coordinate_map(source_text: str, target_text: str) -> Dict[int, int]:
     """
     构建 source_text -> target_text 的坐标映射表。
 
-    当 source_text 和 target_text 完全相同时，返回恒等映射。
-    当 source_text 是 target_text 经过 OCR 修复后的版本时，
-    尝试构建最佳对齐映射（简化版：假设大部分字符对齐）。
+    使用 difflib.SequenceMatcher 构建稳定的字符级对齐映射，
+    能够正确处理多字符插入、删除和混合修改场景。
 
     参数:
         source_text: 源文本（例如 working_text）
@@ -64,6 +63,8 @@ def _build_coordinate_map(source_text: str, target_text: str) -> Dict[int, int]:
     返回:
         source_idx -> target_idx 的映射表
     """
+    import difflib
+
     coord_map: Dict[int, int] = {}
 
     # 如果两个文本完全相同，返回恒等映射
@@ -72,38 +73,34 @@ def _build_coordinate_map(source_text: str, target_text: str) -> Dict[int, int]:
             coord_map[i] = i
         return coord_map
 
-    # 简化版对齐策略：使用最长公共子序列（LCS）思想
-    # 对于 OCR 修复场景，大部分字符应该是对齐的
-    # 这里使用简单的逐字符匹配策略
-    source_idx = 0
-    target_idx = 0
+    # 使用 SequenceMatcher 构建块级对齐
+    matcher = difflib.SequenceMatcher(None, source_text, target_text)
+    matching_blocks = matcher.get_matching_blocks()
 
-    while source_idx < len(source_text) and target_idx < len(target_text):
-        if source_text[source_idx] == target_text[target_idx]:
-            # 字符匹配，建立映射
-            coord_map[source_idx] = target_idx
-            source_idx += 1
-            target_idx += 1
-        else:
-            # 字符不匹配，尝试跳过 source 或 target 中的字符
-            # 优先跳过 source（假设 OCR 修复可能插入了字符）
-            if source_idx + 1 < len(source_text) and source_text[source_idx + 1] == target_text[target_idx]:
-                # source 插入了字符，跳过
-                coord_map[source_idx] = target_idx  # 映射到当前位置
-                source_idx += 1
-            elif target_idx + 1 < len(target_text) and source_text[source_idx] == target_text[target_idx + 1]:
-                # target 有额外字符，跳过
-                target_idx += 1
+    # 根据匹配块建立映射
+    for source_start, target_start, size in matching_blocks:
+        for offset in range(size):
+            coord_map[source_start + offset] = target_start + offset
+
+    # 处理未映射的字符（插入的字符）
+    # 策略：将插入的字符映射到最近的已映射位置
+    for source_idx in range(len(source_text)):
+        if source_idx not in coord_map:
+            # 查找最近的已映射位置
+            # 优先向前查找
+            for i in range(source_idx - 1, -1, -1):
+                if i in coord_map:
+                    coord_map[source_idx] = coord_map[i]
+                    break
             else:
-                # 都不匹配，保守映射
-                coord_map[source_idx] = target_idx
-                source_idx += 1
-                target_idx += 1
-
-    # 处理剩余字符
-    while source_idx < len(source_text):
-        coord_map[source_idx] = min(target_idx, len(target_text) - 1) if target_text else 0
-        source_idx += 1
+                # 如果前面没有，向后查找
+                for i in range(source_idx + 1, len(source_text)):
+                    if i in coord_map:
+                        coord_map[source_idx] = coord_map[i]
+                        break
+                else:
+                    # 如果都没有，映射到 0
+                    coord_map[source_idx] = 0
 
     return coord_map
 

@@ -71,6 +71,21 @@ class TestOCRDetection(unittest.TestCase):
         # 多个空格应该被移除
         self.assertEqual(fixed, "保险产品收益")
 
+    def test_fix_ocr_spacing_preserves_newlines(self):
+        """测试：fix_ocr_spacing 应保留换行符，不破坏段落结构"""
+        text = "第一段\n\n第二段\n第三段"
+        fixed = fix_ocr_spacing(text)
+        # 换行符应该被保留
+        self.assertEqual(fixed, "第一段\n\n第二段\n第三段")
+        self.assertEqual(text.count('\n'), fixed.count('\n'), "换行符数量应保持不变")
+
+    def test_fix_ocr_spacing_removes_spaces_but_keeps_newlines(self):
+        """测试：移除中文间空格的同时保留换行"""
+        text = "第 一 段\n\n第 二 段\n第 三 段"
+        fixed = fix_ocr_spacing(text)
+        # 空格应被移除，但换行应保留
+        self.assertEqual(fixed, "第一段\n\n第二段\n第三段")
+
 
 if __name__ == "__main__":
     unittest.main()

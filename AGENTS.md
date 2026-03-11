@@ -144,7 +144,7 @@ python scripts/import_excel_kb.py
 
 ### 核心数据结构 (`schemas.py`)
 
-- `DocumentState`: 文档资产 (original_text/normalized_text/chunks/span_pool/norm_to_raw_map)
+- `DocumentState`: 文档资产 (original_text/working_text/normalized_text/chunks/span_pool/norm_to_working_map/working_to_original_map)
 - `Span`: 最小语义单元 (span_id/span_text/start_index/end_index)
 - `Chunk`: 文本块 (chunk_id/chunk_text/spans)
 - `RuleCard`: 规则卡片 (rule_id/violation_definition/keywords/violation_terms/condition_terms/exclusion_terms)
@@ -250,4 +250,4 @@ python scripts/import_excel_kb.py
 
 - TF-IDF 召回使用自研 `SimpleTfidf`（sklearn 在 Python 3.13 上有兼容问题）
 - Skills 仅覆盖 R001-R012，知识库规则 (KB*) 通过自动路由分桶
-- Stage 3 定位策略存在优化空间（当前优先 `evidence_texts` 全文匹配，应改为 span-only）
+- TF-IDF 对同义表达的召回能力有限，后续可考虑 embedding 检索
