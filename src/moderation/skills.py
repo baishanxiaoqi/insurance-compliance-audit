@@ -53,7 +53,8 @@ class ComplianceSkill:
     ) -> str:
         """
         构建包含 Few-shot 正反例的精判 Prompt。
-        子类可重写此方法做更深度的定制。
+
+        Phase 1 升级：应用 8 条工作准则，从"宽泛判断"改为"约束式裁决"
         """
         # ---- 基础上下文 ----
         spans_text = "\n".join(
@@ -78,6 +79,19 @@ class ComplianceSkill:
             f"违规依据: {rule_card.violation_basis or '无'}",
             f"违规case: {rule_card.violation_case or '无'}",
         ]
+
+        # ---- Phase 1 新增：规则结构化信息 ----
+        rule_structure_info = []
+        if rule_card.actor_scope:
+            rule_structure_info.append(f"主体范围: {rule_card.actor_scope}")
+        if rule_card.claim_type:
+            rule_structure_info.append(f"主张类型: {rule_card.claim_type}")
+        if rule_card.exception_group:
+            rule_structure_info.append(f"例外分组: {', '.join(rule_card.exception_group)}")
+        if rule_card.evidence_required:
+            rule_structure_info.append(f"证据要求: 必须有数据来源或外部依据")
+
+        rule_structure_block = "\n".join(rule_structure_info) if rule_structure_info else "无额外约束"
 
         # ---- Few-shot 正反例 ----
         few_shot_block = ""
@@ -111,7 +125,17 @@ class ComplianceSkill:
                 f"hard_block: {deterministic_report.hard_block}"
             )
 
-        return f"""请对以下文本片段进行合规审核，判断是否违反了指定的合规规则。
+        return f"""你是一位保险合规审核裁判，负责判断当前文本片段在当前规则下是否成立。
+
+========== 核心工作准则（必须严格遵守）==========
+1. 你只判断当前文本片段在当前规则下是否成立，不得扩展规则，不得自行补充监管解释。
+2. 你只能使用输入中给出的事实、锚点、规则计划和 span_id，不得从沉默中推断违规。
+3. 如果主体不匹配、时态不匹配、存在明确否定、存在明确例外，则优先判定为 compliant 或 unsure。
+4. 如果涉及收益、排名、历史业绩、数据来源等需证明陈述，而输入未提供充分支持，则输出 unsure。
+5. 如果判定为 violation，必须给出最小必要的 evidence_span_ids，从下方 Span 字典中选择。
+6. 如果无法从给定输入中得到稳定结论，不得猜测，不得补全缺失事实，输出 unsure。
+7. 修改建议只能做删减、弱化、补充披露，不得虚构事实。
+8. 证据不足时优先保守，输出 compliant 或 unsure，而不是强行输出 violation。
 
 ========== 待审核文本 ==========
 {chunk.chunk_text}
@@ -124,6 +148,9 @@ class ComplianceSkill:
 例外条款（以下情况不算违规）:
 {exceptions_text}
 建议模板: {rule_card.suggestion_template}
+
+========== 规则结构化约束 ==========
+{rule_structure_block}
 
 ========== 结构化关键词规则 ==========
 {"\n".join(structured_terms)}
@@ -152,7 +179,16 @@ class ComplianceSkill:
 5. evidence_span_ids: 如果违规，从上方 Span 字典中选择包含违规内容的 span_id（可多选）。如果合规则留空。
 6. evidence_texts: 如果违规，从原文中逐字摘录最短的违规片段（只保留核心违规语义，不要整个句子）。每个独立违规点一个片段。例如"收益比存银行高出好几倍"而非"这款产品就像在银行存钱一样安全，但收益比存银行高出好几倍。"。必须是原文的连续子串，一字不差。
 7. reason_codes: 如果违规，从可用的 reason_codes 中选择。
-8. draft_suggestion: 如果违规，结合建议模板生成具体的修改建议。"""
+8. draft_suggestion: 如果违规，结合建议模板生成具体的修改建议。
+9. decision_basis: 必须从以下选项中选择一个，说明判断的主要依据：
+   - explicit_violation: 明确违规（文本明确表达违规主张）
+   - exception_applied: 例外适用（触发例外条款，判定合规）
+   - actor_mismatch: 主体不匹配（说话主体与规则要求不符）
+   - time_context: 时态语境（过去/现在/未来时态影响判定）
+   - negation_context: 否定语境（存在否定词，表达禁止或劝阻）
+   - insufficient_evidence: 证据不足（缺少必要的数据来源或依据）
+   - condition_not_met: 条件不满足（规则要求的条件词未出现）
+   - exclusion_triggered: 排除项触发（出现排除词，判定合规）"""
 
 
 @dataclass

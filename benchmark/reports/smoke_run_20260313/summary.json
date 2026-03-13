@@ -1,0 +1,477 @@
+{
+  "total": 28,
+  "tp": 6,
+  "fp": 9,
+  "fn": 10,
+  "tn": 3,
+  "precision": 0.4,
+  "recall": 0.375,
+  "f1": 0.3871,
+  "f2": 0.3797,
+  "category_hit_rate": 0.4643,
+  "location_hit_rate": 0.1429,
+  "by_sheet": {
+    "badcase": {
+      "total": 12,
+      "accuracy": 0.25
+    },
+    "违规样本2": {
+      "total": 2,
+      "accuracy": 0.5
+    },
+    "违规样本3": {
+      "total": 14,
+      "accuracy": 0.3571
+    }
+  },
+  "error_samples": [
+    {
+      "sample_id": "badcase_0003",
+      "source_sheet": "badcase",
+      "expected_label": "compliant",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "comparison_or_absolute",
+        "false_positive_regression"
+      ],
+      "predicted_categories": [
+        "comparison_or_absolute",
+        "false_positive_regression"
+      ],
+      "expected_text_slices": [],
+      "predicted_location_slices": [
+        "大王恐也比不上那刘备"
+      ]
+    },
+    {
+      "sample_id": "badcase_0004",
+      "source_sheet": "badcase",
+      "expected_label": "compliant",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "comparison_or_absolute",
+        "false_positive_regression"
+      ],
+      "predicted_categories": [
+        "financial_product_confusion",
+        "comparison_or_absolute",
+        "false_positive_regression"
+      ],
+      "expected_text_slices": [],
+      "predicted_location_slices": [
+        "能够参与国家级基建、新兴产业、行业龙头的企业债券等优质项目",
+        "能够参与国家级基建、新兴产业、行业龙头的企业债券等优质项目"
+      ]
+    },
+    {
+      "sample_id": "badcase_0009",
+      "source_sheet": "badcase",
+      "expected_label": "compliant",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "false_positive_regression"
+      ],
+      "predicted_categories": [
+        "false_positive_regression"
+      ],
+      "expected_text_slices": [],
+      "predicted_location_slices": [
+        "客户查询：公司会在保单周年日前通知客户上一年度分红情况"
+      ]
+    },
+    {
+      "sample_id": "badcase_0011",
+      "source_sheet": "badcase",
+      "expected_label": "compliant",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "policy_loan_or_cash_value"
+      ],
+      "predicted_categories": [
+        "false_positive_regression",
+        "policy_loan_or_cash_value"
+      ],
+      "expected_text_slices": [],
+      "predicted_location_slices": [
+        "还能通过减保灵活运用保险金"
+      ]
+    },
+    {
+      "sample_id": "badcase_0017",
+      "source_sheet": "badcase",
+      "expected_label": "compliant",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "false_positive_regression"
+      ],
+      "predicted_categories": [
+        "false_positive_regression"
+      ],
+      "expected_text_slices": [],
+      "predicted_location_slices": [
+        "司马懿】臣刚从2000年后的中国平安取经归来"
+      ]
+    },
+    {
+      "sample_id": "badcase_0020",
+      "source_sheet": "badcase",
+      "expected_label": "compliant",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "false_positive_regression"
+      ],
+      "predicted_categories": [
+        "false_positive_regression"
+      ],
+      "expected_text_slices": [],
+      "predicted_location_slices": [
+        "中国平安开始探索居家养老“联体”模式"
+      ]
+    },
+    {
+      "sample_id": "badcase_0023",
+      "source_sheet": "badcase",
+      "expected_label": "compliant",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "financial_product_confusion",
+        "false_positive_regression"
+      ],
+      "predicted_categories": [
+        "false_positive_regression"
+      ],
+      "expected_text_slices": [],
+      "predicted_location_slices": [
+        "重疾险是给付型保险"
+      ]
+    },
+    {
+      "sample_id": "badcase_0026",
+      "source_sheet": "badcase",
+      "expected_label": "compliant",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "false_positive_regression"
+      ],
+      "predicted_categories": [
+        "false_positive_regression"
+      ],
+      "expected_text_slices": [],
+      "predicted_location_slices": [
+        "新备案的普通型保险产品预定利率上限为2.5"
+      ]
+    },
+    {
+      "sample_id": "badcase_0030",
+      "source_sheet": "badcase",
+      "expected_label": "compliant",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "financial_product_confusion"
+      ],
+      "predicted_categories": [
+        "financial_product_confusion",
+        "comparison_or_absolute",
+        "false_positive_regression"
+      ],
+      "expected_text_slices": [],
+      "predicted_location_slices": [
+        "子涵】理财路上不孤单、省事省心更省钱、专业顾问来护航、保险理赔不再难",
+        "小宫】养老服务贴心送、安康乐岁伴您行、悉心照料无忧虑、温暖时光每一程",
+        "小宫】养老服务贴心送、安康乐岁伴您行、悉心照料无忧虑、温暖时光每一程"
+      ]
+    },
+    {
+      "sample_id": "违规样本2_0249",
+      "source_sheet": "违规样本2",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "comparison_or_absolute"
+      ],
+      "predicted_categories": [],
+      "expected_text_slices": [],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "违规样本2_0438",
+      "source_sheet": "违规样本2",
+      "expected_label": "violation",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "comparison_or_absolute"
+      ],
+      "predicted_categories": [
+        "financial_product_confusion"
+      ],
+      "expected_text_slices": [],
+      "predicted_location_slices": [
+        "三、平时当存钱"
+      ]
+    },
+    {
+      "sample_id": "违规样本3_0002",
+      "source_sheet": "违规样本3",
+      "expected_label": "violation",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "financial_product_confusion"
+      ],
+      "predicted_categories": [
+        "comparison_or_absolute"
+      ],
+      "expected_text_slices": [
+        "首先",
+        "教育金的目的是为了孩子的长期教育支出",
+        "如果依赖股票市场的涨跌",
+        "可能会带来不确定性。保险产品",
+        "尤其是少儿保险",
+        "通常有波动较小的保费和保障",
+        "即使市场情况不佳",
+        "也能使孩子的保障不受影响。"
+      ],
+      "predicted_location_slices": [
+        "孩子的教育金和健康保障是他们成长过程中不可或缺的部分"
+      ]
+    },
+    {
+      "sample_id": "违规样本3_0005",
+      "source_sheet": "违规样本3",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "transfer_or_inheritance"
+      ],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "5. **传承保险**：如果客户有财产需要传承",
+        "可以考虑购买传承保险",
+        "使财产有序转移给下一代。"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "违规样本3_0020",
+      "source_sheet": "违规样本3",
+      "expected_label": "violation",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "responsibility_exaggeration"
+      ],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "我非常理解您的担忧",
+        "每个人的健康状况和预期寿命确实是个个体差异。但是",
+        "年金险的核心价值在于它的保障和规划功能",
+        "它并不完全依赖于寿命的长短。实际上",
+        "年金险是一种长期的财务安全网",
+        "它保障的是您和您家人的未来收入",
+        "特别是退休后的资金。即使您长寿",
+        "年金也可以作为一笔可能的保障补充",
+        "使您在预期的退休生活中享受到经济上的保障。"
+      ],
+      "predicted_location_slices": [
+        "年金险的核心价值在于它的保障和规划功能",
+        "为您定制一个适合的年金方案"
+      ]
+    },
+    {
+      "sample_id": "违规样本3_0028",
+      "source_sheet": "违规样本3",
+      "expected_label": "violation",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "guaranteed_return"
+      ],
+      "predicted_categories": [
+        "financial_product_confusion"
+      ],
+      "expected_text_slices": [
+        "**锁定未来保障**：通过满期给付的设计",
+        "客户可以提前规划和锁定未来的经济收益",
+        "为家庭的长期保障提供了稳定性。"
+      ],
+      "predicted_location_slices": [
+        "智盈相伴是平安人寿推出的一款两全保险产品",
+        "客户可以提前规划和锁定未来的经济收益"
+      ]
+    },
+    {
+      "sample_id": "违规样本3_0031",
+      "source_sheet": "违规样本3",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "gifts_or_extra_benefits"
+      ],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "2. **强调产品价值：** \"我们的‘金越尊享分红’就像一个贴心的财务伙伴",
+        "专为您的长远目标而设计",
+        "它的分红和保障特性将为您的生活增添一份安心。3. **利用好奇心：** \"想象一下",
+        "如果您现在参加我们的红酒会",
+        "您将有机会提供体验这个产品",
+        "甚至有可能获得一些惊喜",
+        "您会错过吗？\""
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "违规样本3_0032",
+      "source_sheet": "违规样本3",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "guaranteed_return"
+      ],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "对于那些重视资金安全、追求长期保障和抵御未来不确定性风险的客户来说",
+        "增额寿险的稳固保单利益概念提供了长期的保障和财富传承的规划。它能够使在投保人需要的时候",
+        "比如家庭成员的教育、婚嫁或退休品质生活等特定需求",
+        "有一笔可预见的、相应的资金来源。因此",
+        "尽管短期内可能看不到显著的收益增长",
+        "但从长期视角来看",
+        "增额寿险的收益锁定功能对于保障和规划未来具有重要意义。"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "违规样本3_0035",
+      "source_sheet": "违规样本3",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "agent_title_or_recruitment"
+      ],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "也可以通过专业的保险顾问来获取更准确的对比分析。"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "违规样本3_0036",
+      "source_sheet": "违规样本3",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "national_or_regulatory_endorsement"
+      ],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "我们的保险产品是根据国家监管要求和行业标准设计的",
+        "具有法律效力"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "违规样本3_0037",
+      "source_sheet": "违规样本3",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "tax_or_law_misinterpretation",
+        "national_or_regulatory_endorsement"
+      ],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "我们的产品是根据国家相关法律法规和监管要求设计的",
+        "每一款保险都有保障条款和风险提示。"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "违规样本3_0039",
+      "source_sheet": "违规样本3",
+      "expected_label": "violation",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "financial_product_confusion"
+      ],
+      "predicted_categories": [
+        "financial_product_confusion"
+      ],
+      "expected_text_slices": [
+        "3. **可能的回报**：年金险的优势在于其可能的收益",
+        "可以提前精确估算",
+        "与股票等其他财富管理工具相比",
+        "其收益更波动",
+        "减少了不确定性。"
+      ],
+      "predicted_location_slices": [
+        "2. **强制储备功能**：年金险具有强制储备特性，有助于消费者养成为品质晚年储备的习惯，使资金的储备",
+        "年金险因其稳健性和长期规划功能"
+      ]
+    },
+    {
+      "sample_id": "违规样本3_0044",
+      "source_sheet": "违规样本3",
+      "expected_label": "violation",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "responsibility_exaggeration"
+      ],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "**小投入大保障**：尽管保费相对较低",
+        "但E生保提供了百万级别的医疗保障",
+        "能在关键时刻为客户的健康和财务安全提供有力支持。"
+      ],
+      "predicted_location_slices": [
+        "社保覆盖无限制**：E生保的优势在于其投保条件相对灵活，无论客户是否拥有社保，都可以购买，这使得更多人能够享受到保险的保障，尤其对于没有社保的人群，是一大优势"
+      ]
+    },
+    {
+      "sample_id": "违规样本3_0047",
+      "source_sheet": "违规样本3",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "gifts_or_extra_benefits"
+      ],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "2. **准备**：根据朋友的喜好和活动安排",
+        "可能不需要携带销售资料",
+        "但带上一些小物品",
+        "表示关心。"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "违规样本3_0050",
+      "source_sheet": "违规样本3",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "tax_or_law_misinterpretation"
+      ],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "此外",
+        "御享金越还允许投保人在保险期间内申请减少基本保险金额",
+        "但需遵循一定的规则",
+        "如同一保单年度内减少的额度不能超过初始保额的20%",
+        "且减少后保险费不能低于最低标准。"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "违规样本3_0054",
+      "source_sheet": "违规样本3",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "agent_title_or_recruitment"
+      ],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "如果您是铂金客户",
+        "建议您直接联系您的保险顾问或保险公司",
+        "他们将根据您的具体情况为您提供定制化的保费建议。"
+      ],
+      "predicted_location_slices": []
+    }
+  ]
+}

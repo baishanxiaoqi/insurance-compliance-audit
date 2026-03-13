@@ -54,7 +54,10 @@ class DocumentState(BaseModel):
 # ============================================================
 
 class RuleCard(BaseModel):
-    """规则卡片 —— 单条合规规则的完整描述"""
+    """规则卡片 —— 单条合规规则的完整描述
+
+    Phase 1 升级：新增 6 个结构化字段，提升规则表达能力
+    """
     rule_id: str
     rule_name: str
     risk_level: Literal["high", "medium", "low"]
@@ -83,6 +86,49 @@ class RuleCard(BaseModel):
         description="路由策略：auto 自动分发，base 基础策略，skill 复杂策略",
     )
 
+    # ============================================================
+    # Phase 1 新增字段：规则结构化升级
+    # ============================================================
+
+    actor_scope: Optional[Literal["agent", "customer", "company", "third_party", "any"]] = Field(
+        default=None,
+        description="主体范围：谁说的话才适用这条规则。agent=代理人，customer=客户，company=公司，third_party=第三方，any=不限主体"
+    )
+
+    claim_type: Optional[Literal[
+        "income_promise",      # 收益承诺
+        "risk_downplay",       # 风险淡化
+        "ranking_claim",       # 排名声称
+        "surrender_guidance",  # 退保引导
+        "comparison_advantage",# 比较优势
+        "historical_performance", # 历史业绩
+        "misleading_statement",# 误导性陈述
+        "other"
+    ]] = Field(
+        default=None,
+        description="主张类型：规则针对的违规主张类型"
+    )
+
+    exception_group: List[str] = Field(
+        default_factory=list,
+        description="例外分组：这条规则的例外场景标签，如 ['historical_context', 'third_party_quote', 'negative_instruction']"
+    )
+
+    evidence_required: bool = Field(
+        default=False,
+        description="是否必须有数据来源或外部依据：涉及收益、排名、历史业绩等需证明的陈述时为 True"
+    )
+
+    route_hint: Optional[Literal["prefer_base", "prefer_skill", "neutral"]] = Field(
+        default="neutral",
+        description="路由提示：更偏向 base 轨还是 skill 轨。prefer_base=优先确定性引擎，prefer_skill=优先语义判定，neutral=自动决策"
+    )
+
+    mutual_exclusion_group: Optional[str] = Field(
+        default=None,
+        description="互斥分组：同一组内的规则不能同时作为主结论，如 'income_promise_group'"
+    )
+
 
 # ============================================================
 # Stage 1 过滤输出结构
@@ -101,7 +147,10 @@ class FilterResult(BaseModel):
 # ============================================================
 
 class JudgmentResult(BaseModel):
-    """Stage 2 深度精判输出 —— 单个 (chunk, rule) 对的判定结果"""
+    """Stage 2 深度精判输出 —— 单个 (chunk, rule) 对的判定结果
+
+    Phase 1 升级：新增 decision_basis 字段，强化判断依据的可解释性
+    """
     rule_id: str
     chunk_id: str
     verdict: Literal["violation", "compliant", "unsure"]
@@ -124,6 +173,24 @@ class JudgmentResult(BaseModel):
     draft_suggestion: str = Field(
         "",
         description="结合 RuleCard 模板直接生成的合规修改建议"
+    )
+
+    # ============================================================
+    # Phase 1 新增字段：判断依据分类
+    # ============================================================
+
+    decision_basis: Optional[Literal[
+        "explicit_violation",      # 明确违规：文本明确表达违规主张
+        "exception_applied",       # 例外适用：触发例外条款，判定合规
+        "actor_mismatch",          # 主体不匹配：说话主体与规则要求不符
+        "time_context",            # 时态语境：过去/现在/未来时态影响判定
+        "negation_context",        # 否定语境：存在否定词，表达禁止或劝阻
+        "insufficient_evidence",   # 证据不足：缺少必要的数据来源或依据
+        "condition_not_met",       # 条件不满足：规则要求的条件词未出现
+        "exclusion_triggered"      # 排除项触发：出现排除词，判定合规
+    ]] = Field(
+        default=None,
+        description="判断依据分类：明确判定的主要依据类型，用于后续纠偏和离线评测"
     )
 
 
