@@ -190,7 +190,7 @@ class TestPhase3Gate(unittest.TestCase):
 
         self.assertEqual(results1[0].priority, "high", "无信号应该是 high priority")
 
-        # 场景 2：有否定信号 -> medium priority
+        # 场景 2：有否定信号 + 中性知识信号 -> low priority（Phase 4 升级后有 2 个信号）
         text2 = "不要退保。"
         doc2 = preprocess(original_text=text2, working_text=text2, doc_id="TEST2")
         candidates2 = [ChunkCandidates(chunk_id=doc2.chunks[0].chunk_id, candidate_rule_ids=["TEST_PRIORITY"])]
@@ -210,7 +210,7 @@ class TestPhase3Gate(unittest.TestCase):
             chunk_facts=profiles2
         )
 
-        self.assertEqual(results2[0].priority, "medium", "单个信号应该是 medium priority")
+        self.assertEqual(results2[0].priority, "low", "多个信号应该是 low priority")
 
     def test_rule_plan_generation(self):
         """测试规则计划生成"""

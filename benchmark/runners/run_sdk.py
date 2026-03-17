@@ -41,6 +41,9 @@ def flatten_response(response) -> dict:
 
 def run_cases(cases: list[dict], output_path: Path) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Phase 4 优化：删除旧文件，避免重复写入
+    if output_path.exists():
+        output_path.unlink()
     with output_path.open("w", encoding="utf-8") as fh:
         for case in cases:
             started_at = time.time()

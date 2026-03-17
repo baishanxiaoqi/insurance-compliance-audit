@@ -366,7 +366,7 @@ GET /api/v1/health
 
 ### 7.2 规则库
 - **路径**：`data/rule_cards.json`
-- **规模**：612 条规则
+- **规模**：536 条规则
 - **来源**：由 Excel 转换生成（`scripts/import_excel_kb.py`）
 
 ---
@@ -441,7 +441,7 @@ claude-moderation/
 │           ├── stage2_5_refute.py
 │           └── stage3_assemble.py
 ├── data/
-│   ├── rule_cards.json              # 规则库 (612 条)
+│   ├── rule_cards.json              # 规则库 (536 条)
 │   └── sample_input.txt             # 测试文本
 ├── tests/
 │   ├── test_core_behaviors.py       # 核心行为测试

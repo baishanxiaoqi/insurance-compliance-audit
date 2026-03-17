@@ -1,12 +1,14 @@
 """
 主工作流编排（基于 Agno Workflow）
 ===================================
-使用 Agno Workflow 框架编排 6 阶段合规审核流水线：
+使用 Agno Workflow 框架编排 7 阶段合规审核流水线：
   Stage 0: 预处理与资产固化（纯代码）
   Stage 1: 混合检索 + LLM 粗筛（Agno Agent 并发）
   Stage 1.5: 事实抽取（纯代码）
   Stage 1.8: 双轨路由分发（纯代码）
+  Stage 1.9: 轻量 Gate（纯代码，前置场景闸门）
   Stage 2: 双轨深度精判（Agno Agent 并发）
+  Stage 2.5: 审查点 Override 层（纯代码，配置化 override 规则）
   Stage 3: 确定性定位 + API 组装（纯代码）
 
 Agno Workflow 提供：
@@ -30,6 +32,7 @@ from .stages.stage0_preprocess import preprocess
 from .stages.stage1_recall_filter import run_stage1
 from .stages.stage1_5_fact_extract import run_stage1_5
 from .stages.stage1_8_route_dispatch import run_stage1_8
+from .stages.stage1_9_gate import run_gate
 from .stages.stage2_deep_judge import run_stage2
 from .stages.stage2_5_refute import run_stage2_5_refute
 from .stages.stage3_assemble import run_stage3
@@ -165,6 +168,41 @@ async def _stage1_executor(step_input: StepInput) -> StepOutput:
     )
 
 
+async def _stage19_executor(step_input: StepInput) -> StepOutput:
+    """Stage 1.9: 轻量 Gate（前置场景闸门）"""
+    logger.info("=" * 50)
+    logger.info("=== Stage 1.9: 轻量 Gate ===")
+
+    state = _get_state()
+
+    gate_results = run_gate(
+        routed_pairs=state.stage18_routes,
+        rule_cards=state.rule_cards,
+        chunk_facts=state.stage15_facts,
+    )
+
+    # 将 gate_results 存储到 state 中（用于 Stage 2 和 Stage 2.5）
+    # 使用 Dict[str, GateResult] 格式，key 为 f"{chunk_id}_{rule_id}"
+    state.stage19_gate_results = {
+        f"{gr.chunk_id}_{gr.rule_id}": gr
+        for gr in gate_results
+    }
+
+    skip_count = sum(1 for gr in gate_results if gr.should_skip)
+    signal_count = sum(len(gr.gate_signals) for gr in gate_results)
+
+    logger.info(
+        f"Stage 1.9 完成: {len(gate_results)} 个组合, "
+        f"跳过 {skip_count} 个, "
+        f"检测到 {signal_count} 个信号"
+    )
+
+    return StepOutput(
+        content=f"gate_results={len(gate_results)}, skip={skip_count}, signals={signal_count}",
+        success=True,
+    )
+
+
 async def _stage2_executor(step_input: StepInput) -> StepOutput:
     """Stage 2: 深度精判与对齐"""
     logger.info("=" * 50)
@@ -268,9 +306,9 @@ async def _stage3_executor(step_input: StepInput) -> StepOutput:
 
 
 async def _stage25_executor(step_input: StepInput) -> StepOutput:
-    """Stage 2.5: 反证校验与误报纠偏"""
+    """Stage 2.5: 审查点 Override 层"""
     logger.info("=" * 50)
-    logger.info("=== Stage 2.5: 反证校验与误报纠偏 ===")
+    logger.info("=== Stage 2.5: 审查点 Override 层 ===")
 
     state = _get_state()
     before_violation = sum(1 for j in state.stage2_judgments if j.verdict == "violation")
@@ -280,6 +318,7 @@ async def _stage25_executor(step_input: StepInput) -> StepOutput:
         document=state.document,
         rule_cards=state.rule_cards,
         chunk_facts=state.stage15_facts,
+        gate_results=state.stage19_gate_results,  # 传入 gate_results
     )
 
     after_violation = sum(1 for j in state.stage2_judgments if j.verdict == "violation")
@@ -299,7 +338,7 @@ async def _stage25_executor(step_input: StepInput) -> StepOutput:
 
 def create_workflow() -> Workflow:
     """
-    创建 Agno Workflow 实例（6 阶段合规审核流水线）。
+    创建 Agno Workflow 实例（7 阶段合规审核流水线）。
 
     Workflow 配置：
       - 顺序 Step，每个 Step 对应一个 Pipeline 阶段
@@ -308,14 +347,15 @@ def create_workflow() -> Workflow:
     """
     return Workflow(
         name="ComplianceAudit",
-        description="保险文本合规审核 5 阶段流水线 (Agno Workflow)",
+        description="保险文本合规审核 7 阶段流水线 (Agno Workflow)",
         steps=[
             Step(name="preprocess", executor=_stage0_executor),
             Step(name="recall_filter", executor=_stage1_executor),
             Step(name="fact_extract", executor=_stage15_executor),
             Step(name="route_dispatch", executor=_stage18_executor),
+            Step(name="gate", executor=_stage19_executor),
             Step(name="deep_judge", executor=_stage2_executor),
-            Step(name="refute_validate", executor=_stage25_executor),
+            Step(name="override", executor=_stage25_executor),
             Step(name="assemble", executor=_stage3_executor),
         ],
         session_state={},
@@ -334,7 +374,11 @@ async def run_audit(input_text: str, doc_id: str | None = None) -> AuditResponse
     流水线:
       Stage 0: 预处理与资产固化（纯代码）
       Stage 1: 路由召回与大模型粗筛（Agno Agent 并发）
+      Stage 1.5: 事实抽取（纯代码）
+      Stage 1.8: 双轨路由分发（纯代码）
+      Stage 1.9: 轻量 Gate（纯代码，前置场景闸门）
       Stage 2: 双轨深度精判（base/skill 分发 + Agno Agent 并发 + unsure 二次审查）
+      Stage 2.5: 审查点 Override 层（纯代码，配置化 override 规则）
       Stage 3: 确定性定位与 API 组装（纯代码，坐标重叠去重）
     """
     start_time = time.time()

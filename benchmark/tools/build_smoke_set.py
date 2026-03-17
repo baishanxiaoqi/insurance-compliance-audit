@@ -76,7 +76,7 @@ def pick_compliant(records: list[dict], target: int) -> list[dict]:
     general = [
         record for record in records
         if record["label"] == "compliant"
-        and record["source_sheet"] == "合规样本"
+        and record["source_sheet"] in {"合规样本", "合规"}
         and 60 <= len(record["text"]) <= 600
         and count_risk_hits(record["text"]) <= 1
         and count_disclaimer_hits(record["text"]) >= 1
@@ -154,8 +154,11 @@ def main() -> None:
     args = parser.parse_args()
 
     records = load_records(Path(args.input))
-    selected = pick_violation(records, args.violation_count) + pick_compliant(records, args.compliant_count)
-    selected = sorted(selected, key=lambda item: (item["label"], item["source_sheet"], item["sample_id"]))
+    if len(records) <= 40:
+        selected = sorted(records, key=lambda item: (item["label"], item["source_sheet"], item["sample_id"]))
+    else:
+        selected = pick_violation(records, args.violation_count) + pick_compliant(records, args.compliant_count)
+        selected = sorted(selected, key=lambda item: (item["label"], item["source_sheet"], item["sample_id"]))
     write_jsonl(Path(args.output), selected)
     write_summary(Path(args.summary), selected)
     print(json.dumps({"smoke_total": len(selected), "output": args.output}, ensure_ascii=False))

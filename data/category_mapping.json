@@ -1,0 +1,104 @@
+{
+  "version": "1.0",
+  "description": "审查点主/次类别映射配置",
+  "categories": {
+    "financial_product_confusion": {
+      "name": "金融产品混淆",
+      "subcategories": {
+        "savings_account_confusion": "储蓄/存款/账户/存折混淆",
+        "wealth_management_confusion": "理财/投资计划混淆",
+        "bank_fund_trust_confusion": "银行/基金/信托混淆",
+        "policy_loan_cash_value_confusion": "保单贷款/现金价值概念混淆"
+      }
+    },
+    "guaranteed_return": {
+      "name": "收益承诺/稳定收益暗示",
+      "subcategories": {
+        "direct_guarantee": "直接承诺收益",
+        "stable_return_implication": "稳定收益暗示",
+        "high_return_inducement": "高收益诱导",
+        "certainty_implication": "确定性暗示"
+      }
+    },
+    "comparison_or_absolute": {
+      "name": "简单对比/绝对化",
+      "subcategories": {
+        "absolute_terms": "绝对化用语",
+        "simple_return_comparison": "简单收益对比",
+        "simple_product_comparison": "简单金融产品对比",
+        "disparage_social_security": "贬低社保/他司产品"
+      }
+    },
+    "responsibility_exaggeration": {
+      "name": "保险责任夸大",
+      "subcategories": {
+        "coverage_exaggeration": "保障范围夸大",
+        "claim_process_misleading": "理赔流程误导",
+        "benefit_exaggeration": "保险利益夸大"
+      }
+    },
+    "tax_or_law_misinterpretation": {
+      "name": "税法/法律误导",
+      "subcategories": {
+        "tax_avoidance_misleading": "避税/免税误导",
+        "debt_avoidance_misleading": "避债/债务规划误导",
+        "inheritance_tax_misleading": "遗产税/财产归属误导",
+        "social_security_policy_misleading": "社保政策误导"
+      }
+    },
+    "transfer_or_inheritance": {
+      "name": "传承/资产转移类误导",
+      "subcategories": {
+        "wealth_transfer_misleading": "财富传承误导",
+        "asset_isolation_misleading": "财富隔离/资产保全误导",
+        "dispute_avoidance_misleading": "规避争议误导"
+      }
+    },
+    "gifts_or_extra_benefits": {
+      "name": "合同外利益",
+      "subcategories": {
+        "direct_gifts": "直接赠送礼品/奖品",
+        "activity_benefits": "活动权益（红酒会/旅游/体检）",
+        "lottery_rebate": "抽奖/返现/卡券",
+        "premium_rebate": "保费回扣"
+      }
+    },
+    "agent_title_or_recruitment": {
+      "name": "招募代理人误导头衔",
+      "subcategories": {
+        "misleading_title": "误导性头衔（金融理财顾问等）",
+        "employment_nature_ambiguous": "用工性质模糊（合伙人等）",
+        "salary_inducement": "薪资诱导"
+      }
+    },
+    "national_or_regulatory_endorsement": {
+      "name": "监管背书/国家背书",
+      "subcategories": {
+        "national_endorsement": "国家背书",
+        "regulatory_endorsement": "监管背书",
+        "system_packaging": "制度包装（偿付能力等）",
+        "policy_misleading": "政策误导"
+      }
+    },
+    "false_urgency": {
+      "name": "虚假紧迫感",
+      "subcategories": {
+        "discontinuation_hype": "炒停售",
+        "limited_time_pressure": "限时压力"
+      }
+    },
+    "pension_term_misuse": {
+      "name": "养老金表述误用",
+      "subcategories": {
+        "pension_term_misuse": "非养老型产品使用"养老"表述"
+      }
+    },
+    "policy_loan_or_cash_value": {
+      "name": "保单贷款/现金价值",
+      "subcategories": {
+        "policy_loan_risk_omission": "保单贷款风险提示遗漏",
+        "cash_value_misleading": "现金价值误导"
+      }
+    }
+  }
+}

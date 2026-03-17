@@ -9,6 +9,11 @@ Gate 的职责：
 3. 判断是否需要外部证据（利用 evidence_need 锚点）
 4. 生成简化后的 rule plan 给模型
 
+Phase 4 升级（P0 高优先级）：新增 3 个前置场景闸门
+5. 非产品/非营销上下文的绝对化表述闸门
+6. 规范提示语充分的减保/保单贷款说明闸门
+7. 中性知识说明 vs 销售话术闸门
+
 设计原则：
 - 纯代码逻辑，不调用 LLM
 - 只处理"明显可判"的场景
@@ -25,6 +30,55 @@ from ..log import get_logger
 from ..schemas import ChunkFactProfile, RuleCard, RoutedPair
 
 logger = get_logger(__name__)
+
+
+# ============================================================
+# Phase 4 新增：提示语词库
+# ============================================================
+
+# 减保/保单贷款的规范提示语
+DISCLAIMER_SURRENDER_TERMS = [
+    "降低保障额度",
+    "降低保额",
+    "影响现金价值",
+    "减少现金价值",
+    "谨慎选择",
+    "请谨慎",
+    "根据实际需求",
+    "根据自身需求",
+]
+
+DISCLAIMER_LOAN_TERMS = [
+    "贷款额度",
+    "贷款期限",
+    "贷款利息",
+    "利息限制",
+    "还款义务",
+    "影响保障",
+]
+
+# 中性知识说明的标志词
+NEUTRAL_KNOWLEDGE_TERMS = [
+    "介绍功能",
+    "说明规则",
+    "解释条款",
+    "客观描述",
+    "根据规定",
+    "根据法律",
+    "根据保险法",
+]
+
+# 销售话术的标志词
+SALES_PITCH_TERMS = [
+    "诱导购买",
+    "优势夸大",
+    "对比贬损",
+    "收益承诺",
+    "背书增强",
+    "立即购买",
+    "限时优惠",
+    "不容错过",
+]
 
 
 @dataclass
@@ -197,6 +251,190 @@ def _check_exception_likely(
     return None
 
 
+# ============================================================
+# Phase 4 新增：3 个前置场景闸门
+# ============================================================
+
+def _check_non_marketing_absolute(
+    rule_card: RuleCard,
+    chunk_fact: ChunkFactProfile | None,
+) -> Optional[GateSignal]:
+    """闸门 1：非产品/非营销上下文的绝对化表述
+
+    规则：
+    - 如果规则是绝对化类（claim_ranking），但文本中没有营销信号
+    - 检查是否为历史人物、故事、调侃等非营销语境
+    - 检查是否为主观感受（"我觉得""我认为"）
+
+    判断依据：
+    - 有 time_past + actor_third_party → 历史语境
+    - 有 actor_customer 但无 claim_income_promise/claim_comparison → 非营销
+    - 无 actor_agent 且无 claim_* → 非营销
+    """
+    if not rule_card.claim_type or "ranking" not in rule_card.claim_type.lower():
+        return None
+
+    if not chunk_fact or not chunk_fact.signals:
+        return None
+
+    signal_labels = {s.label for s in chunk_fact.signals}
+
+    # 检查历史语境
+    if "time_past" in signal_labels and "actor_third_party" in signal_labels:
+        return GateSignal(
+            signal_type="non_marketing_absolute",
+            confidence=0.8,
+            reason="检测到历史语境（过去时态 + 第三方主体），绝对化表述可能不构成营销违规",
+            evidence_labels=["time_past", "actor_third_party"]
+        )
+
+    # 检查非营销语境（有客户但无营销主张）
+    has_customer = "actor_customer" in signal_labels
+    has_marketing_claim = any(
+        label in signal_labels
+        for label in ["claim_income_promise", "claim_comparison", "claim_ranking"]
+    )
+
+    if has_customer and not has_marketing_claim:
+        return GateSignal(
+            signal_type="non_marketing_absolute",
+            confidence=0.6,
+            reason="检测到客户主体但无营销主张，绝对化表述可能不构成营销违规",
+            evidence_labels=["actor_customer"]
+        )
+
+    # 检查完全无营销信号
+    has_agent = "actor_agent" in signal_labels
+    has_any_claim = any(label.startswith("claim_") for label in signal_labels)
+
+    if not has_agent and not has_any_claim:
+        return GateSignal(
+            signal_type="non_marketing_absolute",
+            confidence=0.5,
+            reason="未检测到代理人主体和营销主张，绝对化表述可能不构成营销违规",
+            evidence_labels=[]
+        )
+
+    return None
+
+
+def _check_sufficient_disclaimer(
+    rule_card: RuleCard,
+    chunk_fact: ChunkFactProfile | None,
+) -> Optional[GateSignal]:
+    """闸门 2：规范提示语充分的减保/保单贷款说明
+
+    规则：
+    - 如果规则涉及减保/保单贷款（claim_surrender），检查是否有充分提示语
+    - 充分提示语包括：降低保障额度、影响现金价值、谨慎选择等
+
+    判断依据：
+    - 文本中包含 2 个以上减保提示语 → 提示充分
+    - 文本中包含 2 个以上贷款提示语 → 提示充分
+    """
+    if not rule_card.claim_type or "surrender" not in rule_card.claim_type.lower():
+        # 也检查规则名称和违规定义
+        rule_text = f"{rule_card.rule_name} {rule_card.violation_definition}".lower()
+        if "减保" not in rule_text and "保单贷款" not in rule_text:
+            return None
+
+    if not chunk_fact or not chunk_fact.signals:
+        return None
+
+    # 获取文本内容（从 signals 的 value 中提取）
+    text_content = " ".join(s.value for s in chunk_fact.signals)
+
+    # 检查减保提示语
+    surrender_disclaimer_count = sum(
+        1 for term in DISCLAIMER_SURRENDER_TERMS if term in text_content
+    )
+
+    if surrender_disclaimer_count >= 2:
+        return GateSignal(
+            signal_type="sufficient_disclaimer",
+            confidence=0.8,
+            reason=f"检测到 {surrender_disclaimer_count} 个减保风险提示语，提示充分",
+            evidence_labels=["disclaimer_surrender"]
+        )
+
+    # 检查保单贷款提示语
+    loan_disclaimer_count = sum(
+        1 for term in DISCLAIMER_LOAN_TERMS if term in text_content
+    )
+
+    if loan_disclaimer_count >= 2:
+        return GateSignal(
+            signal_type="sufficient_disclaimer",
+            confidence=0.8,
+            reason=f"检测到 {loan_disclaimer_count} 个保单贷款风险提示语，提示充分",
+            evidence_labels=["disclaimer_loan"]
+        )
+
+    return None
+
+
+def _check_neutral_vs_sales(
+    rule_card: RuleCard,
+    chunk_fact: ChunkFactProfile | None,
+) -> Optional[GateSignal]:
+    """闸门 3：中性知识说明 vs 销售话术
+
+    规则：
+    - 检查文本是否为中性知识说明（介绍功能、说明规则、解释条款）
+    - 还是销售话术（诱导购买、优势夸大、对比贬损、收益承诺、背书增强）
+
+    判断依据：
+    - 有中性知识标志词 且 无销售话术标志词 → 中性知识说明
+    - 有销售话术标志词 → 销售话术
+    """
+    if not chunk_fact or not chunk_fact.signals:
+        return None
+
+    # 获取文本内容
+    text_content = " ".join(s.value for s in chunk_fact.signals)
+
+    # 检查中性知识标志词
+    neutral_count = sum(1 for term in NEUTRAL_KNOWLEDGE_TERMS if term in text_content)
+
+    # 检查销售话术标志词
+    sales_count = sum(1 for term in SALES_PITCH_TERMS if term in text_content)
+
+    # 如果有中性知识标志词且无销售话术标志词
+    if neutral_count > 0 and sales_count == 0:
+        return GateSignal(
+            signal_type="neutral_knowledge",
+            confidence=0.7,
+            reason=f"检测到 {neutral_count} 个中性知识标志词，无销售话术标志词，可能为客观说明",
+            evidence_labels=["neutral_knowledge"]
+        )
+
+    # 如果有销售话术标志词
+    if sales_count > 0:
+        return GateSignal(
+            signal_type="sales_pitch",
+            confidence=0.7,
+            reason=f"检测到 {sales_count} 个销售话术标志词，可能为营销话术",
+            evidence_labels=["sales_pitch"]
+        )
+
+    # 检查是否缺少诱导性表述（无 claim_income_promise/claim_comparison/claim_ranking）
+    signal_labels = {s.label for s in chunk_fact.signals}
+    has_inducement = any(
+        label in signal_labels
+        for label in ["claim_income_promise", "claim_comparison", "claim_ranking", "tone_guarantee"]
+    )
+
+    if not has_inducement:
+        return GateSignal(
+            signal_type="neutral_knowledge",
+            confidence=0.5,
+            reason="未检测到诱导性表述（收益承诺、对比、排名、保证），可能为客观说明",
+            evidence_labels=[]
+        )
+
+    return None
+
+
 def _generate_rule_plan(
     rule_card: RuleCard,
     chunk_fact: ChunkFactProfile | None,
@@ -245,6 +483,8 @@ def run_gate(
 ) -> List[GateResult]:
     """运行轻量 Gate
 
+    Phase 4 升级：新增 3 个前置场景闸门检查
+
     返回：GateResult 列表，包含 gate_signals 和 should_skip 标记
     """
     results: List[GateResult] = []
@@ -258,9 +498,10 @@ def run_gate(
 
         chunk_fact = chunk_facts.get(pair.chunk_id) if chunk_facts else None
 
-        # 运行 4 个检查
+        # 运行 7 个检查（原有 4 个 + 新增 3 个）
         gate_signals: List[GateSignal] = []
 
+        # 原有 4 个检查
         sig = _check_actor_mismatch(rule_card, chunk_fact)
         if sig:
             gate_signals.append(sig)
@@ -281,9 +522,25 @@ def run_gate(
             gate_signals.append(sig)
             signal_counter[sig.signal_type] = signal_counter.get(sig.signal_type, 0) + 1
 
+        # Phase 4 新增：3 个前置场景闸门
+        sig = _check_non_marketing_absolute(rule_card, chunk_fact)
+        if sig:
+            gate_signals.append(sig)
+            signal_counter[sig.signal_type] = signal_counter.get(sig.signal_type, 0) + 1
+
+        sig = _check_sufficient_disclaimer(rule_card, chunk_fact)
+        if sig:
+            gate_signals.append(sig)
+            signal_counter[sig.signal_type] = signal_counter.get(sig.signal_type, 0) + 1
+
+        sig = _check_neutral_vs_sales(rule_card, chunk_fact)
+        if sig:
+            gate_signals.append(sig)
+            signal_counter[sig.signal_type] = signal_counter.get(sig.signal_type, 0) + 1
+
         # 决定是否跳过 Stage 2
         should_skip = False
-        priority = "medium"
+        priority = "high"  # 默认高优先级
 
         # 如果有高置信度的 actor_mismatch，可以跳过
         for sig in gate_signals:
@@ -292,13 +549,23 @@ def run_gate(
                 skip_count += 1
                 break
 
-        # 如果有多个信号，降低优先级
-        if len(gate_signals) >= 2:
-            priority = "low"
-        elif len(gate_signals) == 1:
-            priority = "medium"
-        else:
-            priority = "high"
+        # Phase 4 新增：如果有高置信度的前置场景闸门信号，降低优先级
+        has_gate_signal = False
+        for sig in gate_signals:
+            if sig.signal_type in ["non_marketing_absolute", "sufficient_disclaimer", "neutral_knowledge"]:
+                if sig.confidence >= 0.7:
+                    priority = "low"
+                    has_gate_signal = True
+                    break
+
+        # 如果没有前置场景闸门信号，按信号数量分配优先级
+        if not has_gate_signal:
+            if len(gate_signals) >= 2:
+                priority = "low"
+            elif len(gate_signals) == 1:
+                priority = "medium"
+            else:
+                priority = "high"
 
         # 生成规则计划
         rule_plan = _generate_rule_plan(rule_card, chunk_fact, gate_signals)

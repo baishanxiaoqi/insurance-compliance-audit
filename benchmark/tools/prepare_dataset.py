@@ -279,12 +279,26 @@ def write_summary(
 
 def build_dataset(input_path: Path, output_dir: Path) -> dict[str, int]:
     xl = pd.ExcelFile(input_path)
+    sheet_names = set(xl.sheet_names)
     records: list[CaseRecord] = []
-    records.extend(parse_violation_sheet_basic(xl, "违规样本1", "审核文本"))
-    records.extend(parse_violation_sheet_basic(xl, "违规样本2", "文本"))
-    records.extend(parse_compliant_sheet(xl, "合规样本"))
-    records.extend(parse_violation_sheet_structured(xl, "违规样本3"))
-    records.extend(parse_badcase_sheet(xl, "badcase"))
+
+    legacy_sheets = {"违规样本1", "违规样本2", "合规样本", "违规样本3", "badcase"}
+    curated_sheets = {"合规", "违规"}
+
+    if legacy_sheets.issubset(sheet_names):
+        records.extend(parse_violation_sheet_basic(xl, "违规样本1", "审核文本"))
+        records.extend(parse_violation_sheet_basic(xl, "违规样本2", "文本"))
+        records.extend(parse_compliant_sheet(xl, "合规样本"))
+        records.extend(parse_violation_sheet_structured(xl, "违规样本3"))
+        records.extend(parse_badcase_sheet(xl, "badcase"))
+    elif curated_sheets.issubset(sheet_names):
+        records.extend(parse_compliant_sheet(xl, "合规"))
+        records.extend(parse_violation_sheet_structured(xl, "违规"))
+    else:
+        raise ValueError(
+            "不支持的 Excel 结构，需包含旧版样本页 "
+            f"{sorted(legacy_sheets)} 或新版样本页 {sorted(curated_sheets)}"
+        )
 
     accepted, review, rejected = assess_quality(records)
 

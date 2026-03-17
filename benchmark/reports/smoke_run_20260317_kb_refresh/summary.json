@@ -1,0 +1,314 @@
+{
+  "total": 33,
+  "tp": 7,
+  "fp": 2,
+  "fn": 9,
+  "tn": 15,
+  "precision": 0.7778,
+  "recall": 0.4375,
+  "f1": 0.56,
+  "f2": 0.4795,
+  "category_hit_rate": 0.0625,
+  "location_exact_hit_rate": 0.0,
+  "location_fuzzy_hit_rate": 0.0,
+  "by_sheet": {
+    "合规": {
+      "total": 17,
+      "accuracy": 0.8824
+    },
+    "违规": {
+      "total": 16,
+      "accuracy": 0.4375
+    }
+  },
+  "error_samples": [
+    {
+      "sample_id": "合规_0009",
+      "source_sheet": "合规",
+      "expected_label": "compliant",
+      "predicted_verdict": "violation",
+      "expected_categories": [],
+      "predicted_categories": [],
+      "expected_text_slices": [],
+      "predicted_location_slices": [
+        "详细介绍年金险：向客户详细介绍年金险的特点、功能和优势"
+      ]
+    },
+    {
+      "sample_id": "合规_0017",
+      "source_sheet": "合规",
+      "expected_label": "compliant",
+      "predicted_verdict": "violation",
+      "expected_categories": [],
+      "predicted_categories": [
+        "transfer_or_inheritance"
+      ],
+      "expected_text_slices": [],
+      "predicted_location_slices": [
+        "更好的解决客户深层次保险保障、财富传承等综合需求"
+      ]
+    },
+    {
+      "sample_id": "违规_0001",
+      "source_sheet": "违规",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "financial_product_confusion"
+      ],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "股票市场带来不确定性",
+        "保险产品波动较小"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "违规_0002",
+      "source_sheet": "违规",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "guaranteed_return"
+      ],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "锁定年化回报"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "违规_0003",
+      "source_sheet": "违规",
+      "expected_label": "violation",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "guaranteed_return"
+      ],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "规划一份稳健的收益"
+      ],
+      "predicted_location_slices": [
+        "而年金",
+        "年金",
+        "选择年金",
+        "让我们携手年金",
+        "年金并非保险的代名词"
+      ]
+    },
+    {
+      "sample_id": "违规_0004",
+      "source_sheet": "违规",
+      "expected_label": "violation",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "financial_product_confusion"
+      ],
+      "predicted_categories": [
+        "financial_product_confusion",
+        "transfer_or_inheritance"
+      ],
+      "expected_text_slices": [
+        "银行存款收益低",
+        "保险提供风险保障"
+      ],
+      "predicted_location_slices": [
+        "客户提到将钱放在自己兜里最放心，这可以理解为他们更倾向于直接控制自己的资金，认为这样更直观",
+        "2. 转嫁风险：保险可以转移健康、意外等个人风险"
+      ]
+    },
+    {
+      "sample_id": "违规_0005",
+      "source_sheet": "违规",
+      "expected_label": "violation",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "responsibility_exaggeration"
+      ],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "保障未来收入"
+      ],
+      "predicted_location_slices": [
+        "年金险的核心价值在于它的保障和规划功能",
+        "为您定制一个适合的年金方案"
+      ]
+    },
+    {
+      "sample_id": "违规_0006",
+      "source_sheet": "违规",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "guaranteed_return"
+      ],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "提供退休品质生活收入"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "违规_0007",
+      "source_sheet": "违规",
+      "expected_label": "violation",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "responsibility_exaggeration"
+      ],
+      "predicted_categories": [
+        "financial_product_confusion",
+        "tax_or_law_misinterpretation"
+      ],
+      "expected_text_slices": [
+        "应对法律诉讼"
+      ],
+      "predicted_location_slices": [
+        "保险就像您的商业安全网，它能在关键时刻保护您的财产和努力",
+        "一份商业责任险能帮助您应对可能的法律诉讼"
+      ]
+    },
+    {
+      "sample_id": "违规_0008",
+      "source_sheet": "违规",
+      "expected_label": "violation",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "guaranteed_return"
+      ],
+      "predicted_categories": [
+        "financial_product_confusion"
+      ],
+      "expected_text_slices": [
+        "锁定未来的收益"
+      ],
+      "predicted_location_slices": [
+        "客户可以提前规划和锁定未来的经济收益"
+      ]
+    },
+    {
+      "sample_id": "违规_0009",
+      "source_sheet": "违规",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "gifts_or_extra_benefits"
+      ],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "准备温馨服务（实际指代实物）"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "违规_0010",
+      "source_sheet": "违规",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "gifts_or_extra_benefits"
+      ],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "获得惊喜"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "违规_0011",
+      "source_sheet": "违规",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "guaranteed_return"
+      ],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "锁定收益"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "违规_0012",
+      "source_sheet": "违规",
+      "expected_label": "violation",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "financial_product_confusion"
+      ],
+      "predicted_categories": [
+        "policy_loan_or_cash_value"
+      ],
+      "expected_text_slices": [
+        "领取灵活性",
+        "随时减保取现"
+      ],
+      "predicted_location_slices": [
+        "年金险的现金价值通常在领取期间会逐渐减少",
+        "而年金险则更侧重于定期领取和可能的收益"
+      ]
+    },
+    {
+      "sample_id": "违规_0013",
+      "source_sheet": "违规",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "gifts_or_extra_benefits"
+      ],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "送温馨服务（实际指代实物）"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "违规_0014",
+      "source_sheet": "违规",
+      "expected_label": "violation",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "responsibility_exaggeration"
+      ],
+      "predicted_categories": [
+        "transfer_or_inheritance"
+      ],
+      "expected_text_slices": [
+        "避免保单成为财产分割的焦点",
+        "遇到婚姻变化避免法律纠纷"
+      ],
+      "predicted_location_slices": [
+        "包括家庭结构、财富传承、风险防范等"
+      ]
+    },
+    {
+      "sample_id": "违规_0015",
+      "source_sheet": "违规",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "gifts_or_extra_benefits"
+      ],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "小物品"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "违规_0016",
+      "source_sheet": "违规",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "gifts_or_extra_benefits"
+      ],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "提供定制晚宴"
+      ],
+      "predicted_location_slices": []
+    }
+  ]
+}

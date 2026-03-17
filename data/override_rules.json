@@ -1,0 +1,117 @@
+{
+  "version": "1.0",
+  "description": "审查点 override 规则配置",
+  "rules": [
+    {
+      "override_id": "absolute_low_risk_exception",
+      "name": "绝对化低风险例外 override",
+      "description": "绝对化词未指向产品/服务/代理人/经营结果时，不应直接判违规",
+      "enabled": true,
+      "priority": 10,
+      "conditions": {
+        "rule_claim_type": ["ranking_claim"],
+        "gate_signals": ["non_marketing_absolute"],
+        "min_gate_confidence": 0.7
+      },
+      "action": {
+        "change_verdict_to": "compliant",
+        "reasoning_template": "Override 改判：检测到绝对化表述未指向产品/服务/代理人/经营结果（Gate 信号：{gate_signal_reason}），属于低风险例外，改判为 compliant。"
+      }
+    },
+    {
+      "override_id": "surrender_disclaimer_sufficient",
+      "name": "减保提示语 override",
+      "description": "出现降低保障额度/现金价值/谨慎选择等提示时，优先降级风险",
+      "enabled": true,
+      "priority": 20,
+      "conditions": {
+        "rule_claim_type": ["surrender_guidance"],
+        "gate_signals": ["sufficient_disclaimer"],
+        "min_gate_confidence": 0.7
+      },
+      "action": {
+        "change_verdict_to": "compliant",
+        "reasoning_template": "Override 改判：检测到充分的风险提示语（Gate 信号：{gate_signal_reason}），符合合规要求，改判为 compliant。"
+      }
+    },
+    {
+      "override_id": "regulatory_objective_description",
+      "name": "监管客观描述 override",
+      "description": "仅客观说明制度要求、保险条款、法律效力，不等于监管背书",
+      "enabled": true,
+      "priority": 30,
+      "conditions": {
+        "rule_keywords_any": ["监管", "国家", "政府", "政策"],
+        "gate_signals": ["neutral_knowledge"],
+        "min_gate_confidence": 0.6,
+        "no_sales_pitch": true
+      },
+      "action": {
+        "change_verdict_to": "compliant",
+        "reasoning_template": "Override 改判：检测到客观说明监管制度/法律规定（Gate 信号：{gate_signal_reason}），未用于营销背书，改判为 compliant。"
+      }
+    },
+    {
+      "override_id": "background_comparison_context",
+      "name": "背景对比 override",
+      "description": "如果只是背景性说明银行利率、经济环境，而不是导向产品优越性，则不宜直接判违规",
+      "enabled": true,
+      "priority": 40,
+      "conditions": {
+        "rule_claim_type": ["comparison_advantage"],
+        "gate_signals": ["neutral_knowledge"],
+        "min_gate_confidence": 0.6,
+        "chunk_fact_signals_not_include": ["claim_income_promise", "claim_ranking"]
+      },
+      "action": {
+        "change_verdict_to": "compliant",
+        "reasoning_template": "Override 改判：检测到背景性说明（Gate 信号：{gate_signal_reason}），未导向产品优越性，改判为 compliant。"
+      }
+    },
+    {
+      "override_id": "non_recruitment_context",
+      "name": "非销售招募语境 override",
+      "description": "如果只是泛称职业角色，而不是用于招募、岗位包装或收入诱导，不应直接命中招募类风险",
+      "enabled": true,
+      "priority": 50,
+      "conditions": {
+        "rule_keywords_any": ["代理人", "营销员", "招募", "增员"],
+        "gate_signals": ["neutral_knowledge"],
+        "min_gate_confidence": 0.5,
+        "chunk_fact_signals_not_include": ["claim_income_promise"]
+      },
+      "action": {
+        "change_verdict_to": "compliant",
+        "reasoning_template": "Override 改判：检测到泛称职业角色（Gate 信号：{gate_signal_reason}），未用于招募或收入诱导，改判为 compliant。"
+      }
+    },
+    {
+      "override_id": "deterministic_hard_block",
+      "name": "可执行规则硬阻断 override（原有逻辑）",
+      "description": "若规则引擎判断 hard_block，则将 violation 纠偏为 compliant",
+      "enabled": true,
+      "priority": 100,
+      "conditions": {
+        "rule_engine_hard_block": true
+      },
+      "action": {
+        "change_verdict_to": "compliant",
+        "reasoning_template": "Override 改判：可执行规则引擎给出硬阻断（{rule_engine_summary}），当前 violation 与规则约束冲突，改判为 compliant。"
+      }
+    },
+    {
+      "override_id": "negation_context",
+      "name": "否定语境 override（原有逻辑）",
+      "description": "若违规词处于明显否定结构中（如\"不要退保\"），将 violation 纠偏为 compliant",
+      "enabled": true,
+      "priority": 110,
+      "conditions": {
+        "has_negated_violation_term": true
+      },
+      "action": {
+        "change_verdict_to": "compliant",
+        "reasoning_template": "Override 改判：检测到违规词处于明显否定语境（如'不要/不得+违规词'），语义上为禁止或劝阻，不构成违规宣传，改判为 compliant。"
+      }
+    }
+  ]
+}

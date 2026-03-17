@@ -4,7 +4,7 @@
 贯穿整个 Workflow 的强类型数据结构，严格定义并校验。
 """
 
-from typing import Dict, List, Literal, Optional
+from typing import Dict, List, Literal, Optional, Any
 from pydantic import BaseModel, Field
 
 
@@ -150,6 +150,7 @@ class JudgmentResult(BaseModel):
     """Stage 2 深度精判输出 —— 单个 (chunk, rule) 对的判定结果
 
     Phase 1 升级：新增 decision_basis 字段，强化判断依据的可解释性
+    Phase 4 P1 升级：新增 primary_category 和 secondary_category 字段，减少类别串扰
     """
     rule_id: str
     chunk_id: str
@@ -191,6 +192,20 @@ class JudgmentResult(BaseModel):
     ]] = Field(
         default=None,
         description="判断依据分类：明确判定的主要依据类型，用于后续纠偏和离线评测"
+    )
+
+    # ============================================================
+    # Phase 4 P1 新增字段：主/次审查点分类
+    # ============================================================
+
+    primary_category: Optional[str] = Field(
+        default=None,
+        description="主审查点：主要违规类型（如 financial_product_confusion, guaranteed_return 等）"
+    )
+
+    secondary_category: Optional[str] = Field(
+        default=None,
+        description="次审查点：具体违规子类型（如 savings_account_confusion, stable_return_implication 等）"
     )
 
 
@@ -278,5 +293,6 @@ class WorkflowState(BaseModel):
     stage1_candidates: List[ChunkCandidates] = Field(default_factory=list)
     stage15_facts: Dict[str, ChunkFactProfile] = Field(default_factory=dict)
     stage18_routes: List[RoutedPair] = Field(default_factory=list)
+    stage19_gate_results: Dict[str, Any] = Field(default_factory=dict, description="Gate 结果字典，key 为 f'{chunk_id}_{rule_id}'")
     stage2_judgments: List[JudgmentResult] = Field(default_factory=list)
     final_response: Optional[AuditResponse] = None

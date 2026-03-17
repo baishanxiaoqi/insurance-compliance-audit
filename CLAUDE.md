@@ -92,9 +92,9 @@ python scripts/import_excel_kb.py
 3. 承诺强度判断（commitment_strength）：区分"保证"vs"预期"
 4. 跨段落逻辑（cross_paragraph）：需要全文上下文的判定
 
-### 6 阶段流水线 (Agno Workflow)
+### 7 阶段流水线 (Agno Workflow) ✨ Phase 4 升级
 
-系统通过 `src/moderation/workflow.py` 编排 6 个串行 Stage：
+系统通过 `src/moderation/workflow.py` 编排 7 个串行 Stage：
 
 1. **Stage 0 (预处理)** - `stages/stage0_preprocess.py`
    - 纯代码，无 LLM 调用
@@ -110,7 +110,7 @@ python scripts/import_excel_kb.py
 3. **Stage 1.5 (事实抽取)** - `stages/stage1_5_fact_extract.py`
    - 纯代码，基于规则的事实信号提取
    - 提取：action/negation/certainty/number_percent 等信号
-   - 为 Stage 2.5 反证校验提供结构化输入
+   - 为 Stage 1.9 Gate 和 Stage 2.5 Override 提供结构化输入
 
 4. **Stage 1.8 (路由分发)** - `stages/stage1_8_route_dispatch.py`
    - 纯代码，双轨路由决策
@@ -118,19 +118,40 @@ python scripts/import_excel_kb.py
    - skill 轨：LLM 语义判定 (`skills.py` + `complex_skills.py`)
    - 自动识别复杂场景类型（temporal_context/subject_switch/commitment_strength/cross_paragraph）
 
-5. **Stage 2 (深度精判)** - `stages/stage2_deep_judge.py`
+5. **Stage 1.9 (轻量 Gate)** - `stages/stage1_9_gate.py` ✨ Phase 4 新增
+   - 纯代码，前置场景闸门
+   - 7 个检查函数（4 个原有 + 3 个新增）：
+     - actor_mismatch：主体不匹配检测
+     - time_context：时态语境检测
+     - evidence_missing：证据缺失检测
+     - exception_likely：例外触发检测
+     - non_marketing_absolute：非营销绝对化表述（新增）
+     - sufficient_disclaimer：充分提示语检测（新增）
+     - neutral_vs_sales：中性知识 vs 销售话术（新增）
+   - 生成 gate_signals 和 should_skip 标记
+   - 为 Stage 2.5 Override 提供 Gate 信号
+
+6. **Stage 2 (深度精判)** - `stages/stage2_deep_judge.py`
    - 双轨并发：base 轨直接执行规则引擎，skill 轨调用 LLM Agent
    - 复杂场景自动路由到专用 Skill
    - 单规则注入：每个 (chunk, rule) 对独立调用
-   - 结构化输出：`JudgmentResult` (verdict/reasoning/evidence_span_ids)
+   - 结构化输出：`JudgmentResult` (verdict/reasoning/evidence_span_ids/primary_category/secondary_category)
    - unsure 高风险二次审查
 
-6. **Stage 2.5 (反证校验)** - `stages/stage2_5_refute.py`
-   - 纯代码，基于事实信号的误报纠偏
-   - 检查：否定词、例外条款、主体切换等
+7. **Stage 2.5 (审查点 Override 层)** - `stages/stage2_5_refute.py` ✨ Phase 4 升级
+   - 纯代码，配置化 override 规则系统
+   - 7 个 override 规则（优先级 10-110）：
+     - absolute_low_risk_exception：绝对化低风险例外
+     - surrender_disclaimer_sufficient：减保提示语充分
+     - regulatory_objective_description：监管客观描述
+     - background_comparison_context：背景对比
+     - non_recruitment_context：非销售招募语境
+     - deterministic_hard_block：可执行规则硬阻断
+     - negation_context：否定语境
+   - 接收 Stage 1.9 Gate 信号，实现 Gate 依赖型 override
    - 将误判的 violation 改写为 compliant
 
-7. **Stage 3 (定位组装)** - `stages/stage3_assemble.py`
+8. **Stage 3 (定位组装)** - `stages/stage3_assemble.py`
    - 纯代码，零幻觉定位
    - 通过 `evidence_span_ids` 从 `span_pool` 获取坐标
    - 坐标还原：norm → raw (通过 `norm_to_raw_map`)
@@ -150,8 +171,9 @@ python scripts/import_excel_kb.py
 - `DocumentState`: 文档资产 (original_text/working_text/normalized_text/chunks/span_pool/norm_to_working_map/working_to_original_map)
 - `Span`: 最小语义单元 (span_id/span_text/start_index/end_index)
 - `Chunk`: 文本块 (chunk_id/chunk_text/spans)
-- `RuleCard`: 规则卡片 (rule_id/violation_definition/keywords/violation_terms/condition_terms/exclusion_terms)
-- `JudgmentResult`: 判定结果 (verdict/reasoning_cot/evidence_span_ids/reason_codes)
+- `RuleCard`: 规则卡片 (rule_id/violation_definition/keywords/violation_terms/condition_terms/exclusion_terms/actor_scope/claim_type/evidence_required) ✨ Phase 4 新增字段
+- `JudgmentResult`: 判定结果 (verdict/reasoning_cot/evidence_span_ids/reason_codes/primary_category/secondary_category) ✨ Phase 4 新增分类字段
+- `WorkflowState`: 工作流状态 (document/rule_cards/stage1_candidates/stage15_facts/stage18_routes/stage19_gate_results/stage2_judgments/final_response) ✨ Phase 4 新增 gate_results
 - `AuditResponse`: 最终输出 (violations/locations/processing_time)
 
 ### Skills 技能分发 (`skills.py` + `complex_skills.py`)

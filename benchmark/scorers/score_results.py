@@ -37,9 +37,22 @@ def score_record(record: dict) -> dict:
 
     expected_slices = [normalize_for_match(item) for item in record.get("expected_text_slices", []) if item]
     predicted_slices = [normalize_for_match(item) for item in record.get("predicted_location_slices", []) if item]
-    location_hit = None
+
+    # 优化：区分精确匹配和模糊匹配
+    location_exact_match = None
+    location_fuzzy_match = None
+
     if expected_slices:
-        location_hit = any(
+        # 精确匹配：完全相等
+        location_exact_match = any(
+            expected == predicted
+            for expected in expected_slices
+            for predicted in predicted_slices
+            if expected and predicted
+        )
+
+        # 模糊匹配：包含关系
+        location_fuzzy_match = any(
             expected in predicted or predicted in expected
             for expected in expected_slices
             for predicted in predicted_slices
@@ -56,7 +69,8 @@ def score_record(record: dict) -> dict:
         "expected_positive": expected_positive,
         "predicted_positive": predicted_positive,
         "category_hit": category_hit,
-        "location_hit": location_hit,
+        "location_exact_match": location_exact_match,  # 新增：精确匹配
+        "location_fuzzy_match": location_fuzzy_match,  # 新增：模糊匹配
         "predicted_categories": predicted_categories,
     }
 
@@ -64,7 +78,8 @@ def score_record(record: dict) -> dict:
 def build_summary(records: list[dict]) -> dict:
     tp = fp = fn = tn = 0
     category_total = category_hit = 0
-    location_total = location_hit = 0
+    location_exact_total = location_exact_hit = 0  # 新增：精确匹配统计
+    location_fuzzy_total = location_fuzzy_hit = 0  # 新增：模糊匹配统计
     by_sheet = defaultdict(lambda: {"total": 0, "correct": 0})
     errors = []
 
@@ -83,15 +98,22 @@ def build_summary(records: list[dict]) -> dict:
             category_total += 1
             category_hit += int(scored["category_hit"])
 
-        if scored["location_hit"] is not None:
-            location_total += 1
-            location_hit += int(scored["location_hit"])
+        # 新增：精确匹配统计
+        if scored["location_exact_match"] is not None:
+            location_exact_total += 1
+            location_exact_hit += int(scored["location_exact_match"])
+
+        # 新增：模糊匹配统计
+        if scored["location_fuzzy_match"] is not None:
+            location_fuzzy_total += 1
+            location_fuzzy_hit += int(scored["location_fuzzy_match"])
 
         sheet = record.get("source_sheet", "unknown")
         by_sheet[sheet]["total"] += 1
         by_sheet[sheet]["correct"] += int(scored["verdict_correct"])
 
-        if not scored["verdict_correct"] or scored["category_hit"] is False or scored["location_hit"] is False:
+        # 更新错误判断逻辑：使用模糊匹配作为定位判断依据
+        if not scored["verdict_correct"] or scored["category_hit"] is False or scored["location_fuzzy_match"] is False:
             errors.append(
                 {
                     "sample_id": record["sample_id"],
@@ -118,7 +140,8 @@ def build_summary(records: list[dict]) -> dict:
         "f1": round(fbeta(precision, recall, 1.0), 4),
         "f2": round(fbeta(precision, recall, 2.0), 4),
         "category_hit_rate": round(safe_div(category_hit, category_total), 4),
-        "location_hit_rate": round(safe_div(location_hit, location_total), 4),
+        "location_exact_hit_rate": round(safe_div(location_exact_hit, location_exact_total), 4),  # 新增
+        "location_fuzzy_hit_rate": round(safe_div(location_fuzzy_hit, location_fuzzy_total), 4),  # 新增
         "by_sheet": {
             sheet: {
                 "total": item["total"],
@@ -146,7 +169,8 @@ def write_markdown(summary: dict, output_path: Path) -> None:
         f"- F1：`{summary['f1']}`",
         f"- F2：`{summary['f2']}`",
         f"- 类别命中率：`{summary['category_hit_rate']}`",
-        f"- 定位命中率：`{summary['location_hit_rate']}`",
+        f"- 定位精确匹配率：`{summary['location_exact_hit_rate']}`",
+        f"- 定位模糊匹配率：`{summary['location_fuzzy_hit_rate']}`",
         "",
         "## 分 Sheet 准确率",
     ]
