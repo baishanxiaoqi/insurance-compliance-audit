@@ -20,8 +20,10 @@ Stage 2: 深度精判与对齐（双策略混合架构）
 from __future__ import annotations
 
 import asyncio
+import re
 from typing import Dict, List
 
+from .. import config
 from ..audit_trace import trace_event
 from ..llm_agent import create_agent, safe_arun
 from ..log import get_logger
@@ -39,6 +41,249 @@ from ..skills import get_skill_for_rule
 from ..complex_skills import get_complex_skill
 
 logger = get_logger(__name__)
+
+_GENERIC_RISK_ANCHORS = (
+    "金融产品", "投资", "理财", "存款", "存钱", "储蓄", "收益", "回报",
+    "锁定", "保证", "第一", "最好", "唯一", "转嫁风险", "赠送", "礼品",
+    "温馨服务", "退休金", "教育金", "养老金", "传承", "避税", "法律",
+    "监管", "顾问", "招募", "岗位", "平安保险", "集团", "中国平安",
+)
+_GENERIC_NEUTRAL_PHRASES = (
+    "可以提供", "财务保障", "风险管理", "帮助缓解", "间接保障", "长期保障",
+    "功能", "规划", "稳定性", "信誉", "补偿或保障",
+)
+
+_BASE_VERIFY_SYSTEM_INSTRUCTIONS = (
+    "你是保险营销文本合规分类器（轻量版）。\n"
+    "规则引擎已经在文本中找到了词面命中的证据，你的任务是判断这些证据是否构成规则所定义的直接违规宣传。\n"
+    "不要只看词面是否命中，要判断语义是否真的构成违规。\n"
+    "\n"
+    "判断顺序（严格按序）：\n"
+    "1. 规则引擎给出的命中词/片段，是否出现在文本中且语义成立\n"
+    "2. 命中片段的主体是否直接指向保险产品或代理人（而非客户、监管机构、泛指）\n"
+    "3. 该片段是否属于负面说明、禁令说明、培训材料、监管解读、客观背景介绍\n"
+    "4. 综合以上，是否达到该规则定义的'直接违规宣传'门槛\n"
+    "\n"
+    "verdict 取值：\n"
+    "- violation：确认违规\n"
+    "- compliant：证据不成立或属于例外场景\n"
+    "- unsure：无法确认，需要更多上下文\n"
+    "\n"
+    "输出格式严格遵循 JSON schema，不要输出额外文字。"
+)
+
+
+def _dedupe_preserve_order(items: List[str]) -> List[str]:
+    seen: set[str] = set()
+    ordered: List[str] = []
+    for item in items:
+        if not item or item in seen:
+            continue
+        seen.add(item)
+        ordered.append(item)
+    return ordered
+
+
+def _trim_fragment(text: str) -> str:
+    return (text or "").strip(" \t\r\n，。；！？、：:,.!?'\"“”‘’（）()[]【】《》")
+
+
+def _normalize_fragment(text: str) -> str:
+    return "".join(_trim_fragment(text).split())
+
+
+def _collect_rule_anchor_terms(rule_card: RuleCard) -> List[str]:
+    candidates: List[str] = []
+    candidates.extend(rule_card.keywords)
+    candidates.extend(rule_card.violation_terms)
+    candidates.extend(
+        part
+        for part in re.split(r"[\\/\\-\\s（）()，,：:]+", rule_card.rule_name)
+        if len(_normalize_fragment(part)) >= 2 and "知识库规则" not in part
+    )
+
+    reference_text = " ".join(
+        text for text in [
+            rule_card.rule_name,
+            rule_card.violation_definition,
+            rule_card.violation_basis,
+        ] if text
+    )
+    for term in _GENERIC_RISK_ANCHORS:
+        if term in reference_text:
+            candidates.append(term)
+
+    return _dedupe_preserve_order([
+        _trim_fragment(term)
+        for term in candidates
+        if len(_normalize_fragment(term)) >= 2
+    ])
+
+
+def _score_span_text(
+    span_text: str,
+    anchor_terms: List[str],
+    evidence_texts: List[str],
+) -> int:
+    normalized_span = _normalize_fragment(span_text)
+    score = 0
+
+    if any(
+        normalized_evidence
+        and (normalized_evidence in normalized_span or normalized_span in normalized_evidence)
+        for normalized_evidence in (_normalize_fragment(text) for text in evidence_texts)
+    ):
+        score += 4
+
+    anchor_hits = [
+        term for term in anchor_terms
+        if _normalize_fragment(term) and _normalize_fragment(term) in normalized_span
+    ]
+    score += min(len(anchor_hits), 2) * 3
+
+    if any(phrase in span_text for phrase in _GENERIC_NEUTRAL_PHRASES) and not anchor_hits:
+        score -= 3
+
+    if len(normalized_span) <= 16:
+        score += 1
+
+    return score
+
+
+def _map_evidence_texts_to_span_ids(
+    evidence_texts: List[str],
+    chunk: Chunk,
+) -> List[str]:
+    if not evidence_texts:
+        return []
+
+    mapped_ids: List[str] = []
+    normalized_texts = [_normalize_fragment(text) for text in evidence_texts if _normalize_fragment(text)]
+    for span in chunk.spans:
+        normalized_span = _normalize_fragment(span.span_text)
+        if any(
+            normalized_text in normalized_span or normalized_span in normalized_text
+            for normalized_text in normalized_texts
+        ):
+            mapped_ids.append(span.span_id)
+    return _dedupe_preserve_order(mapped_ids)
+
+
+def _refine_violation_evidence(
+    result: JudgmentResult,
+    chunk: Chunk,
+    rule_card: RuleCard,
+) -> JudgmentResult:
+    if result.verdict != "violation":
+        result.evidence_span_ids = []
+        result.evidence_texts = []
+        return result
+
+    result.evidence_texts = _dedupe_preserve_order([
+        _trim_fragment(text)
+        for text in result.evidence_texts
+        if _normalize_fragment(text)
+    ])[:3]
+    result.evidence_span_ids = _dedupe_preserve_order(result.evidence_span_ids)[:5]
+
+    if not result.evidence_span_ids and result.evidence_texts:
+        result.evidence_span_ids = _map_evidence_texts_to_span_ids(result.evidence_texts, chunk)[:5]
+
+    selected_spans = [span for span in chunk.spans if span.span_id in result.evidence_span_ids]
+    if len(selected_spans) > 1:
+        anchor_terms = _collect_rule_anchor_terms(rule_card)
+        scores = {
+            span.span_id: _score_span_text(span.span_text, anchor_terms, result.evidence_texts)
+            for span in selected_spans
+        }
+        if any(score > 0 for score in scores.values()):
+            best_score = max(scores.values())
+            keep_ids = [
+                span.span_id
+                for span in selected_spans
+                if scores[span.span_id] == best_score
+            ]
+        else:
+            keep_ids = [
+                min(
+                    selected_spans,
+                    key=lambda span: len(_normalize_fragment(span.span_text)),
+                ).span_id
+            ]
+        result.evidence_span_ids = _dedupe_preserve_order(keep_ids)
+        selected_spans = [span for span in chunk.spans if span.span_id in result.evidence_span_ids]
+
+    if selected_spans:
+        selected_span_texts = [_normalize_fragment(span.span_text) for span in selected_spans]
+        selected_span_fragments = [
+            _trim_fragment(span.span_text)
+            for span in selected_spans[:3]
+            if _normalize_fragment(span.span_text)
+        ]
+        overlapping_evidence = [
+            text for text in result.evidence_texts
+            if any(
+                normalized_text and (
+                    normalized_text in selected_span_text
+                    or selected_span_text in normalized_text
+                )
+                for normalized_text in [_normalize_fragment(text)]
+                for selected_span_text in selected_span_texts
+            )
+        ]
+        if overlapping_evidence and not any(
+            len(_normalize_fragment(text)) > len(selected_span_text)
+            and selected_span_text
+            and selected_span_text in _normalize_fragment(text)
+            for text in overlapping_evidence
+            for selected_span_text in selected_span_texts
+        ):
+            result.evidence_texts = _dedupe_preserve_order(overlapping_evidence)[:3]
+        elif result.evidence_texts or result.evidence_span_ids:
+            result.evidence_texts = selected_span_fragments
+
+    if not result.decision_basis:
+        result.decision_basis = "explicit_violation"
+
+    return result
+
+
+def _infer_base_decision_basis(report) -> str | None:
+    if report.exclusion_blocked:
+        return "exclusion_triggered"
+    if not report.condition_pass:
+        return "condition_not_met"
+    if report.has_violation_hit:
+        return "explicit_violation"
+    return None
+
+
+def _infer_override_decision_basis(override_id: str, judgment: JudgmentResult) -> str | None:
+    if override_id == "negation_context":
+        return "negation_context"
+    if override_id == "deterministic_hard_block":
+        return judgment.decision_basis or "condition_not_met"
+    if override_id in {
+        "absolute_low_risk_exception",
+        "surrender_disclaimer_sufficient",
+        "regulatory_objective_description",
+        "background_comparison_context",
+        "non_recruitment_context",
+    }:
+        return "exception_applied"
+    return judgment.decision_basis
+
+
+def _apply_rule_card_defaults(
+    result: JudgmentResult,
+    rule_card: RuleCard,
+) -> JudgmentResult:
+    """用 RuleCard 的结构化元数据补齐输出口径。"""
+    if not result.primary_category and rule_card.primary_category:
+        result.primary_category = rule_card.primary_category
+    if not result.secondary_category and rule_card.secondary_category:
+        result.secondary_category = rule_card.secondary_category
+    return result
 
 # ============================================================
 # 策略A：base 轨（确定性规则引擎）
@@ -89,7 +334,7 @@ def judge_with_base_strategy(
             evidence_span_ids=[],
             evidence_texts=[],
             reason_codes=[],
-            draft_suggestion="",
+            decision_basis=_infer_base_decision_basis(report),
         )
 
     # 通过规则引擎前置校验：判定为 violation
@@ -115,13 +360,134 @@ def judge_with_base_strategy(
         evidence_span_ids=evidence_span_ids[:5],  # 最多5个
         evidence_texts=evidence_texts[:3],  # 最多3个
         reason_codes=rule_card.reason_codes[:1] if rule_card.reason_codes else [],
-        draft_suggestion=rule_card.suggestion_template or "请修改违规表述。",
+        decision_basis="explicit_violation",
     )
+
+
+# ============================================================
+# 策略A 升级：base_verify_llm（歧义类别轻量 LLM 最终裁决）
+# ============================================================
+
+
+async def judge_with_base_verify_llm(
+    chunk: Chunk,
+    rule_card: RuleCard,
+    document: DocumentState,
+    base_result: JudgmentResult,
+    semaphore: asyncio.Semaphore | None = None,
+) -> JudgmentResult:
+    """
+    base_verify_llm：对 base 轨输出的 violation 做轻量 LLM 最终语义裁决。
+
+    规则引擎已提证，LLM 只判断这些证据是否构成直接违规，不重新召回。
+    """
+    # 构建轻量 Prompt：规则 + chunk 文本 + 规则引擎证据
+    violation_hits = ", ".join(base_result.evidence_texts) if base_result.evidence_texts else "（无词面命中片段）"
+    spans_summary = "\n".join(
+        f"  {s.span_id}: {s.span_text}"
+        for s in chunk.spans[:10]
+    )
+    prompt = (
+        f"【规则 ID】{rule_card.rule_id}\n"
+        f"【规则名称】{rule_card.rule_name}\n"
+        f"【违规定义】{rule_card.violation_definition}\n"
+        f"【类别分组】{rule_card.category_group}\n"
+        f"\n"
+        f"【待审文本 chunk_id={chunk.chunk_id}】\n"
+        f"{chunk.chunk_text}\n"
+        f"\n"
+        f"【规则引擎命中的违规词/片段】\n"
+        f"{violation_hits}\n"
+        f"\n"
+        f"【文本 Span 列表（用于填写 evidence_span_ids）】\n"
+        f"{spans_summary}\n"
+        f"\n"
+        f"请严格按判断顺序裁决：这些证据是否构成本规则定义的直接违规宣传？"
+    )
+
+    agent = create_agent(
+        output_schema=JudgmentResult,
+        instructions=_BASE_VERIFY_SYSTEM_INSTRUCTIONS,
+        name="base_verify_llm",
+        temperature=0.1,
+        profile=config.JUDGE_MODEL_PROFILE,
+    )
+
+    try:
+        if semaphore:
+            async with semaphore:
+                result = await safe_arun(
+                    agent,
+                    prompt,
+                    max_retries=config.JUDGE_MODEL_PROFILE.max_retries,
+                    timeout_seconds=config.JUDGE_MODEL_PROFILE.timeout_seconds,
+                )
+        else:
+            result = await safe_arun(
+                agent,
+                prompt,
+                max_retries=config.JUDGE_MODEL_PROFILE.max_retries,
+                timeout_seconds=config.JUDGE_MODEL_PROFILE.timeout_seconds,
+            )
+    except Exception as e:
+        logger.warning(
+            f"base_verify_llm 调用失败 [{chunk.chunk_id} x {rule_card.rule_id}]: {e}，"
+            f"回退到规则引擎原判 violation"
+        )
+        return base_result
+
+    # 后验证：过滤幻觉 span_id
+    valid_span_ids = {s.span_id for s in chunk.spans}
+    result.evidence_span_ids = [
+        sid for sid in result.evidence_span_ids if sid in valid_span_ids
+    ]
+
+    # 若 LLM 未返回证据但 violation，保留规则引擎的证据
+    if result.verdict == "violation" and not result.evidence_span_ids:
+        result.evidence_span_ids = base_result.evidence_span_ids
+    if result.verdict == "violation" and not result.evidence_texts:
+        result.evidence_texts = base_result.evidence_texts
+
+    # 补全 rule_id / chunk_id（LLM 有时不填）
+    result.rule_id = rule_card.rule_id
+    result.chunk_id = chunk.chunk_id
+
+    result = _refine_violation_evidence(result, chunk, rule_card)
+    result = _apply_rule_card_defaults(result, rule_card)
+
+    trace_event(
+        "stage2.base_verify_llm",
+        {
+            "chunk_id": chunk.chunk_id,
+            "rule_id": rule_card.rule_id,
+            "category_group": rule_card.category_group,
+            "base_verdict": "violation",
+            "verify_verdict": result.verdict,
+            "evidence_hits": violation_hits,
+        },
+    )
+
+    return result
 
 
 # ============================================================
 # 策略B：skill 轨（LLM Agent + Skills）
 # ============================================================
+
+
+def _select_prompt_deterministic_report(report):
+    """为 skill Prompt 选择可注入的规则引擎辅助信息。
+
+    只在规则引擎已经发现了正向词面证据或明确例外/排除证据时注入，
+    避免“无命中”结果对 skill 轨造成负向锚定。
+    """
+    if report.has_violation_hit:
+        return report
+    if report.exclusion_blocked:
+        return report
+    if report.condition_positions or report.exclusion_positions:
+        return report
+    return None
 
 
 async def judge_with_skill_strategy(
@@ -173,6 +539,7 @@ async def judge_with_skill_strategy(
 
     # 可选：先执行规则引擎获取前置证据
     deterministic_report = evaluate_rule_on_text(chunk.chunk_text, rule_card)
+    prompt_deterministic_report = _select_prompt_deterministic_report(deterministic_report)
 
     # 构建 Prompt（包含 Few-shot）
     prompt = skill.build_prompt(
@@ -180,7 +547,7 @@ async def judge_with_skill_strategy(
         rule_card=rule_card,
         spans_dict=spans_dict,
         chunk_fact=chunk_fact,
-        deterministic_report=deterministic_report,
+        deterministic_report=prompt_deterministic_report,
     )
 
     # 创建 Agent
@@ -189,14 +556,25 @@ async def judge_with_skill_strategy(
         instructions=skill.system_instructions,
         name=f"skill_{skill.name}",
         temperature=skill.temperature,
+        profile=config.JUDGE_MODEL_PROFILE,
     )
 
     # 并发控制
     if semaphore:
         async with semaphore:
-            result = await safe_arun(agent, prompt)
+            result = await safe_arun(
+                agent,
+                prompt,
+                max_retries=config.JUDGE_MODEL_PROFILE.max_retries,
+                timeout_seconds=config.JUDGE_MODEL_PROFILE.timeout_seconds,
+            )
     else:
-        result = await safe_arun(agent, prompt)
+        result = await safe_arun(
+            agent,
+            prompt,
+            max_retries=config.JUDGE_MODEL_PROFILE.max_retries,
+            timeout_seconds=config.JUDGE_MODEL_PROFILE.timeout_seconds,
+        )
 
     # 后验证：过滤幻觉 span_id
     valid_span_ids = {s.span_id for s in chunk.spans}
@@ -209,6 +587,9 @@ async def judge_with_skill_strategy(
         result.reason_codes = [
             rc for rc in result.reason_codes if rc in rule_card.reason_codes
         ]
+
+    result = _refine_violation_evidence(result, chunk, rule_card)
+    result = _apply_rule_card_defaults(result, rule_card)
 
     # 记录审计轨迹
     trace_event(
@@ -289,9 +670,15 @@ async def retry_unsure_judgment(
         instructions=skill.system_instructions,
         name=f"retry_{skill.name}",
         temperature=0.3,  # 提高探索性
+        profile=config.JUDGE_MODEL_PROFILE,
     )
 
-    result = await safe_arun(agent, retry_prompt)
+    result = await safe_arun(
+        agent,
+        retry_prompt,
+        max_retries=config.JUDGE_MODEL_PROFILE.max_retries,
+        timeout_seconds=config.JUDGE_MODEL_PROFILE.timeout_seconds,
+    )
 
     # 后验证
     valid_span_ids = {s.span_id for s in chunk.spans}
@@ -303,6 +690,9 @@ async def retry_unsure_judgment(
         result.reason_codes = [
             rc for rc in result.reason_codes if rc in rule_card.reason_codes
         ]
+
+    result = _refine_violation_evidence(result, chunk, rule_card)
+    result = _apply_rule_card_defaults(result, rule_card)
 
     trace_event(
         "stage2.retry_unsure",
@@ -328,17 +718,19 @@ async def run_stage2(
     candidates: List[ChunkCandidates],
     routed_pairs: List[RoutedPair],
     chunk_facts: Dict[str, ChunkFactProfile] | None = None,
+    gate_results: Dict[str, Any] | None = None,
     max_concurrent: int = 3,
 ) -> List[JudgmentResult]:
     """
     Stage 2 主入口：双策略混合架构。
 
     工作流程：
-      1. 根据 routed_pairs 的 strategy 分发到不同策略
-      2. base 轨：同步执行规则引擎
-      3. skill 轨：异步并发调用 LLM Agent
-      4. unsure 高风险二次审查
-      5. 返回所有判定结果
+      1. 根据 gate_results 过滤掉 should_skip=True 的组合
+      2. 根据 routed_pairs 的 strategy 分发到不同策略
+      3. base 轨：同步执行规则引擎
+      4. skill 轨：异步并发调用 LLM Agent
+      5. unsure 高风险二次审查
+      6. 返回所有判定结果
 
     参数：
       document: 文档状态（包含 chunks 和 span_pool）
@@ -346,9 +738,23 @@ async def run_stage2(
       candidates: Stage 1 候选结果（用于兼容性，实际使用 routed_pairs）
       routed_pairs: Stage 1.8 路由结果
       chunk_facts: Stage 1.5 事实画像
+      gate_results: Stage 1.9 Gate 结果字典
       max_concurrent: 最大并发 LLM 调用数
     """
-    logger.info(f"Stage 2 开始: {len(routed_pairs)} 个路由对")
+    # 过滤掉 should_skip=True 的组合
+    filtered_pairs = []
+    if gate_results:
+        for pair in routed_pairs:
+            key = f"{pair.chunk_id}_{pair.rule_id}"
+            gate_result = gate_results.get(key)
+            if gate_result and gate_result.should_skip:
+                logger.info(f"  跳过 Gate 标记的组合: {key}")
+                continue
+            filtered_pairs.append(pair)
+    else:
+        filtered_pairs = routed_pairs
+
+    logger.info(f"Stage 2 开始: {len(filtered_pairs)} 个路由对（已过滤 {len(routed_pairs) - len(filtered_pairs)} 个）")
 
     # 构建 chunk_id -> Chunk 的索引
     chunk_map = {c.chunk_id: c for c in document.chunks}
@@ -361,7 +767,7 @@ async def run_stage2(
     skill_tasks = []
     skill_route_map = {}  # 记录 skill 任务索引 -> route 的映射
 
-    for route in routed_pairs:
+    for route in filtered_pairs:
         chunk = chunk_map.get(route.chunk_id)
         rule_card = rule_cards.get(route.rule_id)
 
@@ -393,9 +799,35 @@ async def run_stage2(
 
     # 执行 base 轨（同步）
     base_results = []
+    verify_tasks = []      # (index_in_base_results, chunk, rule_card, base_result)
     for chunk, rule_card in base_tasks:
         result = judge_with_base_strategy(chunk, rule_card, document)
+        result = _refine_violation_evidence(result, chunk, rule_card)
+        result = _apply_rule_card_defaults(result, rule_card)
+        # 所有 base 轨 violation 都进入 base_verify_llm 做最终语义裁决
+        # （Codex P0-1：规则引擎只提证，LLM 做最终分类，不再直接输出 violation）
+        if result.verdict == "violation":
+            verify_tasks.append((len(base_results), chunk, rule_card, result))
         base_results.append(result)
+
+    # base_verify_llm：所有 base 轨 violation 都进入轻量 LLM 最终语义裁决
+    if verify_tasks:
+        logger.info(
+            f"base_verify_llm: {len(verify_tasks)} 个 violation 进入 LLM 验证"
+        )
+        verify_coros = [
+            judge_with_base_verify_llm(chunk, rule_card, document, base_result, semaphore)
+            for _, chunk, rule_card, base_result in verify_tasks
+        ]
+        verify_results = await asyncio.gather(*verify_coros, return_exceptions=True)
+        for (idx, chunk, rule_card, _), verify_result in zip(verify_tasks, verify_results):
+            if isinstance(verify_result, Exception):
+                logger.error(
+                    f"base_verify_llm 任务失败 [{chunk.chunk_id} x {rule_card.rule_id}]: "
+                    f"{verify_result}，保留规则引擎原判"
+                )
+            else:
+                base_results[idx] = verify_result
 
     logger.info(f"base 轨完成: {len(base_results)} 个判定")
 
@@ -422,7 +854,7 @@ async def run_stage2(
                         evidence_span_ids=[],
                         evidence_texts=[],
                         reason_codes=[],
-                        draft_suggestion="",
+                        decision_basis="insufficient_evidence",
                     )
                 )
             else:
@@ -490,4 +922,3 @@ async def run_stage2(
     )
 
     return all_results
-

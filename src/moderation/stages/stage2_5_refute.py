@@ -70,6 +70,16 @@ class OverrideRule:
     action: OverrideAction
 
 
+def _infer_override_decision_basis(override_rule: OverrideRule, judgment: JudgmentResult) -> str | None:
+    if override_rule.override_id == "negation_context":
+        return "negation_context"
+    if override_rule.override_id == "deterministic_hard_block":
+        return judgment.decision_basis or "condition_not_met"
+    if override_rule.action.change_verdict_to == "compliant":
+        return "exception_applied"
+    return judgment.decision_basis
+
+
 def load_override_rules(config_path: str = "data/override_rules.json") -> List[OverrideRule]:
     """加载 override 规则配置"""
     try:
@@ -259,7 +269,9 @@ def _apply_override(
         evidence_span_ids=[],
         evidence_texts=[],
         reason_codes=[],
-        draft_suggestion="",
+        decision_basis=_infer_override_decision_basis(override_rule, judgment),
+        primary_category=judgment.primary_category,
+        secondary_category=judgment.secondary_category,
     )
 
 
@@ -367,4 +379,3 @@ def run_stage2_5_refute(
         logger.info(f"Stage 2.5 完成: 复核 {len(judgments)} 条判定，改判 {revised_count} 条")
 
     return revised
-
