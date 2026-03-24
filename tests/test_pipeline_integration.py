@@ -1,9 +1,14 @@
 """
 端到端测试：验证 Stage 1.9 Gate 和 Stage 2.5 Override 的主链路集成
+
+注意：这些测试调用真实 LLM API，需要有效的 API Key 和网络连接。
+在日常回归中请使用 `pytest -m "not integration"` 跳过这些测试。
 """
 
 import pytest
 from src.moderation.workflow import run_audit_sync
+
+pytestmark = pytest.mark.integration
 
 
 class TestMainPipelineIntegration:
