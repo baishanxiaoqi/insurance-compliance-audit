@@ -32,7 +32,7 @@ _PROJECT_NAME = "moderation"
 
 # 从环境变量或 .env 读取（log 模块可能在 config 之前被导入，所以独立读取）
 
-_DEFAULT_FMT = "%(asctime)s │ %(levelname)-7s │ %(name)s │ %(message)s"
+_DEFAULT_FMT = "%(asctime)s │ %(levelname)-7s │ %(name)s │ %(lineno)d │ %(message)s"
 _DEFAULT_DATE_FMT = "%Y-%m-%d %H:%M:%S"
 
 # 从环境变量读取默认级别（可在 .env 中设置 LOG_LEVEL=DEBUG）

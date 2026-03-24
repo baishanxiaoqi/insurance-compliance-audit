@@ -45,8 +45,20 @@ async def lifespan(app: FastAPI):
     """应用启动/关闭时的初始化和清理"""
     logger.info("=" * 60)
     logger.info("保险文本合规审核系统启动")
-    logger.info(f"LLM Model: {config.LLM_MODEL}")
-    logger.info(f"LLM API Base: {config.LLM_API_BASE}")
+    logger.info(
+        "默认调用方: %s | 默认模型: %s",
+        config.GLOBAL_MODEL_PROFILE.provider,
+        config.GLOBAL_MODEL_PROFILE.model,
+    )
+    logger.info(
+        "Judge 模型: %s/%s | Filter 模型: %s/%s | Suggestion 模型: %s/%s",
+        config.JUDGE_MODEL_PROFILE.provider,
+        config.JUDGE_MODEL_PROFILE.model,
+        config.FILTER_MODEL_PROFILE.provider,
+        config.FILTER_MODEL_PROFILE.model,
+        config.SUGGESTION_MODEL_PROFILE.provider,
+        config.SUGGESTION_MODEL_PROFILE.model,
+    )
     logger.info(f"Chunk Size: {config.CHUNK_SIZE}, Min Size: {config.CHUNK_MIN_SIZE}")
     logger.info(f"Top-K Recall: {config.TOP_K_RULES}, Top-K Filter: {config.TOP_K_FILTER}")
 
@@ -81,7 +93,7 @@ async def health_check():
     """健康检查接口"""
     return HealthResponse(
         status="ok",
-        model=config.LLM_MODEL,
+        model=config.JUDGE_MODEL_PROFILE.model,
         rules_loaded=getattr(app.state, "rules_count", 0),
     )
 
