@@ -5830,48 +5830,6 @@
     "violation_case": "什么疾病都能保，快点购买我们这个产品吧。"
   },
   {
-    "rule_id": "KB0174",
-    "rule_name": "知识库规则-集团 / 中国平安",
-    "risk_level": "high",
-    "violation_definition": "使用集团、中国平安、平安保险等主体模糊中国平安人寿保险公司的表述",
-    "exceptions": [
-      "使用的代称为非平安集团；代称明确指中国平安集团；宣传平安集团可以经营综合金融业务。",
-      "出现排除词时不违规：人寿、寿险、综合金融、综金、属于、一站式",
-      "前缀不匹配：平安"
-    ],
-    "keywords": [
-      "集团"
-    ],
-    "reason_codes": [
-      "RC_KB0174"
-    ],
-    "suggestion_template": "主体是平安人寿吗？如是请明确。",
-    "violation_terms": [
-      "集团",
-      "中国平安",
-      "平安保险"
-    ],
-    "condition_terms": [],
-    "condition_distance": null,
-    "exclusion_terms": [
-      "人寿",
-      "寿险",
-      "综合金融",
-      "综金",
-      "属于",
-      "一站式"
-    ],
-    "exclusion_distance": 35,
-    "prefix_no_match": [
-      "平安"
-    ],
-    "suffix_no_match": [],
-    "compliant_basis": "【重要】否定语境合规：材料中批评、处罚、禁止使用'集团、中国平安、平安保险'等表述的行为时合规（如'禁止使用集团、中国平安、平安保险'、'因使用集团、中国平安、平安保险被处罚'、'不得使用集团、中国平安、平安保险'），因为材料本身在反对该违规行为。 使用的代称为非平安集团；代称明确指中国平安集团；宣传平安集团可以经营综合金融业务。",
-    "compliant_case": "腾讯集团推出了大量的游戏服务。中国平安提供一站式金融服务。",
-    "violation_basis": "使用集团、中国平安、平安保险等主体模糊中国平安人寿保险公司的表述",
-    "violation_case": "中国平安推出了盛世金悦这款保险产品。"
-  },
-  {
     "rule_id": "KB0175",
     "rule_name": "知识库规则-稀缺",
     "risk_level": "high",
@@ -16683,5 +16641,791 @@
     "compliant_case": "案例1：'某公司因使用保险医养顾问等表述被处罚'（否定语境，合规）",
     "violation_basis": "根据保险监管相关规定，禁止使用'保险医养顾问'等表述，因为可能误导消费者、违反广告法或保险法相关规定。",
     "violation_case": "案例1：'本产品保险医养顾问'（直接使用违规词，违规）；案例3：'产品特点：保险医养顾问'（宣传中使用，违规）"
+  },
+  {
+    "rule_id": "KB0632",
+    "rule_name": "知识库规则-什么都保 / 保所有",
+    "risk_level": "high",
+    "violation_definition": "宣传保险产品什么都保、保所有、任何风险都能覆盖、一张保单全解决，夸大保险责任范围，误导客户理解为保险可以兜底所有风险。",
+    "exceptions": [
+      "客观说明保险责任范围、给付条件和免责条款",
+      "明确说明保险并非覆盖所有风险"
+    ],
+    "keywords": [
+      "什么都保",
+      "全都能保",
+      "保所有",
+      "任何风险都能覆盖",
+      "一张保单全解决"
+    ],
+    "reason_codes": [
+      "夸大保障范围",
+      "误导保险责任"
+    ],
+    "suggestion_template": "请删除“什么都保、保所有”等责任兜底表述，改为客观说明保险责任范围、给付条件和免责条款。",
+    "violation_terms": [
+      "什么都保",
+      "全都能保",
+      "保所有",
+      "任何风险都能覆盖",
+      "一张保单全解决"
+    ],
+    "condition_terms": [],
+    "condition_distance": null,
+    "exclusion_terms": [
+      "并非什么都保",
+      "不是什么都保",
+      "合同约定",
+      "免责条款",
+      "责任免除"
+    ],
+    "exclusion_distance": 24,
+    "prefix_no_match": [],
+    "suffix_no_match": [],
+    "compliant_basis": "客观介绍保险责任范围、给付条件和免责条款，或明确说明保险并非覆盖所有风险，属于合规表达。",
+    "compliant_case": "本产品并非什么都保，具体保障责任和责任免除以保险合同约定为准。",
+    "violation_basis": "将保险宣传为可以覆盖全部风险、解决所有问题，属于夸大保险责任范围，容易使消费者对保障边界产生错误理解。",
+    "violation_case": "这张保单什么都保，一张保单全解决。",
+    "audit_point_id": "2.2.3",
+    "audit_point_name": "宣传保险可以保所有",
+    "complexity_level": "complex",
+    "route_strategy": "auto",
+    "category_group": "responsibility_exaggeration",
+    "actor_scope": "any",
+    "claim_type": "misleading_statement",
+    "exception_group": [],
+    "evidence_required": false,
+    "route_hint": "prefer_skill",
+    "mutual_exclusion_group": "responsibility_exaggeration_group",
+    "primary_category": "responsibility_exaggeration",
+    "secondary_category": "universal_coverage_claim"
+  },
+  {
+    "rule_id": "KB0633",
+    "rule_name": "知识库规则-稳赚不赔 / 零风险",
+    "risk_level": "high",
+    "violation_definition": "使用稳赚不赔、零风险、绝不会亏等表述，直接暗示保险收益确定且不存在风险，误导消费者将保险理解为保本保收益工具。",
+    "exceptions": [
+      "客观解释监管禁止的违规示例",
+      "明确说明收益不确定或非销售主张"
+    ],
+    "keywords": [
+      "稳赚不赔",
+      "零风险",
+      "稳赔不亏",
+      "绝不会亏",
+      "绝不会亏钱"
+    ],
+    "reason_codes": [
+      "暗示确定收益",
+      "淡化风险"
+    ],
+    "suggestion_template": "请删除“稳赚不赔、零风险”等收益承诺表述，改为客观说明保险利益、风险和不确定性。",
+    "violation_terms": [
+      "稳赚不赔",
+      "零风险",
+      "稳赔不亏",
+      "绝不会亏",
+      "绝不会亏钱"
+    ],
+    "condition_terms": [],
+    "condition_distance": null,
+    "exclusion_terms": [
+      "违规",
+      "处罚",
+      "禁止",
+      "收益不确定",
+      "不作为销售主张"
+    ],
+    "exclusion_distance": 24,
+    "prefix_no_match": [],
+    "suffix_no_match": [],
+    "compliant_basis": "若仅用于提示违规示例，或明确说明保险收益存在不确定性且不以此作为销售主张，则属于合规表达。",
+    "compliant_case": "培训中明确提示“稳赚不赔、零风险”属于违规话术，不得对外宣传。",
+    "violation_basis": "将保险宣传为稳赚不赔、零风险，属于收益承诺和风险淡化，容易让消费者误解保险利益具有确定性。",
+    "violation_case": "这款保险稳赚不赔，几乎零风险。",
+    "audit_point_id": "3.5.1",
+    "audit_point_name": "“稳赚不赔”、“零风险”",
+    "complexity_level": "complex",
+    "route_strategy": "auto",
+    "category_group": "guaranteed_return",
+    "actor_scope": "any",
+    "claim_type": "income_promise",
+    "exception_group": [],
+    "evidence_required": false,
+    "route_hint": "prefer_skill",
+    "mutual_exclusion_group": "income_promise_group",
+    "primary_category": "guaranteed_return",
+    "secondary_category": "rhetorical_guarantee"
+  },
+  {
+    "rule_id": "KB0634",
+    "rule_name": "知识库规则-下有保底 / 上不封顶",
+    "risk_level": "high",
+    "violation_definition": "使用下有保底、上不封顶、保底收益加浮动收益等成对结构话术，暗示保险收益既保底又无限上行，误导消费者认为收益模板已被锁定。",
+    "exceptions": [
+      "客观说明合同约定给付且未将利益演示作为收益承诺宣传",
+      "对违规话术进行培训提醒或风险提示"
+    ],
+    "keywords": [
+      "下有保底",
+      "上不封顶",
+      "保底收益",
+      "收益无上限",
+      "保底+浮动收益"
+    ],
+    "reason_codes": [
+      "模板化收益承诺",
+      "夸大收益空间"
+    ],
+    "suggestion_template": "请删除“下有保底、上不封顶”等模板化收益承诺，改为客观说明保险利益演示不代表实际收益。",
+    "violation_terms": [
+      "下有保底",
+      "保底收益",
+      "保底+浮动收益"
+    ],
+    "condition_terms": [
+      "上不封顶",
+      "收益无上限",
+      "无上限",
+      "浮动收益"
+    ],
+    "condition_distance": 30,
+    "exclusion_terms": [
+      "利益演示",
+      "不代表实际收益",
+      "合同约定",
+      "收益不确定"
+    ],
+    "exclusion_distance": 24,
+    "prefix_no_match": [],
+    "suffix_no_match": [],
+    "compliant_basis": "若仅客观说明保险利益演示、合同约定或明确提示实际收益不确定，则不属于违规宣传。",
+    "compliant_case": "利益演示仅供说明，不代表未来实际收益，具体以合同约定为准。",
+    "violation_basis": "通过“保底+无上限”的模板化结构承诺收益，容易让消费者误解保险收益具有确定下限和无限上行空间。",
+    "violation_case": "这款产品下有保底、上不封顶，收益空间特别大。",
+    "audit_point_id": "3.6.1",
+    "audit_point_name": "“下有保底、上不封顶”结构",
+    "complexity_level": "complex",
+    "route_strategy": "auto",
+    "category_group": "guaranteed_return",
+    "actor_scope": "any",
+    "claim_type": "income_promise",
+    "exception_group": [],
+    "evidence_required": false,
+    "route_hint": "prefer_skill",
+    "mutual_exclusion_group": "income_promise_group",
+    "primary_category": "guaranteed_return",
+    "secondary_category": "template_return_structure"
+  },
+  {
+    "rule_id": "KB0635",
+    "rule_name": "知识库规则-比银行收益更高 / 比存银行划算",
+    "risk_level": "high",
+    "violation_definition": "将保险宣传为比银行收益更高、比存银行更划算、更稳更赚，直接把保险当作高收益金融产品进行对比营销，易造成金融用语混淆和收益误导。",
+    "exceptions": [
+      "客观解读监管关于保险与理财差异的要求",
+      "说明保险与银行存款不同且未作收益优劣宣传",
+      "产品说明书中客观介绍分红账户投资策略"
+    ],
+    "keywords": [
+      "比银行收益更高",
+      "比存银行划算",
+      "比银行利息高",
+      "银行收益太低",
+      "比银行更稳更赚"
+    ],
+    "reason_codes": [
+      "不当金融产品比较",
+      "暗示更高收益"
+    ],
+    "suggestion_template": "请删除与银行收益高低相关的宣传比较，改为客观说明保险与银行存款、理财产品并不相同。",
+    "violation_terms": [
+      "比银行收益更高",
+      "比存银行划算",
+      "比银行利息高",
+      "银行收益太低",
+      "比银行更稳更赚"
+    ],
+    "condition_terms": [],
+    "condition_distance": null,
+    "exclusion_terms": [
+      "保险和银行理财不一样",
+      "违规",
+      "处罚",
+      "监管要求",
+      "产品说明书",
+      "投资策略"
+    ],
+    "exclusion_distance": 28,
+    "prefix_no_match": [],
+    "suffix_no_match": [],
+    "compliant_basis": "若仅客观说明保险与银行存款、理财产品并不相同，或在非宣介文件中解释投资策略、监管要求，不属于违规宣传。",
+    "compliant_case": "保险产品与银行存款不同，不能简单按收益高低进行类比。",
+    "violation_basis": "通过“比银行收益更高”等说法将保险包装为更优的理财替代方案，属于不当比较并易导致金融产品混淆和收益误导。",
+    "violation_case": "这份保险比存银行划算多了，收益更高也更稳。",
+    "audit_point_id": "3.8.1",
+    "audit_point_name": "比银行收益更高",
+    "complexity_level": "complex",
+    "route_strategy": "auto",
+    "category_group": "guaranteed_return",
+    "actor_scope": "any",
+    "claim_type": "comparison_advantage",
+    "exception_group": [],
+    "evidence_required": false,
+    "route_hint": "prefer_skill",
+    "mutual_exclusion_group": "income_promise_group",
+    "primary_category": "guaranteed_return",
+    "secondary_category": "relative_bank_return_claim"
+  },
+  {
+    "rule_id": "KB0636",
+    "rule_name": "知识库规则-独一无二 / 唯一选择",
+    "risk_level": "high",
+    "violation_definition": "使用独一无二、不可替代、唯一选择、仅此一家等表述，直接夸大保险产品、服务或代理人的独占优势，易使受众理解为不可被超越的唯一方案。",
+    "exceptions": [
+      "仅表述企业文化、经营理念或主观愿望",
+      "产品名称本身包含相关词语且未宣传能力",
+      "仅表达客户主观感受且未直接指向保险产品能力"
+    ],
+    "keywords": [
+      "独一无二",
+      "不可替代",
+      "唯一选择",
+      "仅此一家",
+      "别人都做不到"
+    ],
+    "reason_codes": [
+      "绝对化唯一性表述",
+      "夸大独占优势"
+    ],
+    "suggestion_template": "请删除“独一无二、唯一选择”等绝对化唯一性表述，改为客观描述产品特点或服务内容。",
+    "violation_terms": [
+      "独一无二",
+      "不可替代",
+      "唯一选择",
+      "仅此一家",
+      "别人都做不到"
+    ],
+    "condition_terms": [],
+    "condition_distance": null,
+    "exclusion_terms": [
+      "经营理念",
+      "企业文化",
+      "愿景",
+      "目标追求",
+      "产品名称",
+      "主观感受"
+    ],
+    "exclusion_distance": 24,
+    "prefix_no_match": [],
+    "suffix_no_match": [],
+    "compliant_basis": "若仅表达经营理念、企业文化、主观愿望，或为产品名称、客户感受描述且未直接指向保险产品能力，则属于合规表达。",
+    "compliant_case": "我们的目标是成为客户心中值得信赖的选择，这属于主观愿景表达。",
+    "violation_basis": "将保险产品、服务或代理人描述为独一无二、不可替代，属于绝对化表述，容易让消费者误解其具有不可超越的唯一优势。",
+    "violation_case": "这是市场上独一无二的方案，也是客户的唯一选择。",
+    "audit_point_id": "7.1.3",
+    "audit_point_name": "替代唯一性暗示",
+    "complexity_level": "complex",
+    "route_strategy": "auto",
+    "category_group": "absolute_expression",
+    "actor_scope": "any",
+    "claim_type": "ranking_claim",
+    "exception_group": [],
+    "evidence_required": false,
+    "route_hint": "prefer_skill",
+    "mutual_exclusion_group": "absolute_expression_group",
+    "primary_category": "absolute_expression",
+    "secondary_category": "uniqueness_claim"
+  },
+  {
+    "rule_id": "KB0637",
+    "rule_name": "知识库规则-只要买了就 / 配置了就不会",
+    "risk_level": "high",
+    "violation_definition": "使用只要买了就、配置了就不会、买了以后一定等前提加绝对结果的结构，暗示购买保险后必然实现某种结果，属于带条件的绝对化承诺。",
+    "exceptions": [
+      "客观说明合同责任且未承诺绝对结果",
+      "讨论客户需求或场景假设，未直接指向保险产品能力"
+    ],
+    "keywords": [
+      "只要买了就",
+      "配置了就不会",
+      "买了以后一定",
+      "现在做了以后肯定",
+      "只要现在上车"
+    ],
+    "reason_codes": [
+      "条件式绝对承诺",
+      "夸大保险效果"
+    ],
+    "suggestion_template": "请删除“只要……就一定……”这类条件式绝对承诺，改为客观说明保险责任和触发条件。",
+    "violation_terms": [
+      "只要买了就",
+      "配置了就不会",
+      "买了以后一定",
+      "现在做了以后肯定",
+      "只要现在上车"
+    ],
+    "condition_terms": [
+      "一定",
+      "肯定",
+      "绝对",
+      "不会",
+      "无忧"
+    ],
+    "condition_distance": 20,
+    "exclusion_terms": [
+      "不一定",
+      "可能",
+      "视合同约定",
+      "视具体情况",
+      "仅作举例"
+    ],
+    "exclusion_distance": 20,
+    "prefix_no_match": [],
+    "suffix_no_match": [],
+    "compliant_basis": "若只是客观说明合同责任触发条件，或明确提示仍需视合同约定、具体情况判断，不属于违规绝对化承诺。",
+    "compliant_case": "是否获得给付仍需视合同责任和实际事故情况判断。",
+    "violation_basis": "使用“只要……就……”的结构直接承诺购买保险后的确定结果，属于条件式绝对化表述，容易误导消费者。",
+    "violation_case": "只要买了就不会出现医疗开支压力，配置了就肯定安心。",
+    "audit_point_id": "7.1.4",
+    "audit_point_name": "前提假设式断言",
+    "complexity_level": "complex",
+    "route_strategy": "auto",
+    "category_group": "absolute_expression",
+    "actor_scope": "any",
+    "claim_type": "misleading_statement",
+    "exception_group": [],
+    "evidence_required": false,
+    "route_hint": "prefer_skill",
+    "mutual_exclusion_group": "absolute_expression_group",
+    "primary_category": "absolute_expression",
+    "secondary_category": "conditional_absolute_claim"
+  },
+  {
+    "rule_id": "KB0638",
+    "rule_name": "知识库规则-不买就亏 / 再不买就晚",
+    "risk_level": "high",
+    "violation_definition": "使用不买就亏、再不买就晚了、错过这次就没机会等表述，利用损失厌恶和恐惧压力诱导消费者尽快投保。",
+    "exceptions": [
+      "客观说明产品停售或投保年龄限制且有真实依据",
+      "对违规话术进行培训提醒或处罚通报"
+    ],
+    "keywords": [
+      "不买就亏",
+      "再不买就晚了",
+      "以后就来不及",
+      "错过这次就没机会",
+      "现在不配以后会后悔"
+    ],
+    "reason_codes": [
+      "恐惧施压营销",
+      "不当投保诱导"
+    ],
+    "suggestion_template": "请删除“不买就亏、再不买就晚”等施压性表述，改为客观说明产品信息和适用条件。",
+    "violation_terms": [
+      "不买就亏",
+      "再不买就晚了",
+      "以后就来不及",
+      "错过这次就没机会",
+      "现在不配以后会后悔"
+    ],
+    "condition_terms": [],
+    "condition_distance": null,
+    "exclusion_terms": [
+      "停售通知",
+      "投保年龄",
+      "违规",
+      "处罚",
+      "禁止使用"
+    ],
+    "exclusion_distance": 24,
+    "prefix_no_match": [],
+    "suffix_no_match": [],
+    "compliant_basis": "若仅客观说明真实停售、年龄限制等客观条件，或在培训中提示该类话术违规，则不属于违规宣传。",
+    "compliant_case": "该产品投保年龄截至 55 周岁，请结合自身需求理性选择。",
+    "violation_basis": "利用“现在不买就亏、再晚就来不及”等话术施压，容易迫使消费者在不充分理解产品的情况下仓促投保。",
+    "violation_case": "这份保障现在不买就亏，再不买就晚了。",
+    "audit_point_id": "7.2.1",
+    "audit_point_name": "不买就亏、再不买就晚",
+    "complexity_level": "complex",
+    "route_strategy": "auto",
+    "category_group": "absolute_expression",
+    "actor_scope": "any",
+    "claim_type": "misleading_statement",
+    "exception_group": [],
+    "evidence_required": false,
+    "route_hint": "prefer_skill",
+    "mutual_exclusion_group": "absolute_expression_group",
+    "primary_category": "absolute_expression",
+    "secondary_category": "fear_pressure_claim"
+  },
+  {
+    "rule_id": "KB0639",
+    "rule_name": "知识库规则-限时限量 / 最后名额",
+    "risk_level": "high",
+    "violation_definition": "使用限时限量、最后名额、过了今晚就没有、马上截止等紧迫感表述，制造稀缺和倒计时氛围，诱导消费者仓促投保。",
+    "exceptions": [
+      "客观说明真实活动规则、报名截止时间或库存限制",
+      "培训、审查材料中提示禁止使用该类话术"
+    ],
+    "keywords": [
+      "限时限量",
+      "最后名额",
+      "过了今晚就没有",
+      "马上截止",
+      "先到先得"
+    ],
+    "reason_codes": [
+      "制造紧迫感",
+      "催促成交"
+    ],
+    "suggestion_template": "请删除“限时限量、最后名额”等紧迫感营销表述，改为客观说明真实活动规则或产品信息。",
+    "violation_terms": [
+      "限时限量",
+      "最后名额",
+      "过了今晚就没有",
+      "马上截止",
+      "先到先得"
+    ],
+    "condition_terms": [],
+    "condition_distance": null,
+    "exclusion_terms": [
+      "活动规则",
+      "报名截止",
+      "真实库存",
+      "课程名额",
+      "禁止使用"
+    ],
+    "exclusion_distance": 24,
+    "prefix_no_match": [],
+    "suffix_no_match": [],
+    "compliant_basis": "若仅客观说明活动规则、报名截止时间或真实库存限制，不以此诱导投保，则属于合规表达。",
+    "compliant_case": "活动报名截至 3 月 31 日，具体规则请以活动页面说明为准。",
+    "violation_basis": "通过稀缺和倒计时话术制造紧迫氛围，容易诱导消费者在信息未充分理解时仓促投保。",
+    "violation_case": "最后名额，过了今晚就没有了，先到先得。",
+    "audit_point_id": "7.3.1",
+    "audit_point_name": "限时限量紧迫感表述",
+    "complexity_level": "complex",
+    "route_strategy": "auto",
+    "category_group": "absolute_expression",
+    "actor_scope": "any",
+    "claim_type": "misleading_statement",
+    "exception_group": [],
+    "evidence_required": false,
+    "route_hint": "prefer_skill",
+    "mutual_exclusion_group": "absolute_expression_group",
+    "primary_category": "absolute_expression",
+    "secondary_category": "urgency_claim"
+  },
+  {
+    "rule_id": "KB0640",
+    "rule_name": "知识库规则-中产家庭 / 高净值家庭",
+    "risk_level": "high",
+    "violation_definition": "使用中产家庭、高净值家庭、精英家庭、真正有格局的人等标签化用语，对消费者进行不当分类或价值暗示，易造成不适当营销引导。",
+    "exceptions": [
+      "客观市场研究、客群画像或公开统计分析",
+      "内部培训中讨论客群特征且不作为对外营销话术"
+    ],
+    "keywords": [
+      "中产家庭",
+      "高净值家庭",
+      "真正有格局的人",
+      "精英家庭",
+      "体面家庭都配"
+    ],
+    "reason_codes": [
+      "不当身份标签",
+      "价值判断暗示"
+    ],
+    "suggestion_template": "请删除“中产家庭、高净值家庭”等标签化表述，改为客观描述适用人群或保障需求。",
+    "violation_terms": [
+      "中产家庭",
+      "高净值家庭",
+      "真正有格局的人",
+      "精英家庭",
+      "体面家庭都配",
+      "中产"
+    ],
+    "condition_terms": [],
+    "condition_distance": null,
+    "exclusion_terms": [
+      "研究报告",
+      "客群画像",
+      "市场分析",
+      "统计口径",
+      "内部培训"
+    ],
+    "exclusion_distance": 24,
+    "prefix_no_match": [],
+    "suffix_no_match": [],
+    "compliant_basis": "若仅用于市场研究、客群画像、统计分析等客观场景，且不作为对外营销标签，不属于违规宣传。",
+    "compliant_case": "研究报告中提到中产家庭的保险需求变化趋势。",
+    "violation_basis": "通过“中产、高净值、精英”等标签化表达对客户进行价值暗示，容易形成不当营销导向和身份压力。",
+    "violation_case": "真正有格局的人都会给中产家庭配置这份保险。",
+    "audit_point_id": "7.5.1",
+    "audit_point_name": "中产等不恰当用语",
+    "complexity_level": "complex",
+    "route_strategy": "auto",
+    "category_group": "absolute_expression",
+    "actor_scope": "any",
+    "claim_type": "misleading_statement",
+    "exception_group": [],
+    "evidence_required": false,
+    "route_hint": "prefer_skill",
+    "mutual_exclusion_group": "absolute_expression_group",
+    "primary_category": "absolute_expression",
+    "secondary_category": "improper_term_claim"
+  },
+  {
+    "rule_id": "KB0641",
+    "rule_name": "知识库规则-财富顾问 / 规划师 / 产品专家",
+    "risk_level": "high",
+    "violation_definition": "将保险代理人宣传为财富顾问、金融顾问、规划师、财富管理师、产品专家等其他职位，易使受众误解其真实身份、执业范围或专业资格。",
+    "exceptions": [
+      "介绍第三方机构的真实岗位或职业资格",
+      "合规培训中明确提示这些头衔不能替代保险代理人身份"
+    ],
+    "keywords": [
+      "财富顾问",
+      "金融顾问",
+      "规划师",
+      "财富管理师",
+      "产品专家",
+      "医养顾问"
+    ],
+    "reason_codes": [
+      "误导代理人身份",
+      "混淆岗位性质"
+    ],
+    "suggestion_template": "请使用“保险代理人”等合规身份表述，避免使用容易混淆身份或资格的职位名称。",
+    "violation_terms": [
+      "财富顾问",
+      "金融顾问",
+      "规划师",
+      "财富管理师",
+      "产品专家",
+      "医养顾问"
+    ],
+    "condition_terms": [],
+    "condition_distance": null,
+    "exclusion_terms": [
+      "第三方机构",
+      "职业资格",
+      "真实岗位",
+      "不能替代保险代理人"
+    ],
+    "exclusion_distance": 24,
+    "prefix_no_match": [],
+    "suffix_no_match": [],
+    "compliant_basis": "若介绍的是第三方机构真实岗位、职业资格，或在合规培训中明确提示这些头衔不能替代保险代理人身份，则属于合规表达。",
+    "compliant_case": "培训材料明确提示，保险代理人不得对外自称财富顾问或规划师。",
+    "violation_basis": "将保险代理人包装为财富顾问、规划师等其他职位，容易误导客户对其身份、职责范围和专业资格的理解。",
+    "violation_case": "欢迎联系我的专属财富顾问，为您做全套保险配置。",
+    "audit_point_id": "12.1.1",
+    "audit_point_name": "代理人称呼改为其他职位",
+    "complexity_level": "complex",
+    "route_strategy": "auto",
+    "category_group": "agent_title_violation",
+    "actor_scope": "agent",
+    "claim_type": "misleading_statement",
+    "exception_group": [],
+    "evidence_required": false,
+    "route_hint": "prefer_skill",
+    "mutual_exclusion_group": "agent_title_violation_group",
+    "primary_category": "agent_title_violation",
+    "secondary_category": "misleading_position_title"
+  },
+  {
+    "rule_id": "KB0642",
+    "rule_name": "知识库规则-月入过万 / 收入无上限",
+    "risk_level": "high",
+    "violation_definition": "在招募代理人场景中宣传月入过万、收入无上限、年入百万不是梦等，夸大从业收入或收益空间，诱导加入保险营销队伍。",
+    "exceptions": [
+      "客观介绍历史统计口径且未作为招募承诺",
+      "合规培训中提示该类话术违规"
+    ],
+    "keywords": [
+      "月入过万",
+      "收入无上限",
+      "月薪轻松过万",
+      "年入百万不是梦",
+      "做保险月入三万"
+    ],
+    "reason_codes": [
+      "夸大从业收入",
+      "招募诱导"
+    ],
+    "suggestion_template": "请删除“月入过万、收入无上限”等收入承诺，改为客观说明岗位性质、考核机制和实际收入的不确定性。",
+    "violation_terms": [
+      "月入过万",
+      "收入无上限",
+      "月薪轻松过万",
+      "年入百万不是梦",
+      "做保险月入三万"
+    ],
+    "condition_terms": [
+      "招募",
+      "加入",
+      "团队",
+      "事业",
+      "岗位",
+      "应聘",
+      "创业",
+      "顾问"
+    ],
+    "condition_distance": 30,
+    "exclusion_terms": [
+      "过去收入",
+      "案例分享",
+      "统计口径",
+      "违规",
+      "处罚"
+    ],
+    "exclusion_distance": 24,
+    "prefix_no_match": [],
+    "suffix_no_match": [],
+    "compliant_basis": "若仅客观说明历史统计口径或案例背景，未将其作为加入团队的收入承诺，则不属于违规招募宣传。",
+    "compliant_case": "培训中明确提示，不得以“月入过万、收入无上限”等话术招募代理人。",
+    "violation_basis": "使用“月入过万、收入无上限”等表述夸大从业收入，容易误导应聘者对保险代理工作收入预期。",
+    "violation_case": "加入我们团队，做保险月入三万，收入无上限。",
+    "audit_point_id": "12.2.1",
+    "audit_point_name": "宣称月入过万、无上限",
+    "complexity_level": "complex",
+    "route_strategy": "auto",
+    "category_group": "agent_title_violation",
+    "actor_scope": "agent",
+    "claim_type": "income_promise",
+    "exception_group": [],
+    "evidence_required": false,
+    "route_hint": "prefer_skill",
+    "mutual_exclusion_group": "agent_title_violation_group",
+    "primary_category": "agent_title_violation",
+    "secondary_category": "income_exaggeration_recruitment"
+  },
+  {
+    "rule_id": "KB0643",
+    "rule_name": "知识库规则-创业项目 / 合伙人招募 / 顾问岗位",
+    "risk_level": "high",
+    "violation_definition": "把招募保险代理人的行为包装成创业项目、职业经理人、顾问岗位、事业机会等其他职业行为，弱化保险代理关系和销售属性，易误导应聘者。",
+    "exceptions": [
+      "客观说明岗位性质并明确招募的是保险代理人",
+      "第三方公司真实招聘信息"
+    ],
+    "keywords": [
+      "创业项目",
+      "合伙人招募",
+      "职业经理人",
+      "顾问岗位",
+      "事业机会"
+    ],
+    "reason_codes": [
+      "弱化代理关系",
+      "混淆招募性质"
+    ],
+    "suggestion_template": "请明确说明招募的是保险代理人或相关合作关系，避免包装成其他职业行为或创业项目。",
+    "violation_terms": [
+      "创业项目",
+      "合伙人招募",
+      "职业经理人",
+      "顾问岗位",
+      "事业机会"
+    ],
+    "condition_terms": [
+      "招募",
+      "招聘",
+      "加入",
+      "应聘",
+      "团队",
+      "事业平台"
+    ],
+    "condition_distance": 30,
+    "exclusion_terms": [
+      "第三方公司",
+      "真实招聘信息",
+      "岗位说明"
+    ],
+    "exclusion_distance": 24,
+    "prefix_no_match": [],
+    "suffix_no_match": [],
+    "compliant_basis": "若明确说明岗位性质、招募的是保险代理人，或属于第三方公司的真实招聘信息，则不属于违规招募包装。",
+    "compliant_case": "岗位说明明确标注为保险代理人招募，不以创业项目、顾问岗位等其他职业行为包装。",
+    "violation_basis": "将保险代理招募包装为创业项目、顾问岗位或职业经理人等其他职业行为，容易误导应聘者对合作关系和工作性质的理解。",
+    "violation_case": "我们在招募职业经理人，这是一个成熟的创业项目，也是事业机会。",
+    "audit_point_id": "12.4.1",
+    "audit_point_name": "将招募代理人的性质改为其他职业行为",
+    "complexity_level": "complex",
+    "route_strategy": "auto",
+    "category_group": "agent_title_violation",
+    "actor_scope": "agent",
+    "claim_type": "misleading_statement",
+    "exception_group": [],
+    "evidence_required": false,
+    "route_hint": "prefer_skill",
+    "mutual_exclusion_group": "agent_title_violation_group",
+    "primary_category": "agent_title_violation",
+    "secondary_category": "recruitment_nature_confusion"
+  },
+  {
+    "rule_id": "KB0644",
+    "rule_name": "知识库规则-保险公司不会倒闭 / 国家兜底",
+    "risk_level": "high",
+    "violation_definition": "使用保险公司不会倒闭、国家不会让保险公司出事、国家兜底、政策兜底等表述，暗示保险公司经营或偿付能力受到国家或政策绝对背书，误导消费者。",
+    "exceptions": [
+      "客观解读法律法规或破产处置机制",
+      "合规培训、处罚通报中明确指出此类说法违规",
+      "引用监管原文且未作为销售主张"
+    ],
+    "keywords": [
+      "保险公司不会倒闭",
+      "国家不会让保险公司出事",
+      "绝对不会破产",
+      "国家兜底",
+      "政策兜底"
+    ],
+    "reason_codes": [
+      "暗示国家背书",
+      "夸大安全性"
+    ],
+    "suggestion_template": "请删除“不会倒闭、国家兜底”等背书性表述，改为客观说明保险公司经营与监管机制。",
+    "violation_terms": [
+      "保险公司不会倒闭",
+      "国家不会让保险公司出事",
+      "绝对不会破产",
+      "国家兜底",
+      "政策兜底",
+      "不会破产",
+      "不会解散"
+    ],
+    "condition_terms": [],
+    "condition_distance": null,
+    "exclusion_terms": [
+      "破产法",
+      "监管提示",
+      "违规",
+      "处罚",
+      "不得宣传",
+      "不能说"
+    ],
+    "exclusion_distance": 24,
+    "prefix_no_match": [],
+    "suffix_no_match": [],
+    "compliant_basis": "若客观解读法律法规、破产处置机制，或在培训、处罚通报中明确指出此类说法违规，不属于违规宣传。",
+    "compliant_case": "培训材料强调，不得对外宣传“国家兜底、保险公司不会倒闭”等背书性话术。",
+    "violation_basis": "通过“保险公司不会倒闭、国家兜底”等话术暗示国家或政策绝对背书，容易夸大保险公司安全性并误导消费者。",
+    "violation_case": "放心买，保险公司不会倒闭，国家兜底。",
+    "audit_point_id": "13.4.1",
+    "audit_point_name": "宣传保险公司不会倒闭",
+    "complexity_level": "complex",
+    "route_strategy": "auto",
+    "category_group": "regulatory_misinterpretation",
+    "actor_scope": "any",
+    "claim_type": "misleading_statement",
+    "exception_group": [],
+    "evidence_required": false,
+    "route_hint": "prefer_skill",
+    "mutual_exclusion_group": "regulatory_misinterpretation_group",
+    "primary_category": "regulatory_misinterpretation",
+    "secondary_category": "policy_backing_claim"
   }
 ]
