@@ -129,13 +129,35 @@ class ComplianceSkill:
 
 ========== 核心工作准则（必须严格遵守）==========
 1. 你只判断当前文本片段在当前规则下是否成立，不得扩展规则，不得自行补充监管解释。
-2. 你只能使用输入中给出的事实、锚点、规则计划和 span_id，不得从沉默中推断违规。
-3. 如果主体不匹配、时态不匹配、存在明确否定、存在明确例外，则优先判定为 compliant 或 unsure。
-4. 如果涉及收益、排名、历史业绩、数据来源等需证明陈述，而输入未提供充分支持，则输出 unsure。
+2. 你只能使用输入中给出的原文、规则条款、span_id、结构化事实信号和辅助信息，不得假设存在未给出的例外或免责场景。
+3. 只有在输入中出现明确的主体不匹配、时态不匹配、否定语境、排除项或例外条款时，才能优先判定为 compliant 或 unsure。
+4. 如果文本本身已经直接表达当前规则禁止的主张，不要等待额外外部证明；只有当规则明确要求外部依据且文本只是转述、比较或引用时，才输出 unsure。
 5. 如果判定为 violation，必须给出最小必要的 evidence_span_ids，从下方 Span 字典中选择。
 6. 如果无法从给定输入中得到稳定结论，不得猜测，不得补全缺失事实，输出 unsure。
 7. 修改建议只能做删减、弱化、补充披露，不得虚构事实。
-8. 证据不足时优先保守，输出 compliant 或 unsure，而不是强行输出 violation。
+8. 不要因为前置规则引擎未命中就默认 compliant；文本直接违规时优先依据原文和规则裁决。
+
+========== 裁决优先级（按顺序执行，必须严格遵守）==========
+【第一步：识别违规主张】
+1. 先判断原文是否直接表达了当前规则禁止的主张。
+2. 如果存在直接违规主张，记录最小违规证据（核心违规词/短语）。
+3. 不要将功能性描述、中性陈述、背景说明误判为违规主张。
+
+【第二步：检查例外与推翻证据】
+4. 若存在直接违规主张，再检查是否有明确的主体不匹配、时态不匹配、否定语境、排除项或例外条款可以推翻。
+5. 只有当这些推翻证据在当前输入中明确出现时，才能输出 compliant。
+6. 如果违规主张存在，但推翻证据不明确，不要为了保守直接放过，应输出 violation 或 unsure，并在 reasoning_cot 中说明依据。
+
+【第三步：最小证据提取】
+7. 如果判定为 violation，必须提取最小必要证据：
+   - 只选择包含核心违规词的 span，不要选择上下文、修饰词、连接词
+   - 不要将"保险可以提供补偿或保障"等功能性描述作为违规证据
+   - 不要将"金融产品""财务保障"等中性词汇作为违规证据
+   - 只选择明确表达违规主张的最短语义单元
+
+【第四步：最终裁决】
+8. 如果需要外部证明的只是排名、收益、历史业绩等支持性陈述，而原文并未直接作出违规承诺，才考虑 insufficient_evidence。
+9. 在 reasoning_cot 中必须明确说明：识别到的违规主张是什么、为什么是违规、选择的证据为什么是最小必要证据。
 
 ========== 待审核文本 ==========
 {chunk.chunk_text}
@@ -164,7 +186,7 @@ class ComplianceSkill:
 ========== 结构化事实信号（辅助推理，不可替代规则条款）==========
 {facts_block}
 
-========== 可执行规则前置结果（代码引擎）==========
+========== 代码引擎辅助信息（仅辅助参考，不得替代最终判断）==========
 {deterministic_block}
 
 ========== 可用的 reason_codes ==========
@@ -177,19 +199,31 @@ class ComplianceSkill:
 3. verdict: "violation"(违规) / "compliant"(合规) / "unsure"(不确定)
 4. reasoning_cot: 详细的推理过程（必须超过50字），需要结合例外条款逐条排查后再做判定
 5. evidence_span_ids: 如果违规，从上方 Span 字典中选择包含违规内容的 span_id（可多选）。如果合规则留空。
-   【Phase 4 P1 强化：evidence_span_ids 选择原则】
+   【Phase 4 P1+ 强化：evidence_span_ids 选择原则（严格执行）】
    - 优先指向"最小触发证据"：只选择包含核心违规词的 span，不要选择上下文、修饰词、连接词
+   - 严格排除中性描述：
+     * 不要选择"保险可以提供补偿或保障"等功能性描述
+     * 不要选择"金融产品""财务保障""风险管理"等中性词汇
+     * 不要选择"在一定程度上""间接"等修饰性表述
    - 分类提取证据：
-     * 风险语：选择包含违规主张的 span（如"保证收益""最好的产品"）
+     * 风险语：选择包含违规主张的 span（如"保证收益""最好的产品""本金计息"）
      * 提示语：如果存在风险提示语，单独选择包含提示语的 span（如"以实际为准"）
      * 比较语：如果涉及对比，选择包含对比表述的 span（如"比银行存款好"）
    - 多审查点拆分：如果长文本中有多个审查点，按审查点分别提取证据，不要合并成整段
    - 跨 span 违规：如果违规表述跨越多个连续的 span，选择所有相关的 span
-   - 确保选中的 span 构成最小完整语义单元
-6. evidence_texts: 如果违规，从原文中逐字摘录最短的违规片段（只保留核心违规语义，不要整个句子）。每个独立违规点一个片段。例如"收益比存银行高出好几倍"而非"这款产品就像在银行存钱一样安全，但收益比存银行高出好几倍。"。必须是原文的连续子串，一字不差。
+   - 确保选中的 span 构成最小完整语义单元，且明确表达违规主张
+6. evidence_texts: 如果违规，从原文中逐字摘录最短的违规片段（只保留核心违规语义，不要整个句子）。每个独立违规点一个片段。
+   【严格要求】：
+   - 只提取明确表达违规主张的最短语义单元
+   - 不要提取功能性描述（如"保险可以提供补偿或保障"）
+   - 不要提取中性词汇（如"金融产品""财务保障""风险管理"）
+   - 不要提取修饰性表述（如"在一定程度上""间接"）
+   - 示例：提取"本金计息"而非"保险作为一种金融产品，其价值在于它能提供财务保障和风险管理功能"
+   - 示例：提取"收益比存银行高出好几倍"而非"这款产品就像在银行存钱一样安全，但收益比存银行高出好几倍。"
+   - 必须是原文的连续子串，一字不差。
+   - 如果已能稳定给出 verdict 和 evidence_span_ids，但 evidence_texts 难以进一步缩短，优先保证 verdict 和 span_id 正确。
 7. reason_codes: 如果违规，从可用的 reason_codes 中选择。
-8. draft_suggestion: 如果违规，结合建议模板生成具体的修改建议。
-9. decision_basis: 必须从以下选项中选择一个，说明判断的主要依据：
+8. decision_basis: 必须从以下选项中选择一个，说明判断的主要依据：
    - explicit_violation: 明确违规（文本明确表达违规主张）
    - exception_applied: 例外适用（触发例外条款，判定合规）
    - actor_mismatch: 主体不匹配（说话主体与规则要求不符）
@@ -198,8 +232,13 @@ class ComplianceSkill:
    - insufficient_evidence: 证据不足（缺少必要的数据来源或依据）
    - condition_not_met: 条件不满足（规则要求的条件词未出现）
    - exclusion_triggered: 排除项触发（出现排除词，判定合规）
-10. primary_category: 主审查点类别（如 financial_product_confusion, guaranteed_return 等）
-11. secondary_category: 次审查点类别（如 savings_account_confusion, stable_return_implication 等）"""
+9. primary_category: 主审查点类别（如 financial_product_confusion, guaranteed_return 等）；如果无法稳定确定，可留空。
+10. secondary_category: 次审查点类别（如 savings_account_confusion, stable_return_implication 等）；如果无法稳定确定，可留空。
+
+【Phase 4 P1+ 重要变更】：
+- 不再需要输出 draft_suggestion 字段
+- 建议生成已拆分到独立的 Stage 2.7，由专门模块处理
+- 请专注于判定和证据提取，不要生成修改建议"""
 
 
 @dataclass
@@ -487,6 +526,16 @@ _SKILL_KEYWORDS: Dict[str, List[str]] = {
 }
 
 _SKILL_BY_NAME: Dict[str, ComplianceSkill] = {s.name: s for s in ALL_SKILLS}
+_CATEGORY_GROUP_TO_SKILL_NAME: Dict[str, str] = {
+    "guaranteed_return": SKILL_REVENUE.name,
+    "absolute_expression": SKILL_LANGUAGE.name,
+    "comparison_violation": SKILL_LANGUAGE.name,
+    "financial_confusion": SKILL_CONSUMER.name,
+    "responsibility_exaggeration": SKILL_CONSUMER.name,
+    "regulatory_misinterpretation": SKILL_INTEGRITY.name,
+    "agent_title_violation": SKILL_MARKETING.name,
+    "gifts_benefits": SKILL_MARKETING.name,
+}
 
 # 兜底 Skill（处理未映射的规则）
 DEFAULT_SKILL = ComplianceSkill(
@@ -501,8 +550,7 @@ DEFAULT_SKILL = ComplianceSkill(
         "2. 进行充分的逻辑推演（reasoning_cot 必须大于50字），说明判定理由",
         "3. 如果判定为违规，必须从 span 字典中选择证据 span_id，严禁捏造",
         "4. reason_codes 必须从规则卡片提供的候选列表中选择",
-        "5. 结合规则的 suggestion_template 生成具体的修改建议",
-        "6. 如果无法确定是否违规，verdict 设为 'unsure'",
+        "5. 如果无法确定是否违规，verdict 设为 'unsure'",
     ],
 )
 
@@ -523,6 +571,30 @@ def _build_rule_text(rule_card: RuleCard) -> str:
 
 def _infer_skill_from_rule_card(rule_card: RuleCard) -> ComplianceSkill:
     """对未显式映射的规则，按规则语义关键词做自动技能路由。"""
+    if rule_card.category_group:
+        skill_name = _CATEGORY_GROUP_TO_SKILL_NAME.get(rule_card.category_group)
+        if skill_name:
+            skill = _SKILL_BY_NAME.get(skill_name)
+            if skill is not None:
+                return skill
+
+    if rule_card.primary_category:
+        mapped_category_group = {
+            "financial_product_confusion": "financial_confusion",
+            "guaranteed_return": "guaranteed_return",
+            "gifts_or_extra_benefits": "gifts_benefits",
+            "responsibility_exaggeration": "responsibility_exaggeration",
+            "absolute_expression": "absolute_expression",
+            "regulatory_misinterpretation": "regulatory_misinterpretation",
+            "agent_title_violation": "agent_title_violation",
+            "comparison_violation": "comparison_violation",
+        }.get(rule_card.primary_category)
+        if mapped_category_group:
+            skill_name = _CATEGORY_GROUP_TO_SKILL_NAME.get(mapped_category_group)
+            skill = _SKILL_BY_NAME.get(skill_name) if skill_name else None
+            if skill is not None:
+                return skill
+
     text = _build_rule_text(rule_card)
     if not text:
         return DEFAULT_SKILL

@@ -34,6 +34,30 @@ def classify_complex_scenario(rule_card: RuleCard) -> str | None:
         " ".join(rule_card.keywords),
     ]).lower()
 
+    if (
+        rule_card.primary_category == "financial_product_confusion"
+        or rule_card.category_group == "financial_confusion"
+    ):
+        return "financial_confusion"
+
+    if (
+        rule_card.primary_category == "absolute_expression"
+        or rule_card.category_group in {"absolute_expression", "comparison_violation"}
+    ):
+        return "comparison_or_absolute"
+
+    if (
+        rule_card.primary_category == "gifts_or_extra_benefits"
+        or rule_card.category_group == "gifts_benefits"
+    ):
+        return "gifts_or_extra_benefits"
+
+    if rule_card.primary_category == "agent_title_violation" or rule_card.category_group == "agent_title_violation":
+        return "agent_title_or_recruitment"
+
+    if rule_card.primary_category == "regulatory_misinterpretation" or rule_card.category_group == "regulatory_misinterpretation":
+        return "national_or_regulatory_endorsement"
+
     # 合同外利益场景（优先级最高，避免被其他场景误判）
     if any(kw in rule_text for kw in ["合同外利益", "赠送", "礼品", "奖品", "抽奖", "红酒会", "卡券", "保费回扣"]):
         return "gifts_or_extra_benefits"
@@ -58,6 +82,9 @@ def classify_complex_scenario(rule_card: RuleCard) -> str | None:
     # guaranteed_return 更关注"稳定性暗示"，commitment_strength 更关注"承诺强度"
     if any(kw in rule_text for kw in ["稳定收益", "锁定收益", "固定回报", "保证收益", "承诺分红"]):
         return "guaranteed_return"
+
+    if any(kw in rule_text for kw in ["理财", "投资", "存款", "存入", "储蓄", "本金", "利息", "复利", "账户", "万能账户", "保本", "杠杆"]):
+        return "financial_confusion"
 
     # 简单对比/绝对化场景
     if any(kw in rule_text for kw in ["绝对化", "最", "第一", "唯一", "最好", "最优", "简单对比", "贬低"]):

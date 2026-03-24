@@ -745,7 +745,75 @@ SKILL_GUARANTEED_RETURN = ComplianceSkill(
 
 
 # ============================================================
-# 11. 简单对比/绝对化 Skill（新增 - P0 高漏报审查点）
+# 11. 金融用语混淆 Skill（新增 - P0 重点审查点）
+# ============================================================
+
+SKILL_FINANCIAL_CONFUSION = ComplianceSkill(
+    name="金融用语混淆识别",
+    description="识别把保险产品直接说成存款、理财、投资、保本等金融产品的误导表述",
+    rule_ids=set(),
+    system_instructions=[
+        "你是保险金融术语边界识别专家，专精于识别把保险产品直接说成存款、理财、投资、账户、保本工具的违规宣传。",
+        "",
+        "【核心监管要求】",
+        "- 禁止直接宣传保险产品具备投资理财、存款储蓄、保本保息等金融产品属性。",
+        "- 禁止把客户购买保险描述成“存钱/投资/理财/本金计息”等行为。",
+        "- 禁止把保险产品与银行理财、基金、存款作片面对比并暗示更优收益或更强流动性。",
+        "",
+        "【重点例外】以下场景通常应判为合规】",
+        "1. 主体不是保险产品，而是保险公司资金运用、投资团队、分红账户投资策略。",
+        "2. 文本明确是否定、培训、处罚、整改、风险提示语境，而不是实际销售主张。",
+        "3. 文本在说明保险与理财产品“不一样/不能等同/不能混淆”。",
+        "4. 产品说明书、监管文件、机制解释中的客观描述，没有把它包装成销售卖点。",
+        "5. 明确指向真正的理财产品、基金、存款，而不是保险或保险利益。",
+        "",
+        "【裁决原则】",
+        "1. 必须先识别“被修饰对象”是否直接是保险产品、保险利益、投保行为。",
+        "2. 如果金融词只是背景说明、中性解释、风险教育，不得判违规。",
+        "3. 如果出现“存/投资/理财/本金/利息/复利/保本/账户”等词，但未直接绑定保险，也不要硬判违规。",
+        "4. 如果文本明确把保险说成类似存款、理财、投资行为，应优先判 violation。",
+        "",
+        "evidence_span_ids 选择原则：",
+        "- 只选择真正把保险与金融产品属性绑定的最短 span",
+        "- 不要选择中性解释语句，如“保险是一种金融产品”这类背景描述",
+        "- 不要把风险提示、培训提醒、否定句当成违规证据",
+    ],
+    few_shots=[
+        FewShotExample(
+            label="violation",
+            text_snippet="这份保险就像在银行存款一样安全，收益还比理财更稳，等于帮您长期存钱。",
+            verdict="violation",
+            reasoning="文本直接把保险说成“银行存款”“理财”“长期存钱”，将保险产品和金融产品属性混淆。"
+                      "这是在销售语境下直接绑定保险产品功能，属于金融用语混淆违规。",
+        ),
+        FewShotExample(
+            label="violation",
+            text_snippet="客户现在买这款产品，相当于把钱投进一个更稳的账户，本金也更安心。",
+            verdict="violation",
+            reasoning="“把钱投进账户”“本金更安心”直接把保险购买行为包装成投资/存款行为。"
+                      "被修饰对象是保险产品及投保动作，不属于机制解释或风险提示，违规。",
+        ),
+        FewShotExample(
+            label="compliant",
+            text_snippet="分红险的红利来源于保险公司的投资经营结果，红利分配并不确定，不能简单理解为理财收益。",
+            verdict="compliant",
+            reasoning="文本在解释分红机制，并明确指出“不能简单理解为理财收益”。"
+                      "这是客观机制说明和纠偏，不是在销售中把保险直接包装成理财产品，合规。",
+        ),
+        FewShotExample(
+            label="compliant",
+            text_snippet="培训时要注意，不能把保险说成存款、理财或保本产品，否则容易被监管认定为误导宣传。",
+            verdict="compliant",
+            reasoning="文本处于培训和否定违规语境，明确是在提醒“不能这样说”。"
+                      "虽然出现了高风险金融词，但并非实际宣传主张，属于合规语境。",
+        ),
+    ],
+    temperature=0.2,
+)
+
+
+# ============================================================
+# 12. 简单对比/绝对化 Skill（新增 - P0 高漏报审查点）
 # ============================================================
 
 SKILL_COMPARISON_OR_ABSOLUTE = ComplianceSkill(
@@ -772,12 +840,15 @@ SKILL_COMPARISON_OR_ABSOLUTE = ComplianceSkill(
         "- 非产品/非营销语境：历史人物、故事、调侃（如'最帅的男人'）",
         "- 主观感受：'我觉得最好''我认为最适合'（非产品宣传）",
         "- 客观数据：'市场份额第一'（需有数据来源）",
+        "- 产品名称中固有包含极限词，但未借此夸大产品能力",
+        "- 带有明确限定条件的客观排序，且未把绝对优势直接归给保险产品能力",
         "",
         "【审核原则】",
         "1. 识别是否使用绝对化词汇",
-        "2. 判断是否指向产品、服务、代理人、经营业绩",
-        "3. 检查是否为非营销语境（历史、故事、主观感受）",
-        "4. 如果绝对化词汇未指向产品/服务/代理人，判定为合规",
+        "2. 判断绝对化修饰对象是否直接指向产品、服务、代理人、经营业绩",
+        "3. 检查是否为非营销语境（历史、故事、主观感受、文学夸张）",
+        "4. 如果绝对化词汇未直接指向产品/服务/代理人，不得硬判违规",
+        "5. 对“第一、最好、最佳、唯一”等词，必须同时审查是否存在客观依据、条件限定和对象直指关系",
         "",
         "evidence_span_ids 选择原则：",
         "- 选择包含绝对化词汇的 span",
@@ -817,6 +888,13 @@ SKILL_COMPARISON_OR_ABSOLUTE = ComplianceSkill(
                       "'符合我的需求'说明是个人判断，非产品宣传。"
                       "属于主观感受表达，非营销话术。合规。",
         ),
+        FewShotExample(
+            label="compliant",
+            text_snippet="本产品名称中含有“至尊版”，该名称仅为备案名称，不代表保障责任优于其他产品。",
+            verdict="compliant",
+            reasoning="文本虽然出现了容易联想到极限词的命名，但已明确说明只是备案名称，"
+                      "没有进一步宣传产品能力更强或唯一优势，因此应判定合规。",
+        ),
     ],
     temperature=0.2,
 )
@@ -831,6 +909,7 @@ COMPLEX_SKILLS: List[ComplianceSkill] = [
     SKILL_SUBJECT_SWITCH,
     SKILL_COMMITMENT_STRENGTH,
     SKILL_CROSS_PARAGRAPH,
+    SKILL_FINANCIAL_CONFUSION,
     SKILL_GIFTS_OR_EXTRA_BENEFITS,
     SKILL_AGENT_TITLE_OR_RECRUITMENT,
     SKILL_NATIONAL_OR_REGULATORY_ENDORSEMENT,
@@ -854,6 +933,7 @@ def get_complex_skill(skill_type: str) -> ComplianceSkill | None:
       - "subject_switch" → 主体切换识别
       - "commitment_strength" → 承诺强度判断
       - "cross_paragraph" → 跨段落逻辑判断
+      - "financial_confusion" → 金融用语混淆识别
       - "gifts_or_extra_benefits" → 合同外利益识别
       - "agent_title_or_recruitment" → 招募代理人误导头衔识别
       - "national_or_regulatory_endorsement" → 监管背书/国家背书识别
@@ -867,6 +947,7 @@ def get_complex_skill(skill_type: str) -> ComplianceSkill | None:
         "subject_switch": SKILL_SUBJECT_SWITCH,
         "commitment_strength": SKILL_COMMITMENT_STRENGTH,
         "cross_paragraph": SKILL_CROSS_PARAGRAPH,
+        "financial_confusion": SKILL_FINANCIAL_CONFUSION,
         "gifts_or_extra_benefits": SKILL_GIFTS_OR_EXTRA_BENEFITS,
         "agent_title_or_recruitment": SKILL_AGENT_TITLE_OR_RECRUITMENT,
         "national_or_regulatory_endorsement": SKILL_NATIONAL_OR_REGULATORY_ENDORSEMENT,
@@ -876,4 +957,3 @@ def get_complex_skill(skill_type: str) -> ComplianceSkill | None:
         "comparison_or_absolute": SKILL_COMPARISON_OR_ABSOLUTE,
     }
     return mapping.get(skill_type)
-
