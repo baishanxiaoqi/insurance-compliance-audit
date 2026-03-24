@@ -30,10 +30,19 @@ def fbeta(precision: float, recall: float, beta: float) -> float:
 def score_record(record: dict) -> dict:
     expected_positive = record["label"] == "violation"
     predicted_positive = record["predicted_verdict"] == "violation"
-    predicted_categories = infer_categories(
-        " ".join(record.get("predicted_rule_ids", [])),
-        json.dumps(record.get("response", {}), ensure_ascii=False),
-    )
+    predicted_audit_point_ids = record.get("predicted_audit_point_ids") or []
+    predicted_categories = record.get("predicted_categories") or []
+    if not predicted_categories:
+        response = record.get("response", {}) or {}
+        structured_categories = []
+        for item in response.get("violations", []):
+            for category in [item.get("primary_category"), item.get("secondary_category")]:
+                if category and category not in structured_categories:
+                    structured_categories.append(category)
+        predicted_categories = structured_categories or infer_categories(
+            " ".join(record.get("predicted_rule_ids", [])),
+            json.dumps(response, ensure_ascii=False),
+        )
 
     expected_slices = [normalize_for_match(item) for item in record.get("expected_text_slices", []) if item]
     predicted_slices = [normalize_for_match(item) for item in record.get("predicted_location_slices", []) if item]
@@ -64,11 +73,17 @@ def score_record(record: dict) -> dict:
     if expected_categories:
         category_hit = bool(expected_categories & set(predicted_categories))
 
+    audit_point_hit = None
+    expected_audit_point_id = record.get("expected_audit_point_id") or ""
+    if expected_audit_point_id:
+        audit_point_hit = expected_audit_point_id in set(predicted_audit_point_ids)
+
     return {
         "verdict_correct": expected_positive == predicted_positive,
         "expected_positive": expected_positive,
         "predicted_positive": predicted_positive,
         "category_hit": category_hit,
+        "audit_point_hit": audit_point_hit,
         "location_exact_match": location_exact_match,  # 新增：精确匹配
         "location_fuzzy_match": location_fuzzy_match,  # 新增：模糊匹配
         "predicted_categories": predicted_categories,
@@ -78,6 +93,7 @@ def score_record(record: dict) -> dict:
 def build_summary(records: list[dict]) -> dict:
     tp = fp = fn = tn = 0
     category_total = category_hit = 0
+    audit_point_total = audit_point_hit = 0
     location_exact_total = location_exact_hit = 0  # 新增：精确匹配统计
     location_fuzzy_total = location_fuzzy_hit = 0  # 新增：模糊匹配统计
     by_sheet = defaultdict(lambda: {"total": 0, "correct": 0})
@@ -97,6 +113,10 @@ def build_summary(records: list[dict]) -> dict:
         if scored["category_hit"] is not None:
             category_total += 1
             category_hit += int(scored["category_hit"])
+
+        if scored["audit_point_hit"] is not None:
+            audit_point_total += 1
+            audit_point_hit += int(scored["audit_point_hit"])
 
         # 新增：精确匹配统计
         if scored["location_exact_match"] is not None:
@@ -121,6 +141,8 @@ def build_summary(records: list[dict]) -> dict:
                     "expected_label": record["label"],
                     "predicted_verdict": record["predicted_verdict"],
                     "expected_categories": record.get("expected_categories", []),
+                    "expected_audit_point_id": record.get("expected_audit_point_id", ""),
+                    "predicted_audit_point_ids": record.get("predicted_audit_point_ids", []),
                     "predicted_categories": scored["predicted_categories"],
                     "expected_text_slices": record.get("expected_text_slices", []),
                     "predicted_location_slices": record.get("predicted_location_slices", []),
@@ -140,6 +162,7 @@ def build_summary(records: list[dict]) -> dict:
         "f1": round(fbeta(precision, recall, 1.0), 4),
         "f2": round(fbeta(precision, recall, 2.0), 4),
         "category_hit_rate": round(safe_div(category_hit, category_total), 4),
+        "audit_point_hit_rate": round(safe_div(audit_point_hit, audit_point_total), 4),
         "location_exact_hit_rate": round(safe_div(location_exact_hit, location_exact_total), 4),  # 新增
         "location_fuzzy_hit_rate": round(safe_div(location_fuzzy_hit, location_fuzzy_total), 4),  # 新增
         "by_sheet": {
@@ -169,6 +192,7 @@ def write_markdown(summary: dict, output_path: Path) -> None:
         f"- F1：`{summary['f1']}`",
         f"- F2：`{summary['f2']}`",
         f"- 类别命中率：`{summary['category_hit_rate']}`",
+        f"- 审查点命中率：`{summary['audit_point_hit_rate']}`",
         f"- 定位精确匹配率：`{summary['location_exact_hit_rate']}`",
         f"- 定位模糊匹配率：`{summary['location_fuzzy_hit_rate']}`",
         "",
