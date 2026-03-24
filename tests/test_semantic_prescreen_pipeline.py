@@ -81,6 +81,19 @@ class TestMergeCandidates:
         for kid in kw_ids:
             assert kid in result_ids
 
+    def test_keyword_exceeds_max_per_chunk(self):
+        """keyword 候选本身超过 max_per_chunk 时，结果必须截断到上限"""
+        kw_ids = [f"KW{i:03d}" for i in range(15)]
+        kw = [ChunkCandidates(chunk_id="c1", candidate_rule_ids=kw_ids)]
+        sem = []
+        merged, sources = merge_candidates(kw, sem, max_per_chunk=12)
+        result_ids = merged[0].candidate_rule_ids
+        assert len(result_ids) == 12, f"期望 12，实际 {len(result_ids)}"
+        # 保留的是前 12 条 keyword 规则
+        for rid in result_ids:
+            assert rid in kw_ids
+            assert sources["c1"][rid] == "keyword"
+
     def test_multi_chunk(self):
         """多个 chunk 各自独立处理"""
         kw = [
@@ -150,7 +163,7 @@ class TestFeatureFlag:
                 token = wf_mod._current_state.set(state)
                 token2 = wf_mod._current_meta.set({"start_time": 0})
                 try:
-                    asyncio.get_event_loop().run_until_complete(
+                    asyncio.run(
                         _stage1_executor(StepInput(input=""))
                     )
                 finally:
@@ -210,7 +223,7 @@ class TestSemanticMustGoThroughFilter:
                  patch("src.moderation.workflow.run_stage1_1_semantic_prescreen", side_effect=fake_semantic), \
                  patch("src.moderation.workflow.run_stage1_filter_only", side_effect=fake_filter):
 
-                asyncio.get_event_loop().run_until_complete(
+                asyncio.run(
                     wf_mod.run_stage1_with_semantic_prescreen(state)
                 )
 

@@ -88,13 +88,16 @@ def merge_candidates(
                 merged.append(rid)
                 sources[rid] = "semantic"
 
-        # 限制总量
+        # 限制总量：先保留 keyword，再补 semantic，整体不超过 max_per_chunk
         if len(merged) > max_per_chunk:
-            # 保留 keyword 优先，semantic 补充到上限
             kw_part = [r for r in merged if sources[r] in ("keyword", "both")]
             sem_part = [r for r in merged if sources[r] == "semantic"]
-            remaining = max_per_chunk - len(kw_part)
-            merged = kw_part + sem_part[:max(remaining, 0)]
+            if len(kw_part) >= max_per_chunk:
+                # keyword 本身已超上限，截断 keyword，不补 semantic
+                merged = kw_part[:max_per_chunk]
+            else:
+                remaining = max_per_chunk - len(kw_part)
+                merged = kw_part + sem_part[:remaining]
 
         if merged:
             merged_candidates.append(ChunkCandidates(
