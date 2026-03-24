@@ -92,19 +92,20 @@ python scripts/import_excel_kb.py
 3. 承诺强度判断（commitment_strength）：区分"保证"vs"预期"
 4. 跨段落逻辑（cross_paragraph）：需要全文上下文的判定
 
-### 7 阶段流水线 (Agno Workflow) ✨ Phase 4 P1+ 升级
+### 流水线全景 (Agno Workflow) ✨ Phase 4 P1+ & 长文本/全文审核升级
 
-系统通过 `src/moderation/workflow.py` 编排 8 个串行 Stage：
+系统通过 `src/moderation/workflow.py` 编排以下串行 Stage（Stage 1A‖1B 并行）：
 
 1. **Stage 0 (预处理)** - `stages/stage0_preprocess.py`
    - 纯代码，无 LLM 调用
-   - 文本规范化 + 自适应分块 (80-300字) + Span 切分
+   - 文本规范化 + 自适应分块 + Span 切分
+   - **长文本模式**：文本长度 ≥ `LONGDOC_THRESHOLD`(1500) 时自动切换为更大 chunk（`LONGDOC_CHUNK_SIZE`=1000 / `LONGDOC_CHUNK_MIN_SIZE`=200），保持细粒度 span 用于定位
    - 生成 `norm_to_raw_map` 坐标映射表和全局 `span_pool`
 
-2. **Stage 1 (召回粗筛)** - `stages/stage1_recall_filter.py`
-   - 混合检索：AC 自动机关键词匹配 (60%) + TF-IDF (40%)
-   - LLM Filter Agent：从 Top-20 筛选到 Top-3
-   - 并发处理所有 chunks
+2. **Stage 1 (召回粗筛)** - `stages/stage1_recall_filter.py` + `stages/stage1_1_semantic_prescreen.py`
+   - **Stage 1A（关键词召回）**：AC 自动机关键词匹配 (60%) + TF-IDF (40%)；LLM Filter Agent 从 Top-20 筛到 Top-3
+   - **Stage 1B（语义预检）**：`ENABLE_SEMANTIC_PRESCREEN=true` 时并行运行，LLM 扩展联想规则方向，补充语义相关候选；通过 `rule_indexes.py` 反查规则 ID
+   - 1A‖1B 结果去重合并，统一进入后续 Stage
    - 使用 5 个独立的 AC 自动机（violation/condition/exclusion/prefix/suffix）
 
 3. **Stage 1.5 (事实抽取)** - `stages/stage1_5_fact_extract.py`
@@ -152,20 +153,30 @@ python scripts/import_excel_kb.py
    - 接收 Stage 1.9 Gate 信号，实现 Gate 依赖型 override
    - 将误判的 violation 改写为 compliant
 
-8. **Stage 2.7 (建议生成层)** - `stages/stage2_7_suggestion.py` ✨ Phase 4 P1+ 新增
+8. **Stage 2.6 (全文审核子流水线)** - `stages/stage2_6_full_document.py` ✨ 新增
+   - 与主流程并行，专门检测文档级违规
+   - 纯代码信号提取优先：正则检测数据引用（百分比/排名/增速等）+ 来源说明缺失判断
+   - 无数据引用或全部有来源时直接跳过（零 LLM 成本）
+   - 存在缺少来源的数据引用时调用 LLM 精判（`FULLDOC_R001`）
+   - `chunk_id="__fulldoc__"`，`evidence_span_ids` 指向 `span_pool` 真实 span
+   - 合成 `FULLDOC_R001` RuleCard 注入 `state.rule_cards`
+   - 结果存入 `stage26_full_document_judgments`，在 Stage 2.7/Stage 3 前与主流程结果合并
+
+9. **Stage 2.7 (建议生成层)** - `stages/stage2_7_suggestion.py` ✨ Phase 4 P1+ 新增
    - 纯代码，审核层与展示层解耦
-   - 基于 Stage 2 的判定结果生成修改建议
+   - 合并 `stage2_judgments` + `stage26_full_document_judgments` 后统一生成建议
    - 优先使用 RuleCard 的 suggestion_template
    - 根据违规类型智能生成默认建议
    - 结合 evidence_texts 提供具体修改指导
    - 输出 `SuggestionResult` (suggestion/suggestion_type)
 
-9. **Stage 3 (定位组装)** - `stages/stage3_assemble.py`
-   - 纯代码，零幻觉定位
-   - 通过 `evidence_span_ids` 从 `span_pool` 获取坐标
-   - 坐标还原：norm → raw (通过 `norm_to_raw_map`)
-   - 从 Stage 2.7 的 suggestions 字典获取建议
-   - 坐标重叠去重 + 组装 `AuditResponse`
+10. **Stage 3 (定位组装)** - `stages/stage3_assemble.py`
+    - 纯代码，零幻觉定位
+    - 合并主流程 + 全文审核判定后统一处理
+    - 通过 `evidence_span_ids` 从 `span_pool` 获取坐标
+    - 坐标还原：norm → raw (通过 `norm_to_raw_map`)
+    - 从 Stage 2.7 的 suggestions 字典获取建议
+    - 坐标重叠去重 + 组装 `AuditResponse`
 
 ### 关键设计原则
 
@@ -183,7 +194,7 @@ python scripts/import_excel_kb.py
 - `Chunk`: 文本块 (chunk_id/chunk_text/spans)
 - `RuleCard`: 规则卡片 (rule_id/violation_definition/keywords/violation_terms/condition_terms/exclusion_terms/actor_scope/claim_type/evidence_required) ✨ Phase 4 新增字段
 - `JudgmentResult`: 判定结果 (verdict/reasoning_cot/evidence_span_ids/reason_codes/primary_category/secondary_category) ✨ Phase 4 新增分类字段
-- `WorkflowState`: 工作流状态 (document/rule_cards/stage1_candidates/stage15_facts/stage18_routes/stage19_gate_results/stage2_judgments/final_response) ✨ Phase 4 新增 gate_results
+- `WorkflowState`: 工作流状态 (document/rule_cards/stage1_candidates/stage15_facts/stage18_routes/stage19_gate_results/stage2_judgments/stage26_full_document_judgments/final_response) ✨ 新增 stage26_full_document_judgments
 - `AuditResponse`: 最终输出 (violations/locations/processing_time)
 
 ### Skills 技能分发 (`skills.py` + `complex_skills.py`)
@@ -223,12 +234,20 @@ python scripts/import_excel_kb.py
 | `LLM_API_BASE` | `https://api.openai.com/v1` | LLM API 地址 |
 | `LLM_API_KEY` | - | API Key (必需) |
 | `LLM_MODEL` | `gpt-4o-mini` | 模型标识 |
-| `CHUNK_SIZE` | 300 | Chunk 最大字数 |
-| `CHUNK_MIN_SIZE` | 80 | 短段合并阈值 |
+| `CHUNK_SIZE` | 300 | 普通文本 Chunk 最大字数 |
+| `CHUNK_MIN_SIZE` | 80 | 普通文本短段合并阈值 |
+| `LONGDOC_THRESHOLD` | 1500 | 触发长文本模式的字符数阈值 |
+| `LONGDOC_CHUNK_SIZE` | 1000 | 长文本模式 Chunk 最大字数 |
+| `LONGDOC_CHUNK_MIN_SIZE` | 200 | 长文本模式短段合并阈值 |
 | `TOP_K_RULES` | 20 | 混合检索 Top-K |
 | `TOP_K_FILTER` | 3 | LLM 粗筛保留数 |
 | `MAX_CONCURRENT_CALLS` | 3 | 最大并发 LLM 调用 |
 | `ENABLE_TRACE_LOG` | true | 审计轨迹日志开关 |
+| `ENABLE_SEMANTIC_PRESCREEN` | false | 语义预检（Stage 1B）开关 |
+| `SEMANTIC_PRESCREEN_ENABLE_LLM` | false | 语义预检是否启用 LLM 扩展 |
+| `SEMANTIC_PRESCREEN_MAX_DIRECTIONS` | 2 | 语义预检最大联想方向数 |
+| `SEMANTIC_PRESCREEN_MAX_EXTENDED_RULES` | 4 | 语义预检最大扩展规则数 |
+| `SEMANTIC_PRESCREEN_TIMEOUT_SECONDS` | 15 | 语义预检超时秒数 |
 
 ## 重要文件路径
 
@@ -237,6 +256,9 @@ python scripts/import_excel_kb.py
 - `src/moderation/llm_agent.py`: Agno Agent 封装 + Moonshot 适配 + 429 退避
 - `src/moderation/ac_matcher.py`: AC 自动机封装，高效多模式字符串匹配
 - `src/moderation/audit_trace.py`: 结构化审计轨迹日志 (TRACE::stage2.*)
+- `src/moderation/rule_indexes.py`: 规则索引，供语义预检反查规则 ID
+- `src/moderation/stages/stage1_1_semantic_prescreen.py`: Stage 1B 语义预检
+- `src/moderation/stages/stage2_6_full_document.py`: Stage 2.6 全文审核子流水线
 
 ## API 接口
 
@@ -280,6 +302,9 @@ python scripts/import_excel_kb.py
    - `tests/test_core_behaviors.py`：核心行为测试
    - `tests/test_dual_strategy.py`：双策略架构测试
    - `tests/test_ac_matcher.py`：AC 自动机单元测试
+   - `tests/test_semantic_prescreen_rules.py`：语义预检规则索引测试
+   - `tests/test_stage2_6_full_document.py`：Stage 2.6 全文审核纯代码信号提取测试
+   - 运行快速回归（跳过 LLM 集成测试）：`python -m pytest tests/ -m 'not integration' -q`
 
 10. **性能优化**：
     - base 轨处理约 65% 的规则，节省 30% API 成本
