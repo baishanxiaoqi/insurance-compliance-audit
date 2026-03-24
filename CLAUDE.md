@@ -92,9 +92,9 @@ python scripts/import_excel_kb.py
 3. 承诺强度判断（commitment_strength）：区分"保证"vs"预期"
 4. 跨段落逻辑（cross_paragraph）：需要全文上下文的判定
 
-### 7 阶段流水线 (Agno Workflow) ✨ Phase 4 升级
+### 7 阶段流水线 (Agno Workflow) ✨ Phase 4 P1+ 升级
 
-系统通过 `src/moderation/workflow.py` 编排 7 个串行 Stage：
+系统通过 `src/moderation/workflow.py` 编排 8 个串行 Stage：
 
 1. **Stage 0 (预处理)** - `stages/stage0_preprocess.py`
    - 纯代码，无 LLM 调用
@@ -137,6 +137,7 @@ python scripts/import_excel_kb.py
    - 单规则注入：每个 (chunk, rule) 对独立调用
    - 结构化输出：`JudgmentResult` (verdict/reasoning/evidence_span_ids/primary_category/secondary_category)
    - unsure 高风险二次审查
+   - ✨ Phase 4 P1+ 升级：不再生成 draft_suggestion，专注判定和证据提取
 
 7. **Stage 2.5 (审查点 Override 层)** - `stages/stage2_5_refute.py` ✨ Phase 4 升级
    - 纯代码，配置化 override 规则系统
@@ -151,10 +152,19 @@ python scripts/import_excel_kb.py
    - 接收 Stage 1.9 Gate 信号，实现 Gate 依赖型 override
    - 将误判的 violation 改写为 compliant
 
-8. **Stage 3 (定位组装)** - `stages/stage3_assemble.py`
+8. **Stage 2.7 (建议生成层)** - `stages/stage2_7_suggestion.py` ✨ Phase 4 P1+ 新增
+   - 纯代码，审核层与展示层解耦
+   - 基于 Stage 2 的判定结果生成修改建议
+   - 优先使用 RuleCard 的 suggestion_template
+   - 根据违规类型智能生成默认建议
+   - 结合 evidence_texts 提供具体修改指导
+   - 输出 `SuggestionResult` (suggestion/suggestion_type)
+
+9. **Stage 3 (定位组装)** - `stages/stage3_assemble.py`
    - 纯代码，零幻觉定位
    - 通过 `evidence_span_ids` 从 `span_pool` 获取坐标
    - 坐标还原：norm → raw (通过 `norm_to_raw_map`)
+   - 从 Stage 2.7 的 suggestions 字典获取建议
    - 坐标重叠去重 + 组装 `AuditResponse`
 
 ### 关键设计原则
@@ -280,6 +290,13 @@ python scripts/import_excel_kb.py
     - 规则引擎：动态构建 AC 自动机进行词汇匹配
     - Stage 2.5 反证：使用 AC 自动机检测否定模式
     - 自动回退：如果 pyahocorasick 未安装，自动回退到正则表达式
+
+12. **证据选择约束（Phase 4 P1+ 升级）**：
+    - Skill Prompt 已强化四步计划式裁决流程
+    - 严格排除中性描述：功能性描述、中性词汇、修饰性表述
+    - 只选择明确表达违规主张的最短语义单元
+    - 示例：不要选择"保险可以提供补偿或保障"等功能性描述
+    - 示例：提取"本金计息"而非整段功能性描述
 
 ## 当前已知限制
 
