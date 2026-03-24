@@ -46,7 +46,6 @@ class TestCoordinateContract(unittest.TestCase):
             evidence_span_ids=[target_span.span_id],
             evidence_texts=["违规"],
             reason_codes=["TEST"],
-            draft_suggestion="测试建议",
         )
 
         # Stage 3 定位
@@ -93,7 +92,6 @@ class TestCoordinateContract(unittest.TestCase):
             evidence_span_ids=[target_span.span_id],
             evidence_texts=["第二段"],
             reason_codes=["TEST"],
-            draft_suggestion="测试建议",
         )
 
         # Stage 3 定位
@@ -156,7 +154,6 @@ class TestCoordinateContract(unittest.TestCase):
             evidence_span_ids=[target_span.span_id],
             evidence_texts=["第二段"],
             reason_codes=["TEST"],
-            draft_suggestion="测试建议",
         )
 
         # Stage 3 定位
@@ -198,7 +195,6 @@ class TestCoordinateContract(unittest.TestCase):
             evidence_span_ids=[target_span.span_id],
             evidence_texts=["第二段"],
             reason_codes=["TEST"],
-            draft_suggestion="测试建议",
         )
 
         # Stage 3 定位
