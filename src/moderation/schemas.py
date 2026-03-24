@@ -368,3 +368,13 @@ class WorkflowState(BaseModel):
         description="Stage 2.7 建议生成结果字典，key 为 f'{chunk_id}_{rule_id}'"
     )
     final_response: Optional[AuditResponse] = None
+    # Stage 1.1 语义预检元数据（feature flag 开启时填充）
+    stage11_semantic_metadata: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="语义预检元数据，key 为 chunk_id，value 为 SemanticChunkMetadata.model_dump()"
+    )
+    # Stage 1.2 规则来源溯源（feature flag 开启时填充）
+    stage12_rule_sources: Dict[str, Dict[str, str]] = Field(
+        default_factory=dict,
+        description="规则来源，stage12_rule_sources[chunk_id][rule_id] = 'keyword'|'semantic'|'both'"
+    )

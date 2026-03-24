@@ -8,6 +8,11 @@
 
 **在不破坏当前主链路稳定性的前提下，补上关键词召回对语义型违规表达的漏召回问题。**
 
+本方案基于两份已有文档整理：
+
+- `/Users/junqi/Desktop/工作/01-demo/03-demo/claude-moderation/docs/semantic_prescreen_parallel_plan.md`
+- `/Users/junqi/Desktop/工作/01-demo/03-demo/claude-moderation/docs/semantic_prescreen_parallel_plan_review_20260324.md`
+
 ---
 
 ## 2. Claude Code 执行边界

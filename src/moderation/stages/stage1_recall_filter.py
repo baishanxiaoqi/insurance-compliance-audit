@@ -552,3 +552,92 @@ async def run_stage1(
     # 过滤 None 结果，保持 chunk 顺序
     results = [r for r in raw_results if r is not None]
     return results
+
+
+# ============================================================
+# Stage 1 拆分 Helper：raw recall 与 filter only
+# ============================================================
+
+async def run_stage1_raw_recall(
+    document: DocumentState,
+    rule_cards: Dict[str, RuleCard],
+    top_k_recall: int = 20,
+) -> List[ChunkCandidates]:
+    """
+    Stage 1A: 纯关键词混合召回（不调用 LLM Filter）。
+    为每个 Chunk 执行 AC 自动机 + TF-IDF 混合检索，返回 Top-K raw 候选。
+    结果供 merge 阶段与 semantic prescreen 合并后统一过滤。
+    """
+    from ..stage1_cache import get_cached_retriever
+
+    retriever = get_cached_retriever(rule_cards)
+
+    results: List[ChunkCandidates] = []
+    for chunk in document.chunks:
+        candidate_ids = retriever.recall(chunk.chunk_text, top_k=top_k_recall)
+        if candidate_ids:
+            results.append(ChunkCandidates(
+                chunk_id=chunk.chunk_id,
+                candidate_rule_ids=candidate_ids,
+            ))
+            logger.debug(f"  [raw recall] Chunk {chunk.chunk_id}: {len(candidate_ids)} candidates")
+        else:
+            logger.debug(f"  [raw recall] Chunk {chunk.chunk_id}: no candidates")
+    return results
+
+
+async def run_stage1_filter_only(
+    raw_candidates: List[ChunkCandidates],
+    rule_cards: Dict[str, RuleCard],
+    chunks_map: Dict[str, "Chunk"],
+    top_k_filter: int = 3,
+    max_concurrent: int = 10,
+) -> List[ChunkCandidates]:
+    """
+    Stage 1D: 对合并后的 raw candidates 执行统一 LLM Filter。
+    复用现有 Filter Agent，不引入新过滤逻辑。
+
+    Args:
+        raw_candidates: 已合并的 raw candidate 列表（keyword + semantic）
+        rule_cards: 规则卡片字典
+        chunks_map: chunk_id -> Chunk 映射，用于获取 chunk_text
+        top_k_filter: LLM 筛选保留数量
+        max_concurrent: 最大并发数
+    """
+    from ..stage1_cache import get_cached_filter_agent
+
+    filter_agent = get_cached_filter_agent()
+    semaphore = asyncio.Semaphore(max_concurrent)
+
+    async def _filter_one(cands: ChunkCandidates) -> ChunkCandidates | None:
+        chunk = chunks_map.get(cands.chunk_id)
+        if chunk is None:
+            return None
+        async with semaphore:
+            candidate_cards = [rule_cards[rid] for rid in cands.candidate_rule_ids if rid in rule_cards]
+            if not candidate_cards:
+                return None
+            prompt = build_filter_prompt(chunk.chunk_text, candidate_cards, top_k=top_k_filter)
+            try:
+                filter_result: FilterResult = await safe_arun(
+                    filter_agent,
+                    prompt,
+                    max_retries=config.FILTER_MODEL_PROFILE.max_retries,
+                    timeout_seconds=config.FILTER_MODEL_PROFILE.timeout_seconds,
+                )
+                valid_ids = [
+                    rid for rid in filter_result.relevant_rule_ids
+                    if rid in cands.candidate_rule_ids
+                ]
+                if valid_ids:
+                    logger.info(f"  [filter] Chunk {cands.chunk_id}: {len(valid_ids)} rules -> {valid_ids}")
+                    return ChunkCandidates(chunk_id=cands.chunk_id, candidate_rule_ids=valid_ids)
+                logger.info(f"  [filter] Chunk {cands.chunk_id}: no rules after filter")
+                return None
+            except Exception as e:
+                logger.warning(f"  [filter] Chunk {cands.chunk_id} LLM filter failed: {e}, keeping all")
+                return ChunkCandidates(chunk_id=cands.chunk_id, candidate_rule_ids=cands.candidate_rule_ids)
+
+    tasks = [_filter_one(c) for c in raw_candidates]
+    raw_results = await asyncio.gather(*tasks)
+    return [r for r in raw_results if r is not None]

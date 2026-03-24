@@ -30,7 +30,14 @@ from .schemas import RuleCard, WorkflowState, AuditResponse
 from .audit_points import enrich_rule_card
 from .ocr_preprocessor import normalize_text_for_audit
 from .stages.stage0_preprocess import preprocess
-from .stages.stage1_recall_filter import run_stage1
+from .stages.stage1_recall_filter import (
+    run_stage1,
+    run_stage1_raw_recall,
+    run_stage1_filter_only,
+)
+from .stages.stage1_1_semantic_prescreen import run_stage1_1_semantic_prescreen
+from .stages.stage1_2_merge_candidates import merge_candidates
+from .rule_indexes import build_category_group_index
 from .stages.stage1_5_fact_extract import run_stage1_5
 from .stages.stage1_8_route_dispatch import run_stage1_8
 from .stages.stage1_9_gate import run_gate
@@ -143,6 +150,83 @@ async def _stage0_executor(step_input: StepInput) -> StepOutput:
     )
 
 
+async def run_stage1_with_semantic_prescreen(
+    state: "WorkflowState",
+) -> None:
+    """
+    Stage 1 编排 helper：raw recall 并行 + merge + 统一 filter。
+
+    内部流程（对外日志仍显示 Stage 1）：
+      Stage 1A: keyword raw recall
+      Stage 1B: semantic prescreen  （并行）
+      Stage 1C: merge raw candidates
+      Stage 1D: unified filter agent
+
+    结果写入 state：
+      - state.stage1_candidates
+      - state.stage11_semantic_metadata
+      - state.stage12_rule_sources
+    """
+    import asyncio
+    from .schemas import DocumentState
+
+    document = state.document
+    rule_cards = state.rule_cards
+    chunks_map = {c.chunk_id: c for c in document.chunks}
+
+    # 预建 category_group 索引
+    category_group_index = build_category_group_index(rule_cards)
+
+    semaphore = asyncio.Semaphore(config.MAX_CONCURRENT_CALLS)
+
+    # Stage 1A + 1B 并行
+    logger.info("  [Stage 1A] keyword raw recall ...")
+    logger.info("  [Stage 1B] semantic prescreen ...")
+    keyword_task = asyncio.create_task(
+        run_stage1_raw_recall(
+            document=document,
+            rule_cards=rule_cards,
+            top_k_recall=config.TOP_K_RULES,
+        )
+    )
+    semantic_task = asyncio.create_task(
+        run_stage1_1_semantic_prescreen(
+            chunks=document.chunks,
+            category_group_index=category_group_index,
+            semaphore=semaphore,
+        )
+    )
+
+    keyword_candidates, (semantic_candidates, semantic_metadata) = await asyncio.gather(
+        keyword_task, semantic_task
+    )
+
+    # Stage 1C: merge
+    logger.info("  [Stage 1C] merge candidates ...")
+    merged_candidates, rule_sources = merge_candidates(
+        keyword_candidates=keyword_candidates,
+        semantic_candidates=semantic_candidates,
+        max_per_chunk=config.TOP_K_RULES * 2,
+    )
+
+    # Stage 1D: unified filter
+    logger.info("  [Stage 1D] unified filter ...")
+    filtered = await run_stage1_filter_only(
+        raw_candidates=merged_candidates,
+        rule_cards=rule_cards,
+        chunks_map=chunks_map,
+        top_k_filter=config.TOP_K_FILTER,
+        max_concurrent=config.MAX_CONCURRENT_CALLS,
+    )
+
+    # 写入 state
+    state.stage1_candidates = filtered
+    state.stage11_semantic_metadata = {
+        cid: meta.model_dump() for cid, meta in semantic_metadata.items()
+    }
+    state.stage12_rule_sources = rule_sources
+
+
 async def _stage1_executor(step_input: StepInput) -> StepOutput:
     """Stage 1: 路由召回与大模型粗筛"""
     logger.info("=" * 50)
@@ -150,13 +234,17 @@ async def _stage1_executor(step_input: StepInput) -> StepOutput:
 
     state = _get_state()
 
-    state.stage1_candidates = await run_stage1(
-        document=state.document,
-        rule_cards=state.rule_cards,
-        top_k_recall=config.TOP_K_RULES,
-        top_k_filter=config.TOP_K_FILTER,
-        max_concurrent=config.MAX_CONCURRENT_CALLS,
-    )
+    if config.ENABLE_SEMANTIC_PRESCREEN:
+        logger.info("  [semantic prescreen] 已启用，使用并行召回编排")
+        await run_stage1_with_semantic_prescreen(state)
+    else:
+        state.stage1_candidates = await run_stage1(
+            document=state.document,
+            rule_cards=state.rule_cards,
+            top_k_recall=config.TOP_K_RULES,
+            top_k_filter=config.TOP_K_FILTER,
+            max_concurrent=config.MAX_CONCURRENT_CALLS,
+        )
 
     total_pairs = sum(len(c.candidate_rule_ids) for c in state.stage1_candidates)
     logger.info(

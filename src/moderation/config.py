@@ -226,6 +226,35 @@ BENCHMARK_STABLE_MODE: bool = _to_bool(
     default=False,
 )
 
+# ==================== 语义预检（Stage 1.1）Feature Flag ====================
+ENABLE_SEMANTIC_PRESCREEN: bool = _to_bool(
+    os.getenv("ENABLE_SEMANTIC_PRESCREEN"),
+    default=False,
+)
+SEMANTIC_PRESCREEN_MAX_DIRECTIONS: int = int(
+    os.getenv("SEMANTIC_PRESCREEN_MAX_DIRECTIONS", "2")
+)
+SEMANTIC_PRESCREEN_MAX_EXTENDED_RULES: int = int(
+    os.getenv("SEMANTIC_PRESCREEN_MAX_EXTENDED_RULES", "4")
+)
+SEMANTIC_PRESCREEN_ENABLE_LLM: bool = _to_bool(
+    os.getenv("SEMANTIC_PRESCREEN_ENABLE_LLM"),
+    default=True,
+)
+SEMANTIC_PRESCREEN_TIMEOUT_SECONDS: float = float(
+    os.getenv("SEMANTIC_PRESCREEN_TIMEOUT_SECONDS", "15")
+)
+SEMANTIC_PRESCREEN_MAX_RETRIES: int = int(
+    os.getenv("SEMANTIC_PRESCREEN_MAX_RETRIES", "1")
+)
+_semantic_groups_raw: str = os.getenv(
+    "SEMANTIC_PRESCREEN_ENABLED_GROUPS",
+    "financial_confusion,absolute_expression",
+)
+SEMANTIC_PRESCREEN_ENABLED_GROUPS: list[str] = [
+    g.strip() for g in _semantic_groups_raw.split(",") if g.strip()
+]
+
 # ==================== 数据路径 ====================
 BASE_DIR: Path = _PROJECT_ROOT
 RULE_CARDS_PATH: str = os.getenv("RULE_CARDS_PATH", str(BASE_DIR / "data" / "rule_cards.json"))
