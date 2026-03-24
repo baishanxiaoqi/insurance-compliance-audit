@@ -363,6 +363,11 @@ class WorkflowState(BaseModel):
     stage18_routes: List[RoutedPair] = Field(default_factory=list)
     stage19_gate_results: Dict[str, Any] = Field(default_factory=dict, description="Gate 结果字典，key 为 f'{chunk_id}_{rule_id}'")
     stage2_judgments: List[JudgmentResult] = Field(default_factory=list)
+    # Stage 2.6 全文审核结果（全文级违规，chunk_id 固定为 "__fulldoc__"）
+    stage26_full_document_judgments: List[JudgmentResult] = Field(
+        default_factory=list,
+        description="全文审核判定结果，与 stage2_judgments 合并后进入 Stage 2.7"
+    )
     stage27_suggestions: Dict[str, SuggestionResult] = Field(
         default_factory=dict,
         description="Stage 2.7 建议生成结果字典，key 为 f'{chunk_id}_{rule_id}'"

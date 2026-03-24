@@ -213,6 +213,14 @@ SUGGESTION_MODEL_THINKING_BUDGET: int | None = (
 CHUNK_SIZE: int = int(os.getenv("CHUNK_SIZE", "300"))
 CHUNK_MIN_SIZE: int = int(os.getenv("CHUNK_MIN_SIZE", "80"))
 
+# ==================== 长文本模式参数 ====================
+# 超过此字符数自动启用长文本模式（使用更大的 chunk 进行精判）
+LONGDOC_THRESHOLD: int = int(os.getenv("LONGDOC_THRESHOLD", "1500"))
+# 长文本模式下的 chunk 大小（用于深度精判）
+LONGDOC_CHUNK_SIZE: int = int(os.getenv("LONGDOC_CHUNK_SIZE", "1000"))
+# 长文本模式下的最小 chunk 大小（短段合并阈值）
+LONGDOC_CHUNK_MIN_SIZE: int = int(os.getenv("LONGDOC_CHUNK_MIN_SIZE", "200"))
+
 # ==================== 规则召回参数 ====================
 TOP_K_RULES: int = int(os.getenv("TOP_K_RULES", "20"))
 TOP_K_FILTER: int = int(os.getenv("TOP_K_FILTER", "3"))

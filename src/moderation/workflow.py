@@ -43,6 +43,7 @@ from .stages.stage1_8_route_dispatch import run_stage1_8
 from .stages.stage1_9_gate import run_gate
 from .stages.stage2_deep_judge import run_stage2
 from .stages.stage2_5_refute import run_stage2_5_refute
+from .stages.stage2_6_full_document import run_stage2_6, get_fulldoc_rule_cards
 from .stages.stage2_7_suggestion import run_stage2_7_suggestion
 from .stages.stage3_assemble import run_stage3
 
@@ -128,18 +129,33 @@ async def _stage0_executor(step_input: StepInput) -> StepOutput:
     if working_text != input_text:
         logger.info("检测到 OCR 文本，已应用智能修复")
 
+    # 长文本模式自动检测：文本超过阈值时使用更大的 chunk 进行精判
+    text_len = len(working_text)
+    is_long_doc = text_len >= config.LONGDOC_THRESHOLD
+    if is_long_doc:
+        chunk_size = config.LONGDOC_CHUNK_SIZE
+        chunk_min_size = config.LONGDOC_CHUNK_MIN_SIZE
+        logger.info(
+            f"检测到长文本 ({text_len} 字符 >= {config.LONGDOC_THRESHOLD})，"
+            f"启用长文本模式 (chunk_size={chunk_size})"
+        )
+    else:
+        chunk_size = config.CHUNK_SIZE
+        chunk_min_size = config.CHUNK_MIN_SIZE
+
     state.document = preprocess(
         original_text=input_text,  # 保存用户真正的输入
         working_text=working_text,  # 用于审核处理的文本
         doc_id=doc_id if isinstance(doc_id, str) else None,
-        chunk_size=config.CHUNK_SIZE,
-        chunk_min_size=config.CHUNK_MIN_SIZE,
+        chunk_size=chunk_size,
+        chunk_min_size=chunk_min_size,
     )
 
     logger.info(
         f"Stage 0 完成: doc_id={state.document.doc_id}, "
         f"{len(state.document.chunks)} chunks, "
         f"{len(state.document.span_pool)} spans"
+        + (" [长文本模式]" if is_long_doc else "")
     )
 
     return StepOutput(
@@ -193,6 +209,7 @@ async def run_stage1_with_semantic_prescreen(
         run_stage1_1_semantic_prescreen(
             chunks=document.chunks,
             category_group_index=category_group_index,
+            rule_cards=rule_cards,
             semaphore=semaphore,
         )
     )
@@ -374,8 +391,10 @@ async def _stage27_executor(step_input: StepInput) -> StepOutput:
 
     state = _get_state()
 
+    # 合并主流程判定 + 全文审核判定
+    all_judgments = state.stage2_judgments + state.stage26_full_document_judgments
     state.stage27_suggestions = await run_stage2_7_suggestion(
-        judgments=state.stage2_judgments,
+        judgments=all_judgments,
         rule_cards=state.rule_cards,
     )
 
@@ -401,8 +420,10 @@ async def _stage3_executor(step_input: StepInput) -> StepOutput:
     start_time = float(meta.get("start_time", time.time()))
     processing_time = time.time() - start_time
 
+    # 合并主流程判定 + 全文审核判定
+    all_judgments = state.stage2_judgments + state.stage26_full_document_judgments
     state.final_response = run_stage3(
-        judgments=state.stage2_judgments,
+        judgments=all_judgments,
         document=state.document,
         rule_cards=state.rule_cards,
         suggestions=state.stage27_suggestions,
@@ -447,6 +468,28 @@ async def _stage25_executor(step_input: StepInput) -> StepOutput:
     )
 
 
+async def _stage26_executor(step_input: StepInput) -> StepOutput:
+    """Stage 2.6: 全文审核子流水线（第三方数据引用来源检测）"""
+    logger.info("=" * 50)
+    logger.info("=== Stage 2.6: 全文审核（数据引用来源检测）===")
+
+    state = _get_state()
+    # 注入全文审核合成规则卡片
+    state.rule_cards.update(get_fulldoc_rule_cards())
+    results = await run_stage2_6(document=state.document)
+    state.stage26_full_document_judgments = results
+
+    violations = sum(1 for r in results if r.verdict == "violation")
+    logger.info(
+        f"Stage 2.6 完成: {len(results)} 个全文判定, {violations} 个违规"
+    )
+
+    return StepOutput(
+        content=f"fulldoc_judgments={len(results)}, violations={violations}",
+        success=True,
+    )
+
+
 # ============================================================
 # Agno Workflow 创建
 # ============================================================
@@ -473,6 +516,7 @@ def create_workflow() -> Workflow:
             Step(name="gate", executor=_stage19_executor),
             Step(name="deep_judge", executor=_stage2_executor),
             Step(name="override", executor=_stage25_executor),
+            Step(name="fulldoc_audit", executor=_stage26_executor),
             Step(name="suggestion", executor=_stage27_executor),
             Step(name="assemble", executor=_stage3_executor),
         ],
