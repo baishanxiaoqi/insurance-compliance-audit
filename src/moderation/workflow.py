@@ -27,6 +27,7 @@ from agno.workflow import Workflow, Step, StepInput, StepOutput
 from . import config
 from .log import get_logger
 from .schemas import RuleCard, WorkflowState, AuditResponse
+from .audit_points import enrich_rule_card
 from .ocr_preprocessor import normalize_text_for_audit
 from .stages.stage0_preprocess import preprocess
 from .stages.stage1_recall_filter import run_stage1
@@ -35,6 +36,7 @@ from .stages.stage1_8_route_dispatch import run_stage1_8
 from .stages.stage1_9_gate import run_gate
 from .stages.stage2_deep_judge import run_stage2
 from .stages.stage2_5_refute import run_stage2_5_refute
+from .stages.stage2_7_suggestion import run_stage2_7_suggestion
 from .stages.stage3_assemble import run_stage3
 
 logger = get_logger(__name__)
@@ -68,7 +70,7 @@ def load_rule_cards(path: str | None = None, force_reload: bool = False) -> dict
 
     cards = {}
     for item in raw_list:
-        card = RuleCard(**item)
+        card = enrich_rule_card(RuleCard(**item))
         cards[card.rule_id] = card
 
     # 写入缓存
@@ -179,6 +181,7 @@ async def _stage19_executor(step_input: StepInput) -> StepOutput:
         routed_pairs=state.stage18_routes,
         rule_cards=state.rule_cards,
         chunk_facts=state.stage15_facts,
+        document=state.document,
     )
 
     # 将 gate_results 存储到 state 中（用于 Stage 2 和 Stage 2.5）
@@ -216,7 +219,8 @@ async def _stage2_executor(step_input: StepInput) -> StepOutput:
         candidates=state.stage1_candidates,
         routed_pairs=state.stage18_routes,
         chunk_facts=state.stage15_facts,
-        max_concurrent=config.MAX_CONCURRENT_CALLS,
+        gate_results=state.stage19_gate_results,
+        max_concurrent=config.STAGE2_MAX_CONCURRENT_CALLS,
     )
 
     violation_count = sum(1 for j in state.stage2_judgments if j.verdict == "violation")
@@ -275,6 +279,28 @@ async def _stage18_executor(step_input: StepInput) -> StepOutput:
     )
 
 
+async def _stage27_executor(step_input: StepInput) -> StepOutput:
+    """Stage 2.7: 建议生成层"""
+    logger.info("=" * 50)
+    logger.info("=== Stage 2.7: 建议生成层 ===")
+
+    state = _get_state()
+
+    state.stage27_suggestions = await run_stage2_7_suggestion(
+        judgments=state.stage2_judgments,
+        rule_cards=state.rule_cards,
+    )
+
+    logger.info(
+        f"Stage 2.7 完成: 生成 {len(state.stage27_suggestions)} 条建议"
+    )
+
+    return StepOutput(
+        content=f"suggestions={len(state.stage27_suggestions)}",
+        success=True,
+    )
+
+
 async def _stage3_executor(step_input: StepInput) -> StepOutput:
     """Stage 3: 确定性定位与 API 组装"""
     logger.info("=" * 50)
@@ -291,6 +317,7 @@ async def _stage3_executor(step_input: StepInput) -> StepOutput:
         judgments=state.stage2_judgments,
         document=state.document,
         rule_cards=state.rule_cards,
+        suggestions=state.stage27_suggestions,
         processing_time=processing_time,
     )
 
@@ -338,16 +365,18 @@ async def _stage25_executor(step_input: StepInput) -> StepOutput:
 
 def create_workflow() -> Workflow:
     """
-    创建 Agno Workflow 实例（7 阶段合规审核流水线）。
+    创建 Agno Workflow 实例（8 阶段合规审核流水线）。
 
     Workflow 配置：
       - 顺序 Step，每个 Step 对应一个 Pipeline 阶段
       - session_state 用于跨 Step 共享工作流状态
       - debug_mode 关闭以减少日志噪音
+
+    Phase 4 P1+ 升级：新增 Stage 2.7 建议生成阶段
     """
     return Workflow(
         name="ComplianceAudit",
-        description="保险文本合规审核 7 阶段流水线 (Agno Workflow)",
+        description="保险文本合规审核 8 阶段流水线 (Agno Workflow)",
         steps=[
             Step(name="preprocess", executor=_stage0_executor),
             Step(name="recall_filter", executor=_stage1_executor),
@@ -356,11 +385,17 @@ def create_workflow() -> Workflow:
             Step(name="gate", executor=_stage19_executor),
             Step(name="deep_judge", executor=_stage2_executor),
             Step(name="override", executor=_stage25_executor),
+            Step(name="suggestion", executor=_stage27_executor),
             Step(name="assemble", executor=_stage3_executor),
         ],
         session_state={},
         debug_mode=False,
     )
+
+
+# ============================================================
+# 公开接口（供 API 和 CLI 使用）
+# ============================================================
 
 
 # ============================================================
@@ -379,7 +414,10 @@ async def run_audit(input_text: str, doc_id: str | None = None) -> AuditResponse
       Stage 1.9: 轻量 Gate（纯代码，前置场景闸门）
       Stage 2: 双轨深度精判（base/skill 分发 + Agno Agent 并发 + unsure 二次审查）
       Stage 2.5: 审查点 Override 层（纯代码，配置化 override 规则）
+      Stage 2.7: 建议生成层（纯代码，审核层与展示层解耦）
       Stage 3: 确定性定位与 API 组装（纯代码，坐标重叠去重）
+
+    Phase 4 P1+ 升级：新增 Stage 2.7 建议生成阶段
     """
     start_time = time.time()
 

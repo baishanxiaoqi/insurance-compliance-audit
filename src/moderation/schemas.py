@@ -77,6 +77,8 @@ class RuleCard(BaseModel):
     compliant_case: str = Field("", description="合规案例")
     violation_basis: str = Field("", description="违规依据")
     violation_case: str = Field("", description="违规案例")
+    audit_point_id: str = Field("", description="三级审查点 ID，例如 1.1.1")
+    audit_point_name: str = Field("", description="三级审查点名称")
     complexity_level: Literal["simple", "complex"] = Field(
         "simple",
         description="规则复杂度标签：simple 走基础策略，complex 走技能策略",
@@ -89,6 +91,22 @@ class RuleCard(BaseModel):
     # ============================================================
     # Phase 1 新增字段：规则结构化升级
     # ============================================================
+
+    category_group: Optional[Literal[
+        "financial_confusion",           # 金融产品混淆
+        "guaranteed_return",             # 收益承诺
+        "gifts_benefits",                # 礼品/额外利益
+        "responsibility_exaggeration",   # 责任夸大
+        "absolute_expression",           # 绝对化表述
+        "regulatory_misinterpretation",  # 监管误读
+        "surrender_guidance",            # 退保引导
+        "agent_title_violation",         # 代理人职称违规
+        "comparison_violation",          # 不当比较
+        "other"                          # 其他
+    ]] = Field(
+        default=None,
+        description="类别分组：用于 Gate 层锚点检查的规则分类，对应 benchmark 标准类别"
+    )
 
     actor_scope: Optional[Literal["agent", "customer", "company", "third_party", "any"]] = Field(
         default=None,
@@ -129,6 +147,16 @@ class RuleCard(BaseModel):
         description="互斥分组：同一组内的规则不能同时作为主结论，如 'income_promise_group'"
     )
 
+    primary_category: Optional[str] = Field(
+        default=None,
+        description="规则推荐的主审查类别，用于输出兜底与 benchmark 对齐"
+    )
+
+    secondary_category: Optional[str] = Field(
+        default=None,
+        description="规则推荐的次审查类别，用于更细粒度的审查点对齐"
+    )
+
 
 # ============================================================
 # Stage 1 过滤输出结构
@@ -151,6 +179,7 @@ class JudgmentResult(BaseModel):
 
     Phase 1 升级：新增 decision_basis 字段，强化判断依据的可解释性
     Phase 4 P1 升级：新增 primary_category 和 secondary_category 字段，减少类别串扰
+    Phase 4 P1+ 升级：移除 draft_suggestion 字段，将建议生成拆分到 Stage 2.7
     """
     rule_id: str
     chunk_id: str
@@ -170,10 +199,6 @@ class JudgmentResult(BaseModel):
     reason_codes: List[str] = Field(
         default_factory=list,
         description="必须从 RuleCard 中提取的理由码"
-    )
-    draft_suggestion: str = Field(
-        "",
-        description="结合 RuleCard 模板直接生成的合规修改建议"
     )
 
     # ============================================================
@@ -228,6 +253,27 @@ class ChunkFactProfile(BaseModel):
 
 
 # ============================================================
+# Stage 2.7 建议生成结构
+# ============================================================
+
+class SuggestionResult(BaseModel):
+    """Stage 2.7 建议生成输出 —— 单个违规判定的修改建议
+
+    Phase 4 P1+ 新增：将建议生成从 Stage 2 拆分到独立阶段
+    """
+    rule_id: str
+    chunk_id: str
+    suggestion: str = Field(
+        ...,
+        description="结合 RuleCard 模板和违规证据生成的具体修改建议"
+    )
+    suggestion_type: Literal["delete", "weaken", "add_disclosure", "rephrase"] = Field(
+        default="rephrase",
+        description="建议类型：delete=删除违规内容，weaken=弱化表述，add_disclosure=补充披露，rephrase=重新表述"
+    )
+
+
+# ============================================================
 # Stage 3 最终输出结构
 # ============================================================
 
@@ -242,7 +288,10 @@ class ViolationLocation(BaseModel):
 
 
 class FinalViolation(BaseModel):
-    """最终违规结果 —— 面向 API 输出的结构"""
+    """最终违规结果 —— 面向 API 输出的结构
+
+    Phase 4 P1++ 升级：新增 standard_category 字段，用于 benchmark 评估
+    """
     rule_id: str
     rule_name: str
     risk_level: str
@@ -251,6 +300,25 @@ class FinalViolation(BaseModel):
     locations: List[ViolationLocation]
     reason_codes: List[str]
     suggestion: str
+    suggestion_type: Optional[Literal["delete", "weaken", "add_disclosure", "rephrase"]] = None
+    audit_point_id: str = ""
+    audit_point_name: str = ""
+    decision_basis: Optional[Literal[
+        "explicit_violation",
+        "exception_applied",
+        "actor_mismatch",
+        "time_context",
+        "negation_context",
+        "insufficient_evidence",
+        "condition_not_met",
+        "exclusion_triggered",
+    ]] = None
+    primary_category: Optional[str] = None
+    secondary_category: Optional[str] = None
+    standard_category: Optional[str] = Field(
+        default=None,
+        description="标准审查类别（用于 benchmark 评估），从 primary_category 映射而来"
+    )
 
 
 class AuditResponse(BaseModel):
@@ -295,4 +363,8 @@ class WorkflowState(BaseModel):
     stage18_routes: List[RoutedPair] = Field(default_factory=list)
     stage19_gate_results: Dict[str, Any] = Field(default_factory=dict, description="Gate 结果字典，key 为 f'{chunk_id}_{rule_id}'")
     stage2_judgments: List[JudgmentResult] = Field(default_factory=list)
+    stage27_suggestions: Dict[str, SuggestionResult] = Field(
+        default_factory=dict,
+        description="Stage 2.7 建议生成结果字典，key 为 f'{chunk_id}_{rule_id}'"
+    )
     final_response: Optional[AuditResponse] = None
