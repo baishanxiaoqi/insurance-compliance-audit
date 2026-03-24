@@ -12,9 +12,10 @@ Stage 3: 确定性定位与 API 组装
 from typing import Dict, List, Tuple
 
 from ..log import get_logger
+from ..category_mapping import map_to_standard_category
 from ..schemas import (
     DocumentState, RuleCard, JudgmentResult,
-    ViolationLocation, FinalViolation, AuditResponse
+    ViolationLocation, FinalViolation, AuditResponse, SuggestionResult
 )
 
 logger = get_logger(__name__)
@@ -78,13 +79,113 @@ def _trim_punctuation(text: str, start: int, end: int) -> Tuple[int, int]:
     return start, end
 
 
+def _is_rhetorical_span(span_text: str) -> bool:
+    """
+    判断 span 是否为修辞性/解释性片段（启发式规则）
+
+    Phase 4 P0-3：排除纯修辞、铺垫、解释性的 span
+
+    修辞性特征：
+    - 比喻修辞：如"温暖的阳光"、"坚实的后盾"
+    - 解释性尾句：如"只是增进关系的手段"、"这样做是为了"
+    - 铺垫性表达：如"首先"、"其次"、"另外"
+    """
+    # 修辞性词汇
+    rhetorical_terms = [
+        "温暖的", "坚实的", "美好的", "幸福的", "灿烂的",
+        "如同", "好比", "犹如", "宛如", "仿佛",
+    ]
+
+    # 解释性标志词
+    explanatory_terms = [
+        "只是", "仅仅是", "这样做是为了", "目的是", "意思是",
+        "也就是说", "换句话说", "简单来说",
+    ]
+
+    # 铺垫性标志词
+    transitional_terms = [
+        "首先", "其次", "再次", "另外", "此外", "而且", "并且",
+    ]
+
+    # 检查是否包含修辞性/解释性/铺垫性标志词
+    for term in rhetorical_terms + explanatory_terms + transitional_terms:
+        if term in span_text:
+            return True
+
+    # 检查是否为纯形容词短语（长度 < 8 且包含"的"）
+    if len(span_text) < 8 and "的" in span_text:
+        return True
+
+    return False
+
+
+def _trim_explanatory_tail(
+    text: str,
+    raw_start: int,
+    raw_end: int,
+    violation_terms: List[str],
+) -> Tuple[str, int]:
+    """
+    去除解释性尾句，确保最小违规证据
+
+    Phase 4 P0-3：处理"温馨服务只是增进关系的手段"这类情况
+    - 找到最后一个违规词的位置
+    - 检查违规词之后是否有解释性标志词
+    - 如果有，裁剪到违规词结束位置
+
+    参数:
+        text: 原始文本片段
+        raw_start: 起始位置（在原始文本中）
+        raw_end: 结束位置（在原始文本中）
+        violation_terms: 违规词列表
+
+    返回:
+        (trimmed_text, new_raw_end): 裁剪后的文本和新的结束位置
+    """
+    # 解释性标志词（用于检测尾句）
+    explanatory_markers = [
+        "只是", "仅仅是", "这样做是为了", "目的是", "意思是",
+        "也就是说", "换句话说", "简单来说", "的手段", "的方式",
+        "的目的", "的意图",
+    ]
+
+    # 找到最后一个违规词的结束位置
+    last_violation_end = -1
+    for term in violation_terms:
+        idx = text.rfind(term)
+        if idx != -1:
+            term_end = idx + len(term)
+            last_violation_end = max(last_violation_end, term_end)
+
+    if last_violation_end == -1:
+        # 没有找到违规词，返回原文
+        return text, raw_end
+
+    # 检查违规词之后是否有解释性标志词
+    tail_text = text[last_violation_end:]
+    has_explanatory = any(marker in tail_text for marker in explanatory_markers)
+
+    if has_explanatory:
+        # 裁剪到违规词结束位置
+        trimmed_text = text[:last_violation_end]
+        new_raw_end = raw_start + last_violation_end
+        return trimmed_text, new_raw_end
+
+    return text, raw_end
+
+
 def locate_violation_spans(
     judgment: JudgmentResult,
     document: DocumentState,
+    rule_card: RuleCard | None = None,
 ) -> List[ViolationLocation]:
     """
     零幻觉定位（span-only 版）：
     仅使用 evidence_span_ids 还原坐标并合并相邻 span。
+
+    Phase 4 P0-3 升级：违规词优先定位
+    - 如果 rule_card 提供了 violation_terms，优先保留包含违规词的 span
+    - 排除纯修辞性、解释性的 span
     """
     locations: List[ViolationLocation] = []
 
@@ -102,6 +203,32 @@ def locate_violation_spans(
 
     if not span_entries:
         return []
+
+    # Phase 4 P0-3：违规词优先筛选
+    # 如果提供了 rule_card 和 violation_terms，优先保留包含违规词的 span
+    if rule_card and rule_card.violation_terms:
+        violation_terms = rule_card.violation_terms
+        filtered_entries = []
+
+        for start_idx, end_idx, span_id in span_entries:
+            span = document.span_pool.get(span_id)
+            if not span:
+                continue
+
+            # 检查 span 是否包含违规词
+            has_violation_term = any(term in span.span_text for term in violation_terms)
+
+            # 检查是否为修辞性/解释性 span（启发式规则）
+            is_rhetorical = _is_rhetorical_span(span.span_text)
+
+            # 优先保留包含违规词且非修辞性的 span
+            if has_violation_term and not is_rhetorical:
+                filtered_entries.append((start_idx, end_idx, span_id))
+
+        # 如果筛选后有结果，使用筛选后的；否则使用原始的（避免过度筛选导致无结果）
+        if filtered_entries:
+            span_entries = filtered_entries
+            logger.debug(f"  违规词优先筛选: {len(span_entries)} 个 span 包含违规词")
 
     # 排序 + 合并相邻（优化：只合并紧邻的 span，避免包含无关内容）
     span_entries.sort(key=lambda x: x[0])
@@ -127,6 +254,13 @@ def locate_violation_spans(
         )
 
         original_slice = document.original_text[raw_start:raw_end]
+
+        # Phase 4 P0-3：去除解释性尾句，确保最小违规证据
+        if rule_card and rule_card.violation_terms:
+            original_slice, raw_end = _trim_explanatory_tail(
+                original_slice, raw_start, raw_end, rule_card.violation_terms
+            )
+
         locations.append(ViolationLocation(
             span_ids=span_ids,
             original_text_slice=original_slice,
@@ -143,13 +277,17 @@ def assemble_violations(
     judgments: List[JudgmentResult],
     document: DocumentState,
     rule_cards: Dict[str, RuleCard],
+    suggestions: Dict[str, SuggestionResult],
 ) -> List[FinalViolation]:
     """
     结果聚合：
     1. 筛选 verdict == "violation" 的判定结果
     2. 对每个违规判定进行定位和坐标还原
-    3. 基于 span 坐标范围重叠进行智能去重（处理 chunk overlap 导致的重复）
-    4. 组装为 FinalViolation 列表
+    3. 从 suggestions 字典获取建议
+    4. 基于 span 坐标范围重叠进行智能去重（处理 chunk overlap 导致的重复）
+    5. 组装为 FinalViolation 列表
+
+    Phase 4 P1+ 升级：从 suggestions 字典获取建议，而非 judgment.draft_suggestion
     """
     violations: List[FinalViolation] = []
 
@@ -167,7 +305,7 @@ def assemble_violations(
             continue
 
         # 零幻觉定位
-        locations = locate_violation_spans(judgment, document)
+        locations = locate_violation_spans(judgment, document, rule_card)
 
         if not locations:
             logger.warning(
@@ -175,6 +313,23 @@ def assemble_violations(
                 f"无有效违规位置，跳过"
             )
             continue
+
+        # 从 suggestions 字典获取建议
+        suggestion_key = f"{judgment.chunk_id}_{judgment.rule_id}"
+        suggestion_result = suggestions.get(suggestion_key)
+        suggestion_text = suggestion_result.suggestion if suggestion_result else "请修改违规表述。"
+        suggestion_type = suggestion_result.suggestion_type if suggestion_result else None
+
+        # 确定 primary_category：优先使用 judgment 的，如果为空则从 rule_card 结构化字段兜底
+        primary_category = judgment.primary_category
+        if not primary_category and rule_card.primary_category:
+            primary_category = rule_card.primary_category
+        if not primary_category and rule_card.category_group:
+            primary_category = rule_card.category_group
+        secondary_category = judgment.secondary_category or rule_card.secondary_category
+
+        # 映射到标准类别
+        standard_category = map_to_standard_category(primary_category)
 
         violation = FinalViolation(
             rule_id=judgment.rule_id,
@@ -184,7 +339,14 @@ def assemble_violations(
             reasoning=judgment.reasoning_cot,
             locations=locations,
             reason_codes=judgment.reason_codes,
-            suggestion=judgment.draft_suggestion,
+            suggestion=suggestion_text,
+            suggestion_type=suggestion_type,
+            audit_point_id=rule_card.audit_point_id,
+            audit_point_name=rule_card.audit_point_name,
+            decision_basis=judgment.decision_basis,
+            primary_category=primary_category,
+            secondary_category=secondary_category,
+            standard_category=standard_category,
         )
 
         if judgment.rule_id not in raw_violations:
@@ -262,16 +424,20 @@ def run_stage3(
     judgments: List[JudgmentResult],
     document: DocumentState,
     rule_cards: Dict[str, RuleCard],
+    suggestions: Dict[str, SuggestionResult],
     processing_time: float,
 ) -> AuditResponse:
     """
     Stage 3 主函数：
     1. 筛选 violation 判定
     2. 零幻觉定位 + 坐标还原
-    3. 结果聚合 + 去重
-    4. 组装最终 API 响应体
+    3. 从 suggestions 字典获取建议
+    4. 结果聚合 + 去重
+    5. 组装最终 API 响应体
+
+    Phase 4 P1+ 升级：接收 suggestions 参数
     """
-    violations = assemble_violations(judgments, document, rule_cards)
+    violations = assemble_violations(judgments, document, rule_cards, suggestions)
 
     return AuditResponse(
         doc_id=document.doc_id,
