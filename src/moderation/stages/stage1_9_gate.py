@@ -27,7 +27,8 @@ from typing import Dict, List, Optional
 from dataclasses import dataclass
 
 from ..log import get_logger
-from ..schemas import ChunkFactProfile, RuleCard, RoutedPair
+from ..rule_engine import evaluate_rule_on_text
+from ..schemas import ChunkFactProfile, DocumentState, RuleCard, RoutedPair
 
 logger = get_logger(__name__)
 
@@ -99,6 +100,7 @@ class GateResult:
     should_skip: bool  # 是否应该跳过 Stage 2（明显不匹配）
     priority: str  # high / medium / low（送入 Stage 2 的优先级）
     rule_plan: Optional[str]  # 简化后的规则计划（给模型看的）
+    has_positive_evidence: bool = False  # 规则引擎是否命中正向违规词（有命中则禁止跳过）
 
 
 def _check_actor_mismatch(
@@ -252,6 +254,418 @@ def _check_exception_likely(
 
 
 # ============================================================
+# Phase 4 P1++ 新增：重点类别锚点门槛检查
+# ============================================================
+
+# 金融混淆类的负向主体（不应判违规的主体）
+FINANCIAL_CONFUSION_NEGATIVE_SUBJECTS = [
+    "公司", "保险公司", "平安公司", "集团", "中国平安",
+    "理赔服务", "客服服务", "核保服务", "投资团队",
+    "介绍", "案例", "成功案例", "监管文件", "产品说明书",
+    "违规", "处罚", "禁止", "不要这样说", "反面案例",
+]
+
+# 金融混淆类的必需锚点（必须同时出现）
+FINANCIAL_CONFUSION_REQUIRED_ANCHORS = [
+    "金融产品", "理财", "投资", "收益", "存款", "本金", "回报",
+    "储蓄", "定投", "基金", "股票", "债券",
+]
+
+# 礼品利益类的委婉表达
+GIFTS_EUPHEMISM_TERMS = [
+    "温馨服务", "惊喜", "小物品", "定制晚宴", "高端体检",
+    "感谢", "心意", "礼遇", "答谢", "回馈",
+]
+
+# 收益承诺类的软性承诺锚点
+GUARANTEED_RETURN_SOFT_ANCHORS = [
+    "锁定收益", "锁定未来收益", "稳健收益", "退休品质生活收入",
+    "长期稳定回报", "未来的经济收益", "确定的收益",
+]
+
+# 责任夸大类的关键表达
+RESPONSIBILITY_EXAGGERATION_ANCHORS = [
+    "保障未来收入", "避免财产分割", "避免法律纠纷",
+    "隔离婚变风险", "避免成为分割焦点", "规避债务",
+]
+
+
+# ============================================================
+# Phase 4 P1++ 架构优化：统一的类别锚点门槛检查
+# ============================================================
+
+def _check_category_anchor_threshold(
+    rule_card: RuleCard,
+    chunk_fact: ChunkFactProfile | None,
+    text_content: str,
+) -> Optional[GateSignal]:
+    """统一的类别锚点门槛检查（架构优化版）
+
+    基于 rule_card.category_group 字段进行分发，避免复杂的规则匹配逻辑。
+
+    检查逻辑：
+    1. financial_confusion: 必须提及保险产品 + 金融属性词
+    2. guaranteed_return: 必须提及保险产品 + 收益承诺锚点
+    3. gifts_benefits: 必须有礼品相关表达
+    4. responsibility_exaggeration: 必须有责任夸大关键表达
+
+    返回：
+    - 如果不满足门槛，返回 GateSignal（建议跳过）
+    - 如果满足门槛，返回 None（继续正常判定）
+    """
+    category = rule_card.category_group
+
+    if not category or category == "other":
+        return None
+
+    # === 1. financial_confusion 类别检查 ===
+    if category == "financial_confusion":
+        # 检查负向主体（公司/服务/说明场景）
+        negative_subject_count = sum(
+            1 for term in FINANCIAL_CONFUSION_NEGATIVE_SUBJECTS
+            if term in text_content
+        )
+
+        if negative_subject_count > 0:
+            return GateSignal(
+                signal_type="financial_confusion_negative_subject",
+                confidence=0.8,
+                reason=f"检测到 {negative_subject_count} 个负向主体（公司/服务/说明场景），不应判为金融混淆",
+                evidence_labels=["negative_subject"]
+            )
+
+        # 检查是否提及保险产品
+        has_insurance_mention = any(
+            term in text_content
+            for term in ["保险", "年金", "寿险", "保单", "保障", "理赔", "投保"]
+        )
+
+        # 检查是否有金融属性词
+        has_financial_anchor = any(
+            term in text_content
+            for term in FINANCIAL_CONFUSION_REQUIRED_ANCHORS
+        )
+
+        # 如果既没有保险产品提及，也没有金融属性词，则为泛营销表达
+        if not has_insurance_mention and not has_financial_anchor:
+            return GateSignal(
+                signal_type="financial_confusion_missing_anchor",
+                confidence=0.85,
+                reason="未检测到保险产品提及或金融属性词，可能为泛营销表达，不构成金融混淆",
+                evidence_labels=["missing_anchor", "generic_marketing"]
+            )
+
+        # 如果有保险产品提及但没有金融属性词，置信度降低
+        if has_insurance_mention and not has_financial_anchor:
+            return GateSignal(
+                signal_type="financial_confusion_missing_anchor",
+                confidence=0.7,
+                reason="未检测到金融属性词（理财/投资/收益等），可能不构成金融混淆",
+                evidence_labels=["missing_anchor"]
+            )
+
+    # === 2. guaranteed_return 类别检查 ===
+    elif category == "guaranteed_return":
+        # 检查是否有收益承诺锚点
+        has_soft_anchor = any(
+            term in text_content
+            for term in GUARANTEED_RETURN_SOFT_ANCHORS
+        )
+
+        has_hard_anchor = any(
+            term in text_content
+            for term in ["保证收益", "确保收益", "承诺收益", "固定收益"]
+        )
+
+        if not has_soft_anchor and not has_hard_anchor:
+            return GateSignal(
+                signal_type="guaranteed_return_missing_anchor",
+                confidence=0.6,
+                reason="未检测到收益承诺锚点（硬承诺或软承诺），可能不构成收益承诺",
+                evidence_labels=["missing_anchor"]
+            )
+
+        # 检查主体是否为公司投资行为
+        if "公司投资" in text_content or "投资团队" in text_content or "分红账户投资策略" in text_content:
+            return GateSignal(
+                signal_type="guaranteed_return_company_investment",
+                confidence=0.7,
+                reason="检测到公司投资行为描述，不应判为保险产品收益承诺",
+                evidence_labels=["company_investment"]
+            )
+
+    # === 3. gifts_benefits 类别检查 ===
+    elif category == "gifts_benefits":
+        # 检查是否有礼品委婉表达或直接礼品词
+        has_euphemism = any(
+            term in text_content
+            for term in GIFTS_EUPHEMISM_TERMS
+        )
+
+        has_direct_gift = any(
+            term in text_content
+            for term in ["礼品", "赠送", "返佣", "返利", "优惠", "购物卡"]
+        )
+
+        if not has_euphemism and not has_direct_gift:
+            return GateSignal(
+                signal_type="gifts_missing_anchor",
+                confidence=0.6,
+                reason="未检测到礼品相关表达（直接或委婉），可能不构成礼品违规",
+                evidence_labels=["missing_anchor"]
+            )
+
+    # === 4. responsibility_exaggeration 类别检查 ===
+    elif category == "responsibility_exaggeration":
+        # 检查是否有责任夸大关键表达
+        has_anchor = any(
+            term in text_content
+            for term in RESPONSIBILITY_EXAGGERATION_ANCHORS
+        )
+
+        if not has_anchor:
+            return GateSignal(
+                signal_type="responsibility_exaggeration_missing_anchor",
+                confidence=0.6,
+                reason="未检测到责任夸大关键表达，可能不构成责任夸大",
+                evidence_labels=["missing_anchor"]
+            )
+
+    return None
+
+
+# ============================================================
+# 以下为旧版本的独立检查函数（保留用于兼容性）
+# ============================================================
+
+def _check_financial_confusion_anchor(
+    rule_card: RuleCard,
+    chunk_fact: ChunkFactProfile | None,
+    text_content: str,
+) -> Optional[GateSignal]:
+    """检查金融混淆类是否满足锚点门槛
+
+    规则：
+    1. 必须有金融属性词（理财/投资/收益等）
+    2. 主体必须直接指向保险产品，而非公司/服务
+    3. 不是在介绍公司实力、服务流程、监管解读等场景
+
+    返回：
+    - 如果不满足门槛，返回 GateSignal（建议跳过或降低优先级）
+    - 如果满足门槛，返回 None（继续正常判定）
+    """
+    # 只检查金融混淆类规则（通过 rule_name、violation_definition 或 keywords 判断）
+    rule_name_lower = rule_card.rule_name.lower()
+    violation_def_lower = rule_card.violation_definition.lower()
+    keywords_lower = [k.lower() for k in rule_card.keywords]
+
+    # 金融混淆相关关键词
+    financial_confusion_terms = [
+        "金融", "理财", "投资", "混淆", "误导", "退休金", "存款",
+        "储蓄", "本金", "定投", "基金", "收益", "回报", "分红"
+    ]
+
+    is_financial_confusion = (
+        any(term in rule_name_lower for term in financial_confusion_terms) or
+        any(term in violation_def_lower for term in ["混淆", "误导", "误解", "暗示"]) or
+        any(any(term in kw for term in financial_confusion_terms) for kw in keywords_lower)
+    )
+
+    if not is_financial_confusion:
+        return None
+
+    # 检查是否有负向主体
+    negative_subject_count = sum(
+        1 for term in FINANCIAL_CONFUSION_NEGATIVE_SUBJECTS
+        if term in text_content
+    )
+
+    if negative_subject_count > 0:
+        return GateSignal(
+            signal_type="financial_confusion_negative_subject",
+            confidence=0.8,
+            reason=f"检测到 {negative_subject_count} 个负向主体（公司/服务/说明场景），不应判为金融混淆",
+            evidence_labels=["negative_subject"]
+        )
+
+    # 检查是否有必需的金融属性词
+    has_financial_anchor = any(
+        term in text_content
+        for term in FINANCIAL_CONFUSION_REQUIRED_ANCHORS
+    )
+
+    # 检查是否提到保险产品
+    has_insurance_mention = any(
+        term in text_content
+        for term in ["保险", "年金", "寿险", "保单", "保障", "理赔"]
+    )
+
+    if not has_financial_anchor and not has_insurance_mention:
+        return GateSignal(
+            signal_type="financial_confusion_missing_anchor",
+            confidence=0.8,
+            reason="未检测到金融属性词或保险产品提及，可能为泛营销表达，不构成金融混淆",
+            evidence_labels=["missing_anchor", "generic_marketing"]
+        )
+
+    return None
+
+
+def _check_gifts_euphemism_anchor(
+    rule_card: RuleCard,
+    chunk_fact: ChunkFactProfile | None,
+    text_content: str,
+) -> Optional[GateSignal]:
+    """检查礼品利益类是否满足锚点门槛
+
+    规则：
+    1. 必须有礼品委婉表达或直接礼品词
+    2. 必须与"客户获得额外东西/服务/利益"形成直接语义关系
+
+    返回：
+    - 如果不满足门槛，返回 GateSignal
+    - 如果满足门槛，返回 None
+    """
+    # 只检查礼品利益类规则（通过 rule_name 或 keywords 判断）
+    rule_name_lower = rule_card.rule_name.lower()
+    is_gifts_rule = (
+        "礼品" in rule_name_lower or
+        "赠送" in rule_name_lower or
+        "利益" in rule_name_lower or
+        any("礼品" in kw or "赠送" in kw or "利益" in kw for kw in rule_card.keywords)
+    )
+
+    if not is_gifts_rule:
+        return None
+
+    # 检查是否有礼品委婉表达
+    has_euphemism = any(
+        term in text_content
+        for term in GIFTS_EUPHEMISM_TERMS
+    )
+
+    # 检查是否有直接礼品词
+    has_direct_gift = any(
+        term in text_content
+        for term in ["礼品", "赠送", "返佣", "返利", "优惠", "购物卡"]
+    )
+
+    if not has_euphemism and not has_direct_gift:
+        return GateSignal(
+            signal_type="gifts_missing_anchor",
+            confidence=0.6,
+            reason="未检测到礼品相关表达（直接或委婉），可能不构成礼品违规",
+            evidence_labels=["missing_anchor"]
+        )
+
+    return None
+
+
+def _check_guaranteed_return_anchor(
+    rule_card: RuleCard,
+    chunk_fact: ChunkFactProfile | None,
+    text_content: str,
+) -> Optional[GateSignal]:
+    """检查收益承诺类是否满足锚点门槛
+
+    规则：
+    1. 必须有收益承诺锚点（硬承诺或软承诺）
+    2. 主体必须直接是保险产品，而非公司投资行为
+
+    返回：
+    - 如果不满足门槛，返回 GateSignal
+    - 如果满足门槛，返回 None
+    """
+    # 只检查收益承诺类规则（通过 rule_name 或 keywords 判断）
+    rule_name_lower = rule_card.rule_name.lower()
+    is_return_rule = (
+        "收益" in rule_name_lower or
+        "回报" in rule_name_lower or
+        "承诺" in rule_name_lower or
+        "分红" in rule_name_lower or
+        any("收益" in kw or "回报" in kw or "承诺" in kw for kw in rule_card.keywords)
+    )
+
+    if not is_return_rule:
+        return None
+
+    # 检查是否有软性承诺锚点
+    has_soft_anchor = any(
+        term in text_content
+        for term in GUARANTEED_RETURN_SOFT_ANCHORS
+    )
+
+    # 检查是否有硬承诺锚点
+    has_hard_anchor = any(
+        term in text_content
+        for term in ["保证收益", "确保收益", "承诺收益", "固定收益"]
+    )
+
+    if not has_soft_anchor and not has_hard_anchor:
+        return GateSignal(
+            signal_type="guaranteed_return_missing_anchor",
+            confidence=0.6,
+            reason="未检测到收益承诺锚点（硬承诺或软承诺），可能不构成收益承诺",
+            evidence_labels=["missing_anchor"]
+        )
+
+    # 检查主体是否为公司投资行为
+    if "公司投资" in text_content or "投资团队" in text_content or "分红账户投资策略" in text_content:
+        return GateSignal(
+            signal_type="guaranteed_return_company_investment",
+            confidence=0.7,
+            reason="检测到公司投资行为描述，不应判为保险产品收益承诺",
+            evidence_labels=["company_investment"]
+        )
+
+    return None
+
+
+def _check_responsibility_exaggeration_anchor(
+    rule_card: RuleCard,
+    chunk_fact: ChunkFactProfile | None,
+    text_content: str,
+) -> Optional[GateSignal]:
+    """检查责任夸大类是否满足锚点门槛
+
+    规则：
+    1. 必须有责任夸大关键表达
+    2. 必须是对保险责任的夸大，而非客观说明
+
+    返回：
+    - 如果不满足门槛，返回 GateSignal
+    - 如果满足门槛，返回 None
+    """
+    # 只检查责任夸大类规则（通过 rule_name 或 keywords 判断）
+    rule_name_lower = rule_card.rule_name.lower()
+    is_responsibility_rule = (
+        "责任" in rule_name_lower or
+        "保障" in rule_name_lower or
+        "夸大" in rule_name_lower or
+        any("责任" in kw or "保障" in kw or "夸大" in kw for kw in rule_card.keywords)
+    )
+
+    if not is_responsibility_rule:
+        return None
+
+    # 检查是否有责任夸大关键表达
+    has_anchor = any(
+        term in text_content
+        for term in RESPONSIBILITY_EXAGGERATION_ANCHORS
+    )
+
+    if not has_anchor:
+        return GateSignal(
+            signal_type="responsibility_exaggeration_missing_anchor",
+            confidence=0.6,
+            reason="未检测到责任夸大关键表达，可能不构成责任夸大",
+            evidence_labels=["missing_anchor"]
+        )
+
+    return None
+
+
+# ============================================================
 # Phase 4 新增：3 个前置场景闸门
 # ============================================================
 
@@ -321,6 +735,7 @@ def _check_non_marketing_absolute(
 def _check_sufficient_disclaimer(
     rule_card: RuleCard,
     chunk_fact: ChunkFactProfile | None,
+    text_content: str = "",
 ) -> Optional[GateSignal]:
     """闸门 2：规范提示语充分的减保/保单贷款说明
 
@@ -338,11 +753,12 @@ def _check_sufficient_disclaimer(
         if "减保" not in rule_text and "保单贷款" not in rule_text:
             return None
 
-    if not chunk_fact or not chunk_fact.signals:
-        return None
+    # 优先使用原始 chunk 文本，回退到 chunk_fact signal values
+    if not text_content and chunk_fact and chunk_fact.signals:
+        text_content = " ".join(s.value for s in chunk_fact.signals if s.value)
 
-    # 获取文本内容（从 signals 的 value 中提取）
-    text_content = " ".join(s.value for s in chunk_fact.signals)
+    if not text_content:
+        return None
 
     # 检查减保提示语
     surrender_disclaimer_count = sum(
@@ -376,6 +792,7 @@ def _check_sufficient_disclaimer(
 def _check_neutral_vs_sales(
     rule_card: RuleCard,
     chunk_fact: ChunkFactProfile | None,
+    text_content: str = "",
 ) -> Optional[GateSignal]:
     """闸门 3：中性知识说明 vs 销售话术
 
@@ -386,12 +803,16 @@ def _check_neutral_vs_sales(
     判断依据：
     - 有中性知识标志词 且 无销售话术标志词 → 中性知识说明
     - 有销售话术标志词 → 销售话术
-    """
-    if not chunk_fact or not chunk_fact.signals:
-        return None
 
-    # 获取文本内容
-    text_content = " ".join(s.value for s in chunk_fact.signals)
+    Phase 4 P1++ 升级：接收 text_content 参数，使用原始文本进行检查。
+    text_content 为空时自动从 chunk_fact signal values 拼接文本进行检查。
+    """
+    # 若无直接文本，从 chunk_fact signal values 拼接
+    if not text_content and chunk_fact and chunk_fact.signals:
+        text_content = " ".join(s.value for s in chunk_fact.signals if s.value)
+
+    if not text_content:
+        return None
 
     # 检查中性知识标志词
     neutral_count = sum(1 for term in NEUTRAL_KNOWLEDGE_TERMS if term in text_content)
@@ -418,6 +839,13 @@ def _check_neutral_vs_sales(
         )
 
     # 检查是否缺少诱导性表述（无 claim_income_promise/claim_comparison/claim_ranking）
+    # 但如果是 gifts_benefits 类规则，不应该因为缺少诱导性表述就判定为中性知识
+    if rule_card.category_group == "gifts_benefits":
+        return None
+
+    if not chunk_fact or not chunk_fact.signals:
+        return None
+
     signal_labels = {s.label for s in chunk_fact.signals}
     has_inducement = any(
         label in signal_labels
@@ -480,16 +908,25 @@ def run_gate(
     routed_pairs: List[RoutedPair],
     rule_cards: Dict[str, RuleCard],
     chunk_facts: Dict[str, ChunkFactProfile] | None = None,
+    document: DocumentState | None = None,
 ) -> List[GateResult]:
     """运行轻量 Gate
 
     Phase 4 升级：新增 3 个前置场景闸门检查
+    Phase 4 P1++ 升级：新增 4 个重点类别锚点门槛检查
+    Phase 4 P1++ 架构优化：添加 document 参数，使用原始 chunk 文本进行锚点检查
 
     返回：GateResult 列表，包含 gate_signals 和 should_skip 标记
     """
+    logger.info(f"Stage 1.9 开始: 处理 {len(routed_pairs)} 个组合")
     results: List[GateResult] = []
     skip_count = 0
     signal_counter: Dict[str, int] = {}
+
+    # 构建 chunk_id -> Chunk 的索引（用于获取原始文本）
+    chunk_map = {}
+    if document:
+        chunk_map = {c.chunk_id: c for c in document.chunks}
 
     for pair in routed_pairs:
         rule_card = rule_cards.get(pair.rule_id)
@@ -498,7 +935,32 @@ def run_gate(
 
         chunk_fact = chunk_facts.get(pair.chunk_id) if chunk_facts else None
 
-        # 运行 7 个检查（原有 4 个 + 新增 3 个）
+        # 获取文本内容（用于锚点检查）
+        # 优先使用原始 chunk 文本，如果不可用则使用 fact summary
+        text_content = ""
+        chunk = chunk_map.get(pair.chunk_id)
+        if chunk:
+            text_content = chunk.chunk_text
+        elif chunk_fact:
+            text_content = chunk_fact.summary or ""
+            # 如果 summary 为空，尝试从 signals 中提取文本
+            if not text_content and chunk_fact.signals:
+                text_content = " ".join(s.value for s in chunk_fact.signals if s.value)
+
+        # 规则引擎前置证据检测：只要有正向命中，Gate 不允许跳过
+        has_positive_evidence = False
+        if chunk:
+            try:
+                engine_report = evaluate_rule_on_text(chunk.chunk_text, rule_card)
+                has_positive_evidence = (
+                    engine_report.has_violation_hit
+                    and not engine_report.hard_block
+                    and not engine_report.exclusion_blocked
+                )
+            except Exception as e:
+                logger.debug(f"Gate 规则引擎检测异常 [{pair.chunk_id} x {pair.rule_id}]: {e}")
+
+        # 运行 11 个检查（原有 4 个 + Phase 4 新增 3 个 + Phase 4 P1++ 新增 4 个）
         gate_signals: List[GateSignal] = []
 
         # 原有 4 个检查
@@ -528,38 +990,77 @@ def run_gate(
             gate_signals.append(sig)
             signal_counter[sig.signal_type] = signal_counter.get(sig.signal_type, 0) + 1
 
-        sig = _check_sufficient_disclaimer(rule_card, chunk_fact)
+        sig = _check_sufficient_disclaimer(rule_card, chunk_fact, text_content)
         if sig:
             gate_signals.append(sig)
             signal_counter[sig.signal_type] = signal_counter.get(sig.signal_type, 0) + 1
 
-        sig = _check_neutral_vs_sales(rule_card, chunk_fact)
+        sig = _check_neutral_vs_sales(rule_card, chunk_fact, text_content)
         if sig:
             gate_signals.append(sig)
             signal_counter[sig.signal_type] = signal_counter.get(sig.signal_type, 0) + 1
+
+        # Phase 4 P1++ 架构优化：统一的类别锚点门槛检查
+        sig = _check_category_anchor_threshold(rule_card, chunk_fact, text_content)
+        if sig:
+            gate_signals.append(sig)
+            signal_counter[sig.signal_type] = signal_counter.get(sig.signal_type, 0) + 1
+            logger.debug(f"  [{pair.chunk_id} x {pair.rule_id}] 生成锚点信号: {sig.signal_type} (confidence={sig.confidence})")
 
         # 决定是否跳过 Stage 2
         should_skip = False
         priority = "high"  # 默认高优先级
 
-        # 如果有高置信度的 actor_mismatch，可以跳过
-        for sig in gate_signals:
-            if sig.signal_type == "actor_mismatch" and sig.confidence >= 0.8:
-                should_skip = True
-                skip_count += 1
-                break
+        # 核心原则（Codex 方案）：规则引擎有正向命中时，Gate 不允许跳过
+        # 只有 has_positive_evidence=False 时才允许 Gate skip
+        if not has_positive_evidence:
+            # Phase 4 P1++：高置信度信号直接跳过
+            # 1. actor_mismatch >= 0.8
+            # 2. 锚点门槛类信号 >= 0.75（financial_confusion_negative_subject, missing_anchor 等）
+            # 3. neutral_knowledge >= 0.8（中性知识说明）
+            for sig in gate_signals:
+                if sig.signal_type == "actor_mismatch" and sig.confidence >= 0.8:
+                    should_skip = True
+                    skip_count += 1
+                    break
+                elif sig.signal_type in [
+                    "financial_confusion_negative_subject",
+                    "financial_confusion_missing_anchor",
+                    "gifts_missing_anchor",
+                    "guaranteed_return_missing_anchor",
+                    "guaranteed_return_company_investment",
+                    "responsibility_exaggeration_missing_anchor",
+                ] and sig.confidence >= 0.75:
+                    should_skip = True
+                    skip_count += 1
+                    break
+                elif sig.signal_type == "neutral_knowledge" and sig.confidence >= 0.8:
+                    should_skip = True
+                    skip_count += 1
+                    break
 
         # Phase 4 新增：如果有高置信度的前置场景闸门信号，降低优先级
         has_gate_signal = False
-        for sig in gate_signals:
-            if sig.signal_type in ["non_marketing_absolute", "sufficient_disclaimer", "neutral_knowledge"]:
-                if sig.confidence >= 0.7:
-                    priority = "low"
-                    has_gate_signal = True
-                    break
+        if not should_skip:
+            for sig in gate_signals:
+                if sig.signal_type in [
+                    "non_marketing_absolute",
+                    "sufficient_disclaimer",
+                    "neutral_knowledge",
+                    "financial_confusion_negative_subject",
+                    "financial_confusion_missing_anchor",
+                    "gifts_missing_anchor",
+                    "guaranteed_return_missing_anchor",
+                    "guaranteed_return_company_investment",
+                    "responsibility_exaggeration_missing_anchor",
+                ]:
+                    if sig.confidence >= 0.7:
+                        priority = "low"
+                        has_gate_signal = True
+                        break
 
         # 如果没有前置场景闸门信号，按信号数量分配优先级
-        if not has_gate_signal:
+        if not has_gate_signal and not should_skip:
             if len(gate_signals) >= 2:
                 priority = "low"
             elif len(gate_signals) == 1:
@@ -578,11 +1079,13 @@ def run_gate(
                 should_skip=should_skip,
                 priority=priority,
                 rule_plan=rule_plan,
+                has_positive_evidence=has_positive_evidence,
             )
         )
 
+    skip_pct = (skip_count / len(results) * 100) if results else 0.0
     logger.info(
-        f"Gate 完成: 共 {len(results)} 个组合, 跳过 {skip_count} 个 ({skip_count/len(results)*100:.1f}%)"
+        f"Gate 完成: 共 {len(results)} 个组合, 跳过 {skip_count} 个 ({skip_pct:.1f}%)"
     )
 
     if signal_counter:

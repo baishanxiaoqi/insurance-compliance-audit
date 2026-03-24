@@ -30,6 +30,17 @@ def _has_complex_signals(chunk_fact: ChunkFactProfile | None) -> bool:
     return bool(labels & _COMPLEX_SIGNAL_LABELS)
 
 
+def _has_semantic_constraints(rule_card: RuleCard) -> bool:
+    """判断规则是否包含超出纯关键词/距离约束的语义限制。"""
+    return bool(
+        (rule_card.actor_scope and rule_card.actor_scope != "any")
+        or (rule_card.claim_type and rule_card.claim_type != "other")
+        or rule_card.exception_group
+        or rule_card.evidence_required
+        or rule_card.mutual_exclusion_group
+    )
+
+
 def decide_route(
     rule_card: RuleCard,
     chunk_fact: ChunkFactProfile | None = None,
@@ -39,30 +50,42 @@ def decide_route(
     strategy: "base" | "skill"
     skill_type: 复杂场景类型（仅 skill 轨有效）
     """
+    inferred_skill_type = classify_complex_scenario(rule_card)
+    has_structured_constraints = bool(
+        rule_card.exceptions or rule_card.condition_terms or rule_card.exclusion_terms
+    )
+    has_semantic_constraints = _has_semantic_constraints(rule_card)
+    has_complex_signals = _has_complex_signals(chunk_fact)
+
     # 显式路由策略
     if rule_card.route_strategy == "base":
         return "base", "rule_route_strategy=base", None
     if rule_card.route_strategy == "skill":
-        skill_type = classify_complex_scenario(rule_card)
-        return "skill", "rule_route_strategy=skill", skill_type
+        return "skill", "rule_route_strategy=skill", inferred_skill_type
+
+    # 路由提示（优先级低于显式路由，高于自动推断）
+    if rule_card.route_hint == "prefer_base" and not has_complex_signals:
+        return "base", "rule_route_hint=prefer_base", None
+    if rule_card.route_hint == "prefer_skill":
+        return "skill", "rule_route_hint=prefer_skill", inferred_skill_type
 
     # 复杂度标记
     if rule_card.complexity_level == "complex":
-        skill_type = classify_complex_scenario(rule_card)
-        return "skill", "rule_complexity=complex", skill_type
+        return "skill", "rule_complexity=complex", inferred_skill_type
+    if rule_card.complexity_level == "simple" and not has_complex_signals and not inferred_skill_type:
+        return "base", "rule_complexity=simple", None
 
-    # 高风险 + 结构化约束
-    has_structured_constraints = bool(
-        rule_card.exceptions or rule_card.condition_terms or rule_card.exclusion_terms
-    )
-    if rule_card.risk_level == "high" and has_structured_constraints:
-        skill_type = classify_complex_scenario(rule_card)
-        return "skill", "high_risk_with_constraints", skill_type
+    # 复杂场景分类器优先：真正把 complex classifier 的结果用于分流
+    if inferred_skill_type:
+        return "skill", "inferred_complex_skill", inferred_skill_type
 
-    # 复杂信号 + 结构化约束
-    if has_structured_constraints and _has_complex_signals(chunk_fact):
-        skill_type = classify_complex_scenario(rule_card)
-        return "skill", "complex_signals_with_constraints", skill_type
+    # 复杂信号 + 语义/结构化约束：需要 LLM 处理
+    if has_complex_signals and (has_structured_constraints or has_semantic_constraints):
+        return "skill", "complex_signals_with_constraints", None
+
+    # 只有存在语义性约束时，才默认走 skill；纯结构化约束优先交给 base 轨
+    if has_semantic_constraints:
+        return "skill", "semantic_rule_constraints", None
 
     return "base", "default_base", None
 
@@ -112,4 +135,3 @@ def run_stage1_8(
         logger.info(f"复杂场景分布: {skill_type_summary}")
 
     return routes
-

@@ -72,7 +72,7 @@ class SimpleTfidf:
             vec: Dict[str, float] = {}
             for t, count in tf.items():
                 if t in self.idf:
-                    vec[t] = (count / len(tokens)) * self.idf[t]
+                    vec[t] = (count / max(len(tokens), 1)) * self.idf[t]
             self.doc_vectors.append(vec)
 
     def query(self, text: str, top_k: int = 20) -> List[Tuple[int, float]]:
@@ -252,10 +252,6 @@ class HybridRetriever:
         """
         blocked_positions: Set[int] = set()
 
-        # 使用AC自动机匹配前缀和后缀
-        all_prefix_matches = self.ac_prefix.find_all(text)
-        all_suffix_matches = self.ac_suffix.find_all(text)
-
         for p in prefixes:
             phrase = f"{p}{term}"
             # 查找拼接词的位置
@@ -416,11 +412,13 @@ def build_filter_agent():
     return create_agent(
         output_schema=FilterResult,
         name="filter_agent",
+        profile=config.FILTER_MODEL_PROFILE,
         instructions=[
             "你是一个保险合规审核助手。",
             "你的任务是从候选规则列表中，排除明显无关的规则，仅返回最可能与给定文本相关的规则ID列表。",
-            "无需输出解释，仅返回相关的 rule_id 列表。",
-            "如果没有任何规则相关，返回空列表。",
+            "最终答案必须是 JSON 对象，格式为：{\"relevant_rule_ids\": [...]}。",
+            "无需输出解释，不要输出 markdown 或代码块。",
+            "如果没有任何规则相关，返回 {\"relevant_rule_ids\": []}。",
         ],
     )
 
@@ -444,7 +442,14 @@ def build_filter_prompt(
 【候选规则】
 {rules_desc}
 
-请仅返回最相关的 rule_id 列表（最多{top_k}条），无需解释。如果文本片段与所有候选规则都不相关，返回空列表。"""
+请仅返回 JSON 对象，格式为：
+{{"relevant_rule_ids": ["规则ID1", "规则ID2"]}}
+
+要求：
+1. `relevant_rule_ids` 最多返回 {top_k} 条；
+2. 只能返回候选规则中的 rule_id；
+3. 如果都不相关，返回 {{"relevant_rule_ids": []}}；
+4. 不要输出解释、markdown、代码块或其他文本。"""
 
 
 # ============================================================
@@ -476,7 +481,12 @@ async def _filter_single_chunk(
         prompt = build_filter_prompt(chunk.chunk_text, candidate_cards, top_k=top_k_filter)
 
         try:
-            filter_result: FilterResult = await safe_arun(filter_agent, prompt)
+            filter_result: FilterResult = await safe_arun(
+                filter_agent,
+                prompt,
+                max_retries=config.FILTER_MODEL_PROFILE.max_retries,
+                timeout_seconds=config.FILTER_MODEL_PROFILE.timeout_seconds,
+            )
 
             # 验证返回的 rule_id 在候选列表中
             valid_ids = [
@@ -496,9 +506,9 @@ async def _filter_single_chunk(
 
         except Exception as e:
             logger.warning(f"  Chunk {chunk.chunk_id} LLM 过滤失败: {e}")
-            # 降级：直接使用混合检索的 top-3
-            fallback_ids = candidate_ids[:top_k_filter]
-            logger.info(f"  降级使用检索 Top-{top_k_filter}: {fallback_ids}")
+            # 失败时尽量保留完整召回，避免因为 Filter 解析异常导致真实候选被过早剪掉
+            fallback_ids = candidate_ids
+            logger.info(f"  保留混合检索候选全集用于后续精判: {fallback_ids}")
             return ChunkCandidates(
                 chunk_id=chunk.chunk_id,
                 candidate_rule_ids=fallback_ids
