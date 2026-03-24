@@ -1,0 +1,470 @@
+{
+  "sample_id": "test_gate_integration",
+  "input_text": "这款产品收益稳定，适合长期投资。",
+  "config": {
+    "provider": "siliconflow",
+    "model": "Qwen/Qwen3.5-27B",
+    "llm_enable_thinking": true,
+    "top_k_rules": 20,
+    "top_k_filter": 3,
+    "max_concurrent_calls": 8,
+    "stage2_max_concurrent_calls": 2,
+    "stage2_max_tokens": 10000,
+    "stage2_timeout_seconds": 240.0
+  },
+  "document": {
+    "doc_id": "test_gate_integration",
+    "original_text": "这款产品收益稳定，适合长期投资。",
+    "working_text": "这款产品收益稳定，适合长期投资。",
+    "normalized_text": "这款产品收益稳定，适合长期投资。",
+    "norm_to_raw_map": {
+      "0": 0,
+      "1": 1,
+      "2": 2,
+      "3": 3,
+      "4": 4,
+      "5": 5,
+      "6": 6,
+      "7": 7,
+      "8": 8,
+      "9": 9,
+      "10": 10,
+      "11": 11,
+      "12": 12,
+      "13": 13,
+      "14": 14,
+      "15": 15
+    },
+    "working_to_original_map": {
+      "0": 0,
+      "1": 1,
+      "2": 2,
+      "3": 3,
+      "4": 4,
+      "5": 5,
+      "6": 6,
+      "7": 7,
+      "8": 8,
+      "9": 9,
+      "10": 10,
+      "11": 11,
+      "12": 12,
+      "13": 13,
+      "14": 14,
+      "15": 15
+    },
+    "chunks": [
+      {
+        "chunk_id": "chunk_000",
+        "chunk_text": "这款产品收益稳定，适合长期投资。",
+        "spans": [
+          {
+            "span_id": "S_chunk_000_00",
+            "span_text": "这款产品收益稳定，",
+            "start_index": 0,
+            "end_index": 9,
+            "chunk_id": "chunk_000"
+          },
+          {
+            "span_id": "S_chunk_000_01",
+            "span_text": "适合长期投资。",
+            "start_index": 9,
+            "end_index": 16,
+            "chunk_id": "chunk_000"
+          }
+        ]
+      }
+    ],
+    "span_pool": {
+      "S_chunk_000_00": {
+        "span_id": "S_chunk_000_00",
+        "span_text": "这款产品收益稳定，",
+        "start_index": 0,
+        "end_index": 9,
+        "chunk_id": "chunk_000"
+      },
+      "S_chunk_000_01": {
+        "span_id": "S_chunk_000_01",
+        "span_text": "适合长期投资。",
+        "start_index": 9,
+        "end_index": 16,
+        "chunk_id": "chunk_000"
+      }
+    }
+  },
+  "stage1_top20": [
+    "KB0155",
+    "KB0014",
+    "KB0203",
+    "KB0348",
+    "KB0031",
+    "KB0067",
+    "KB0466",
+    "KB0440",
+    "KB0241",
+    "KB0146",
+    "KB0173",
+    "KB0522",
+    "KB0134",
+    "KB0139",
+    "KB0344",
+    "KB0026",
+    "KB0058",
+    "KB0025",
+    "KB0064",
+    "KB0298"
+  ],
+  "stage1_candidates": [
+    {
+      "chunk_id": "chunk_000",
+      "candidate_rule_ids": [
+        "KB0155",
+        "KB0134",
+        "KB0014"
+      ]
+    }
+  ],
+  "stage1_5_facts": {
+    "chunk_000": {
+      "chunk_id": "chunk_000",
+      "signals": [
+        {
+          "label": "claim_income_promise",
+          "value": "收益",
+          "evidence_span_ids": [
+            "S_chunk_000_00"
+          ]
+        },
+        {
+          "label": "claim_risk_downplay",
+          "value": "稳定",
+          "evidence_span_ids": [
+            "S_chunk_000_00"
+          ]
+        },
+        {
+          "label": "evidence_need",
+          "value": "收益",
+          "evidence_span_ids": [
+            "S_chunk_000_00"
+          ]
+        }
+      ],
+      "summary": "claim_income_promise: 收益; claim_risk_downplay: 稳定; evidence_need: 收益"
+    }
+  },
+  "stage1_8_routes": [
+    {
+      "chunk_id": "chunk_000",
+      "rule_id": "KB0155",
+      "strategy": "skill",
+      "reason": "rule_route_hint=prefer_skill",
+      "skill_type": "commitment_strength"
+    },
+    {
+      "chunk_id": "chunk_000",
+      "rule_id": "KB0134",
+      "strategy": "skill",
+      "reason": "rule_route_hint=prefer_skill",
+      "skill_type": "financial_confusion"
+    },
+    {
+      "chunk_id": "chunk_000",
+      "rule_id": "KB0014",
+      "strategy": "base",
+      "reason": "rule_route_hint=prefer_base",
+      "skill_type": null
+    }
+  ],
+  "stage1_9_gate": [
+    {
+      "chunk_id": "chunk_000",
+      "rule_id": "KB0155",
+      "should_skip": false,
+      "priority": "medium",
+      "rule_plan": "规则ID: KB0155\n规则名称: 知识库规则-收益稳定\n风险等级: high\n主张类型: income_promise\nGate 信号: guaranteed_return_missing_anchor (置信度: 0.6)\n违规定义: 宣传或暗示保险具有收益稳定的作用。...",
+      "has_positive_evidence": true,
+      "gate_signals": [
+        {
+          "signal_type": "guaranteed_return_missing_anchor",
+          "confidence": 0.6,
+          "reason": "未检测到收益承诺锚点（硬承诺或软承诺），可能不构成收益承诺",
+          "evidence_labels": [
+            "missing_anchor"
+          ]
+        }
+      ]
+    },
+    {
+      "chunk_id": "chunk_000",
+      "rule_id": "KB0134",
+      "should_skip": false,
+      "priority": "high",
+      "rule_plan": "规则ID: KB0134\n规则名称: 知识库规则-收益性\n风险等级: high\n主张类型: misleading_statement\n违规定义: 使用收益、收益性等表述宣传或暗示保险是投资理财等金融产品的意思...",
+      "has_positive_evidence": false,
+      "gate_signals": []
+    },
+    {
+      "chunk_id": "chunk_000",
+      "rule_id": "KB0014",
+      "should_skip": false,
+      "priority": "high",
+      "rule_plan": "规则ID: KB0014\n规则名称: 知识库规则-理财 / 理财产品\n风险等级: high\n主张类型: income_promise\n违规定义: 直接宣传保险产品具备投资理财功能，使用具有投资属性的术语或其变体、缩略形式介绍保险，或者将个人养老金与理财产品进行关联。...",
+      "has_positive_evidence": true,
+      "gate_signals": []
+    }
+  ],
+  "rule_engine_reports": {
+    "KB0155": {
+      "rule_name": "知识库规则-收益稳定",
+      "category_group": "guaranteed_return",
+      "has_violation_hit": true,
+      "condition_pass": true,
+      "exclusion_blocked": false,
+      "hard_block": false,
+      "summary": "通过可执行规则前置校验",
+      "violation_positions": {
+        "收益稳定": [
+          4
+        ]
+      },
+      "condition_positions": {},
+      "exclusion_positions": {}
+    },
+    "KB0134": {
+      "rule_name": "知识库规则-收益性",
+      "category_group": "financial_confusion",
+      "has_violation_hit": false,
+      "condition_pass": true,
+      "exclusion_blocked": false,
+      "hard_block": true,
+      "summary": "无有效违规词命中（或被前后缀不匹配规则过滤）",
+      "violation_positions": {},
+      "condition_positions": {},
+      "exclusion_positions": {}
+    },
+    "KB0014": {
+      "rule_name": "知识库规则-理财 / 理财产品",
+      "category_group": "financial_confusion",
+      "has_violation_hit": true,
+      "condition_pass": true,
+      "exclusion_blocked": false,
+      "hard_block": false,
+      "summary": "通过可执行规则前置校验",
+      "violation_positions": {
+        "投资": [
+          13
+        ]
+      },
+      "condition_positions": {
+        "产品": [
+          2
+        ]
+      },
+      "exclusion_positions": {}
+    }
+  },
+  "stage2_judgments": [
+    {
+      "rule_id": "KB0014",
+      "chunk_id": "chunk_000",
+      "verdict": "violation",
+      "reasoning_cot": "1. 命中词“投资”在文本中语义成立，用于描述产品属性。2. 主体“这款产品”明确指向待售保险产品，非泛指或第三方。3. 该片段为正面营销话术，不属于负面说明、禁令或监管解读等例外场景。4. 综合判断，将保险产品描述为“适合长期投资”，直接宣传了保险的投资理财功能，符合规则定义的违规门槛。",
+      "evidence_span_ids": [
+        "S_chunk_000_01"
+      ],
+      "evidence_texts": [
+        "适合长期投资"
+      ],
+      "reason_codes": [
+        "investment_term_usage"
+      ],
+      "decision_basis": "explicit_violation",
+      "primary_category": "financial_confusion",
+      "secondary_category": "investment_function_claim"
+    },
+    {
+      "rule_id": "KB0155",
+      "chunk_id": "chunk_000",
+      "verdict": "violation",
+      "reasoning_cot": "原文直接表述“收益稳定”，属于规则 KB0155 明确禁止的宣传暗示保险具有收益稳定作用的违规行为。经检查，文本中未出现“没有、不是、不能、可能”等排除词，也未包含风险提示或否定语境。该表述直接承诺了收益的稳定性，误导消费者预期，构成明确违规。证据选择包含核心违规词“收益稳定”的 span。",
+      "evidence_span_ids": [
+        "S_chunk_000_00"
+      ],
+      "evidence_texts": [
+        "收益稳定"
+      ],
+      "reason_codes": [
+        "RC_KB0155"
+      ],
+      "decision_basis": "explicit_violation",
+      "primary_category": "guaranteed_return",
+      "secondary_category": "stable_return_implication"
+    },
+    {
+      "rule_id": "KB0134",
+      "chunk_id": "chunk_000",
+      "verdict": "violation",
+      "reasoning_cot": "文本直接宣称产品“收益稳定”且“适合长期投资”，将保险产品明确包装为投资理财工具。这违反了 KB0134 禁止使用收益性表述暗示保险是金融产品的规定。经核查，文本无否定语境、非保险场景或风险提示等例外情形，构成明确违规。",
+      "evidence_span_ids": [
+        "S_chunk_000_00",
+        "S_chunk_000_01"
+      ],
+      "evidence_texts": [
+        "收益稳定",
+        "适合长期投资"
+      ],
+      "reason_codes": [
+        "RC_KB0134"
+      ],
+      "decision_basis": "explicit_violation",
+      "primary_category": "financial_product_confusion",
+      "secondary_category": "stable_return_implication"
+    }
+  ],
+  "stage2_5_judgments": [
+    {
+      "rule_id": "KB0014",
+      "chunk_id": "chunk_000",
+      "verdict": "violation",
+      "reasoning_cot": "1. 命中词“投资”在文本中语义成立，用于描述产品属性。2. 主体“这款产品”明确指向待售保险产品，非泛指或第三方。3. 该片段为正面营销话术，不属于负面说明、禁令或监管解读等例外场景。4. 综合判断，将保险产品描述为“适合长期投资”，直接宣传了保险的投资理财功能，符合规则定义的违规门槛。",
+      "evidence_span_ids": [
+        "S_chunk_000_01"
+      ],
+      "evidence_texts": [
+        "适合长期投资"
+      ],
+      "reason_codes": [
+        "investment_term_usage"
+      ],
+      "decision_basis": "explicit_violation",
+      "primary_category": "financial_confusion",
+      "secondary_category": "investment_function_claim"
+    },
+    {
+      "rule_id": "KB0155",
+      "chunk_id": "chunk_000",
+      "verdict": "violation",
+      "reasoning_cot": "原文直接表述“收益稳定”，属于规则 KB0155 明确禁止的宣传暗示保险具有收益稳定作用的违规行为。经检查，文本中未出现“没有、不是、不能、可能”等排除词，也未包含风险提示或否定语境。该表述直接承诺了收益的稳定性，误导消费者预期，构成明确违规。证据选择包含核心违规词“收益稳定”的 span。",
+      "evidence_span_ids": [
+        "S_chunk_000_00"
+      ],
+      "evidence_texts": [
+        "收益稳定"
+      ],
+      "reason_codes": [
+        "RC_KB0155"
+      ],
+      "decision_basis": "explicit_violation",
+      "primary_category": "guaranteed_return",
+      "secondary_category": "stable_return_implication"
+    },
+    {
+      "rule_id": "KB0134",
+      "chunk_id": "chunk_000",
+      "verdict": "compliant",
+      "reasoning_cot": "Override 改判：可执行规则引擎给出硬阻断（无有效违规词命中（或被前后缀不匹配规则过滤）），当前 violation 与规则约束冲突，改判为 compliant。",
+      "evidence_span_ids": [],
+      "evidence_texts": [],
+      "reason_codes": [],
+      "decision_basis": "explicit_violation",
+      "primary_category": "financial_product_confusion",
+      "secondary_category": "stable_return_implication"
+    }
+  ],
+  "stage2_7_suggestions": {
+    "chunk_000_KB0014": {
+      "rule_id": "KB0014",
+      "chunk_id": "chunk_000",
+      "suggestion": "理财、投资等表述存在将保险与投资理财等金融产品混淆的风险，建议修改为保险相关表述。如将投资、理财修改为财富管理。 具体违规表述：「适合长期投资」",
+      "suggestion_type": "weaken"
+    },
+    "chunk_000_KB0155": {
+      "rule_id": "KB0155",
+      "chunk_id": "chunk_000",
+      "suggestion": "保险产品的收益通常不是固定的，应避免承诺或暗示稳定的收益。 具体违规表述：「收益稳定」",
+      "suggestion_type": "rephrase"
+    }
+  },
+  "final_response": {
+    "doc_id": "test_gate_integration",
+    "total_violations": 2,
+    "violations": [
+      {
+        "rule_id": "KB0155",
+        "rule_name": "知识库规则-收益稳定",
+        "risk_level": "high",
+        "verdict": "violation",
+        "reasoning": "原文直接表述“收益稳定”，属于规则 KB0155 明确禁止的宣传暗示保险具有收益稳定作用的违规行为。经检查，文本中未出现“没有、不是、不能、可能”等排除词，也未包含风险提示或否定语境。该表述直接承诺了收益的稳定性，误导消费者预期，构成明确违规。证据选择包含核心违规词“收益稳定”的 span。",
+        "locations": [
+          {
+            "span_ids": [
+              "S_chunk_000_00"
+            ],
+            "original_text_slice": "这款产品收益稳定",
+            "norm_start": 0,
+            "norm_end": 9,
+            "raw_start": 0,
+            "raw_end": 8
+          }
+        ],
+        "reason_codes": [
+          "RC_KB0155"
+        ],
+        "suggestion": "保险产品的收益通常不是固定的，应避免承诺或暗示稳定的收益。 具体违规表述：「收益稳定」",
+        "suggestion_type": "rephrase",
+        "audit_point_id": "3.2.1",
+        "audit_point_name": "使用“保本”、“年年返”",
+        "decision_basis": "explicit_violation",
+        "primary_category": "guaranteed_return",
+        "secondary_category": "stable_return_implication",
+        "standard_category": "guaranteed_return"
+      },
+      {
+        "rule_id": "KB0014",
+        "rule_name": "知识库规则-理财 / 理财产品",
+        "risk_level": "high",
+        "verdict": "violation",
+        "reasoning": "1. 命中词“投资”在文本中语义成立，用于描述产品属性。2. 主体“这款产品”明确指向待售保险产品，非泛指或第三方。3. 该片段为正面营销话术，不属于负面说明、禁令或监管解读等例外场景。4. 综合判断，将保险产品描述为“适合长期投资”，直接宣传了保险的投资理财功能，符合规则定义的违规门槛。",
+        "locations": [
+          {
+            "span_ids": [
+              "S_chunk_000_01"
+            ],
+            "original_text_slice": "适合长期投资",
+            "norm_start": 9,
+            "norm_end": 16,
+            "raw_start": 9,
+            "raw_end": 15
+          }
+        ],
+        "reason_codes": [
+          "investment_term_usage"
+        ],
+        "suggestion": "理财、投资等表述存在将保险与投资理财等金融产品混淆的风险，建议修改为保险相关表述。如将投资、理财修改为财富管理。 具体违规表述：「适合长期投资」",
+        "suggestion_type": "weaken",
+        "audit_point_id": "1.2.1",
+        "audit_point_name": "类比为银行理财/基金",
+        "decision_basis": "explicit_violation",
+        "primary_category": "financial_confusion",
+        "secondary_category": "investment_function_claim",
+        "standard_category": "other"
+      }
+    ],
+    "processing_time_seconds": 146.0
+  },
+  "artifacts": {
+    "prompt_files": [
+      "benchmark/reports/single_sample_flow_20260323_network/prompts/call_01_filter_agent.txt",
+      "benchmark/reports/single_sample_flow_20260323_network/prompts/call_02_base_verify_llm.txt",
+      "benchmark/reports/single_sample_flow_20260323_network/prompts/call_03_skill_承诺强度判断.txt",
+      "benchmark/reports/single_sample_flow_20260323_network/prompts/call_03_skill_金融用语混淆识别.txt"
+    ],
+    "llm_result_files": [
+      "benchmark/reports/single_sample_flow_20260323_network/llm_results/call_01_filter_agent.json",
+      "benchmark/reports/single_sample_flow_20260323_network/llm_results/call_02_base_verify_llm.json",
+      "benchmark/reports/single_sample_flow_20260323_network/llm_results/call_03_skill_承诺强度判断.json",
+      "benchmark/reports/single_sample_flow_20260323_network/llm_results/call_03_skill_金融用语混淆识别.json"
+    ]
+  }
+}

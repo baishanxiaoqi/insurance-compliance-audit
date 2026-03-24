@@ -1,0 +1,119 @@
+{
+  "total": 13,
+  "tp": 0,
+  "fp": 0,
+  "fn": 6,
+  "tn": 7,
+  "precision": 0.0,
+  "recall": 0.0,
+  "f1": 0.0,
+  "f2": 0.0,
+  "category_hit_rate": 0.0,
+  "audit_point_hit_rate": 0.0,
+  "location_exact_hit_rate": 0.0,
+  "location_fuzzy_hit_rate": 0.0,
+  "by_sheet": {
+    "三级审查点": {
+      "total": 13,
+      "accuracy": 0.5385
+    }
+  },
+  "error_samples": [
+    {
+      "sample_id": "审查点违规_12_4_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "agent_title_violation"
+      ],
+      "expected_audit_point_id": "12.4.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "这不是招募代理人，就是在招企业合伙人"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_13_1_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "regulatory_misinterpretation"
+      ],
+      "expected_audit_point_id": "13.1.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "国家鼓励推广的保险产品"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_13_2_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "regulatory_misinterpretation"
+      ],
+      "expected_audit_point_id": "13.2.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "监管都备案了，就说明这款产品绝对安全"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_13_3_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "regulatory_misinterpretation"
+      ],
+      "expected_audit_point_id": "13.3.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "某位领导都强调要重视这类保障，现在买最合适"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_13_4_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "regulatory_misinterpretation"
+      ],
+      "expected_audit_point_id": "13.4.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "保险公司不会倒闭，所以这份保单绝对安全"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_14_1_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "error",
+      "expected_categories": [
+        "other"
+      ],
+      "expected_audit_point_id": "14.1.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "开过光，还能祈福保平安"
+      ],
+      "predicted_location_slices": []
+    }
+  ]
+}

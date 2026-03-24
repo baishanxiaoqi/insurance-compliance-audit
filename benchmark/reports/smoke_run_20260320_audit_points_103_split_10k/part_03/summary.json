@@ -1,0 +1,175 @@
+{
+  "total": 18,
+  "tp": 4,
+  "fp": 0,
+  "fn": 5,
+  "tn": 9,
+  "precision": 1.0,
+  "recall": 0.4444,
+  "f1": 0.6154,
+  "f2": 0.5,
+  "category_hit_rate": 0.1111,
+  "audit_point_hit_rate": 0.1111,
+  "location_exact_hit_rate": 0.0,
+  "location_fuzzy_hit_rate": 0.4444,
+  "by_sheet": {
+    "三级审查点": {
+      "total": 18,
+      "accuracy": 0.7222
+    }
+  },
+  "error_samples": [
+    {
+      "sample_id": "审查点违规_7_4_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "absolute_expression"
+      ],
+      "expected_audit_point_id": "7.4.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "随时都能取，而且几乎没有任何成本"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_7_5_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "absolute_expression"
+      ],
+      "expected_audit_point_id": "7.5.1",
+      "predicted_audit_point_ids": [
+        "7.5.1",
+        "8.2.1"
+      ],
+      "predicted_categories": [
+        "misleading_statement",
+        "identity_labeling",
+        "internet_hype_claim"
+      ],
+      "expected_text_slices": [
+        "中产家庭都会尽早把这类保险配齐"
+      ],
+      "predicted_location_slices": [
+        "我会顺口说真正的中产家庭都会尽早把这类保险配齐",
+        "我会顺口说真正的中产家庭都会尽早把这类保险配齐"
+      ]
+    },
+    {
+      "sample_id": "审查点违规_9_1_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "other"
+      ],
+      "expected_audit_point_id": "9.1.1",
+      "predicted_audit_point_ids": [
+        "7.1.1"
+      ],
+      "predicted_categories": [
+        "absolute_term",
+        "national_level"
+      ],
+      "expected_text_slices": [
+        "国家级保险保障计划"
+      ],
+      "predicted_location_slices": [
+        "有人提议直接写这是平安官方认证的国家级保险保障计划"
+      ]
+    },
+    {
+      "sample_id": "审查点违规_9_2_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "other"
+      ],
+      "expected_audit_point_id": "9.2.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "爆款测评直接拿来做宣传海报"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_9_4_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "other"
+      ],
+      "expected_audit_point_id": "9.4.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "某位明星都在推荐"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_9_6_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "other"
+      ],
+      "expected_audit_point_id": "9.6.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "奥运冠军同款保障计划"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_10_2_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "other"
+      ],
+      "expected_audit_point_id": "10.2.1",
+      "predicted_audit_point_ids": [
+        "7.1.1"
+      ],
+      "predicted_categories": [
+        "interpretation_right",
+        "superlative_claim"
+      ],
+      "expected_text_slices": [
+        "最终解释权归我们所有"
+      ],
+      "predicted_location_slices": [
+        "活动文案里我会留一句这次活动最终解释权归我们所有"
+      ]
+    },
+    {
+      "sample_id": "审查点违规_11_1_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "other"
+      ],
+      "expected_audit_point_id": "11.1.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "借着二十大东风"
+      ],
+      "predicted_location_slices": []
+    }
+  ]
+}

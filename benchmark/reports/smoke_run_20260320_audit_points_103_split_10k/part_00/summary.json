@@ -1,0 +1,149 @@
+{
+  "total": 18,
+  "tp": 4,
+  "fp": 0,
+  "fn": 5,
+  "tn": 9,
+  "precision": 1.0,
+  "recall": 0.4444,
+  "f1": 0.6154,
+  "f2": 0.5,
+  "category_hit_rate": 0.2222,
+  "audit_point_hit_rate": 0.0556,
+  "location_exact_hit_rate": 0.0,
+  "location_fuzzy_hit_rate": 0.2222,
+  "by_sheet": {
+    "三级审查点": {
+      "total": 18,
+      "accuracy": 0.7222
+    }
+  },
+  "error_samples": [
+    {
+      "sample_id": "审查点违规_1_1_3",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "financial_product_confusion"
+      ],
+      "expected_audit_point_id": "1.1.3",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "储蓄账户"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_2_1_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "responsibility_exaggeration"
+      ],
+      "expected_audit_point_id": "2.1.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "什么情况都能赔"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_2_2_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "responsibility_exaggeration"
+      ],
+      "expected_audit_point_id": "2.2.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "债务问题也能一起规划"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_2_2_2",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "responsibility_exaggeration"
+      ],
+      "expected_audit_point_id": "2.2.2",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "把税务提前规划好"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_2_2_3",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "responsibility_exaggeration"
+      ],
+      "expected_audit_point_id": "2.2.3",
+      "predicted_audit_point_ids": [
+        "2.1.1"
+      ],
+      "predicted_categories": [
+        "misleading_statement",
+        "exaggerated_coverage"
+      ],
+      "expected_text_slices": [
+        "什么风险都能保住"
+      ],
+      "predicted_location_slices": [
+        "今后大大小小的风险基本都能保住"
+      ]
+    },
+    {
+      "sample_id": "审查点违规_2_2_4",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "responsibility_exaggeration"
+      ],
+      "expected_audit_point_id": "2.2.4",
+      "predicted_audit_point_ids": [
+        "8.2.1"
+      ],
+      "predicted_categories": [
+        "function_exaggeration",
+        "inheritance_dispute_claim"
+      ],
+      "expected_text_slices": [
+        "遗产纠纷基本就能解决"
+      ],
+      "predicted_location_slices": [
+        "家里的遗产纠纷以后基本就能解决"
+      ]
+    },
+    {
+      "sample_id": "审查点违规_2_2_5",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "responsibility_exaggeration"
+      ],
+      "expected_audit_point_id": "2.2.5",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "能把纠纷解决掉"
+      ],
+      "predicted_location_slices": []
+    }
+  ]
+}

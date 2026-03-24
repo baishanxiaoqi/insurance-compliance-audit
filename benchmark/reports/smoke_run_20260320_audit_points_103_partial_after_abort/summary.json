@@ -1,0 +1,866 @@
+{
+  "total": 98,
+  "tp": 17,
+  "fp": 1,
+  "fn": 32,
+  "tn": 48,
+  "precision": 0.9444,
+  "recall": 0.3469,
+  "f1": 0.5075,
+  "f2": 0.3972,
+  "category_hit_rate": 0.1633,
+  "audit_point_hit_rate": 0.0816,
+  "location_exact_hit_rate": 0.0,
+  "location_fuzzy_hit_rate": 0.2041,
+  "by_sheet": {
+    "三级审查点": {
+      "total": 98,
+      "accuracy": 0.6633
+    }
+  },
+  "error_samples": [
+    {
+      "sample_id": "审查点违规_1_1_3",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "financial_product_confusion"
+      ],
+      "expected_audit_point_id": "1.1.3",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "储蓄账户"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_2_1_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "responsibility_exaggeration"
+      ],
+      "expected_audit_point_id": "2.1.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "什么情况都能赔"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_2_2_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "responsibility_exaggeration"
+      ],
+      "expected_audit_point_id": "2.2.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "债务问题也能一起规划"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_2_2_2",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "responsibility_exaggeration"
+      ],
+      "expected_audit_point_id": "2.2.2",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "把税务提前规划好"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_2_2_3",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "responsibility_exaggeration"
+      ],
+      "expected_audit_point_id": "2.2.3",
+      "predicted_audit_point_ids": [
+        "2.1.1"
+      ],
+      "predicted_categories": [
+        "misleading_statement",
+        "exaggerated_coverage"
+      ],
+      "expected_text_slices": [
+        "什么风险都能保住"
+      ],
+      "predicted_location_slices": [
+        "今后大大小小的风险基本都能保住"
+      ]
+    },
+    {
+      "sample_id": "审查点违规_2_2_4",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "responsibility_exaggeration"
+      ],
+      "expected_audit_point_id": "2.2.4",
+      "predicted_audit_point_ids": [
+        "8.2.1"
+      ],
+      "predicted_categories": [
+        "function_exaggeration",
+        "inheritance_dispute_claim"
+      ],
+      "expected_text_slices": [
+        "遗产纠纷基本就能解决"
+      ],
+      "predicted_location_slices": [
+        "家里的遗产纠纷以后基本就能解决"
+      ]
+    },
+    {
+      "sample_id": "审查点违规_2_2_5",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "responsibility_exaggeration"
+      ],
+      "expected_audit_point_id": "2.2.5",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "能把纠纷解决掉"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_2_3_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "responsibility_exaggeration"
+      ],
+      "expected_audit_point_id": "2.3.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "一确诊就赔"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_2_3_2",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "responsibility_exaggeration"
+      ],
+      "expected_audit_point_id": "2.3.2",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "门诊住院还是康复费用，这份保险都能赔"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点合规_2_3_2",
+      "source_sheet": "三级审查点",
+      "expected_label": "compliant",
+      "predicted_verdict": "violation",
+      "expected_categories": [],
+      "expected_audit_point_id": "2.3.2",
+      "predicted_audit_point_ids": [
+        "8.2.1"
+      ],
+      "predicted_categories": [
+        "misleading_statement",
+        "term_confusion"
+      ],
+      "expected_text_slices": [],
+      "predicted_location_slices": [
+        "更合规的说法是：门诊、住院和康复费用的赔付范围要按合同责任和报销条件判断"
+      ]
+    },
+    {
+      "sample_id": "审查点违规_3_1_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "guaranteed_return"
+      ],
+      "expected_audit_point_id": "3.1.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "收益是保证的"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_3_2_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "guaranteed_return"
+      ],
+      "expected_audit_point_id": "3.2.1",
+      "predicted_audit_point_ids": [
+        "3.2.1",
+        "1.1.2"
+      ],
+      "predicted_categories": [
+        "guaranteed_return",
+        "stable_return_implication",
+        "financial_product_confusion",
+        "savings_account_confusion"
+      ],
+      "expected_text_slices": [
+        "保本，还能做到年年返钱"
+      ],
+      "predicted_location_slices": [
+        "它相当于保本",
+        "客户一听像存钱一样放心"
+      ]
+    },
+    {
+      "sample_id": "审查点违规_3_3_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "guaranteed_return"
+      ],
+      "expected_audit_point_id": "3.3.1",
+      "predicted_audit_point_ids": [
+        "1.1.1"
+      ],
+      "predicted_categories": [
+        "stable_return_implication",
+        "misleading_statement"
+      ],
+      "expected_text_slices": [
+        "收益很稳健，几乎没有波动"
+      ],
+      "predicted_location_slices": [
+        "我会把这类产品讲成收益很稳健"
+      ]
+    },
+    {
+      "sample_id": "审查点违规_3_5_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "guaranteed_return"
+      ],
+      "expected_audit_point_id": "3.5.1",
+      "predicted_audit_point_ids": [
+        "3.2.1"
+      ],
+      "predicted_categories": [
+        "guaranteed_return",
+        "risk_free_claim"
+      ],
+      "expected_text_slices": [
+        "稳赚不赔，几乎零风险"
+      ],
+      "predicted_location_slices": [
+        "我会说这就是稳赚不赔"
+      ]
+    },
+    {
+      "sample_id": "审查点违规_6_3_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "comparison_violation"
+      ],
+      "expected_audit_point_id": "6.3.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "基金和银行理财都没有这份保险稳"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_6_4_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "comparison_violation"
+      ],
+      "expected_audit_point_id": "6.4.1",
+      "predicted_audit_point_ids": [
+        "1.1.1"
+      ],
+      "predicted_categories": [
+        "misleading_statement",
+        "social_security_comparison"
+      ],
+      "expected_text_slices": [
+        "社保根本解决不了问题"
+      ],
+      "predicted_location_slices": [
+        "我会说社保根本解决不了问题",
+        "把社保讲得一无是处"
+      ]
+    },
+    {
+      "sample_id": "审查点违规_6_5_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "gifts_or_extra_benefits"
+      ],
+      "expected_audit_point_id": "6.5.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "返一部分保费给您"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_6_5_2",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "gifts_or_extra_benefits"
+      ],
+      "expected_audit_point_id": "6.5.2",
+      "predicted_audit_point_ids": [
+        "10.1.1"
+      ],
+      "predicted_categories": [
+        "gifts_or_extra_benefits",
+        "service_beyond_health_management"
+      ],
+      "expected_text_slices": [
+        "送您一份礼品，再给您一次抽奖机会"
+      ],
+      "predicted_location_slices": [
+        "我会说这周投保我送您一份礼品",
+        "把礼品和抽奖绑到投保动作上"
+      ]
+    },
+    {
+      "sample_id": "审查点违规_7_1_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "absolute_expression"
+      ],
+      "expected_audit_point_id": "7.1.1",
+      "predicted_audit_point_ids": [
+        "7.1.1"
+      ],
+      "predicted_categories": [
+        "ranking_claim",
+        "absolute_terms"
+      ],
+      "expected_text_slices": [
+        "最好的保险方案"
+      ],
+      "predicted_location_slices": [
+        "我经常直接写这是目前市面上最好的保险方案"
+      ]
+    },
+    {
+      "sample_id": "审查点违规_7_1_3",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "absolute_expression"
+      ],
+      "expected_audit_point_id": "7.1.3",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "独一无二的选择"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_7_1_4",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "absolute_expression"
+      ],
+      "expected_audit_point_id": "7.1.4",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "肯定不会出现金流缺口"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_7_2_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "absolute_expression"
+      ],
+      "expected_audit_point_id": "7.2.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "再不买就亏大了"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_7_3_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "absolute_expression"
+      ],
+      "expected_audit_point_id": "7.3.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "最后名额"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_7_4_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "absolute_expression"
+      ],
+      "expected_audit_point_id": "7.4.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "随时都能取，而且几乎没有任何成本"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_7_5_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "absolute_expression"
+      ],
+      "expected_audit_point_id": "7.5.1",
+      "predicted_audit_point_ids": [
+        "7.5.1",
+        "8.2.1"
+      ],
+      "predicted_categories": [
+        "misleading_statement",
+        "identity_labeling",
+        "internet_hype_claim"
+      ],
+      "expected_text_slices": [
+        "中产家庭都会尽早把这类保险配齐"
+      ],
+      "predicted_location_slices": [
+        "我会顺口说真正的中产家庭都会尽早把这类保险配齐",
+        "我会顺口说真正的中产家庭都会尽早把这类保险配齐"
+      ]
+    },
+    {
+      "sample_id": "审查点违规_9_1_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "other"
+      ],
+      "expected_audit_point_id": "9.1.1",
+      "predicted_audit_point_ids": [
+        "7.1.1"
+      ],
+      "predicted_categories": [
+        "absolute_term",
+        "national_level"
+      ],
+      "expected_text_slices": [
+        "国家级保险保障计划"
+      ],
+      "predicted_location_slices": [
+        "有人提议直接写这是平安官方认证的国家级保险保障计划"
+      ]
+    },
+    {
+      "sample_id": "审查点违规_9_2_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "other"
+      ],
+      "expected_audit_point_id": "9.2.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "爆款测评直接拿来做宣传海报"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_9_4_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "other"
+      ],
+      "expected_audit_point_id": "9.4.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "某位明星都在推荐"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_9_6_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "other"
+      ],
+      "expected_audit_point_id": "9.6.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "奥运冠军同款保障计划"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_10_2_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "other"
+      ],
+      "expected_audit_point_id": "10.2.1",
+      "predicted_audit_point_ids": [
+        "7.1.1"
+      ],
+      "predicted_categories": [
+        "interpretation_right",
+        "superlative_claim"
+      ],
+      "expected_text_slices": [
+        "最终解释权归我们所有"
+      ],
+      "predicted_location_slices": [
+        "活动文案里我会留一句这次活动最终解释权归我们所有"
+      ]
+    },
+    {
+      "sample_id": "审查点违规_11_1_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "other"
+      ],
+      "expected_audit_point_id": "11.1.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "借着二十大东风"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_11_2_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "other"
+      ],
+      "expected_audit_point_id": "11.2.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "响应国家领导人重要讲话精神推出的重点保障产品"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_11_3_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "other"
+      ],
+      "expected_audit_point_id": "11.3.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "港澳台客户都在抢着配置"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_11_3_2",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "error",
+      "expected_categories": [
+        "other"
+      ],
+      "expected_audit_point_id": "11.3.2",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "带点辱华争议的话题做海报"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_11_3_3",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "other"
+      ],
+      "expected_audit_point_id": "11.3.3",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "用文革式口号包装"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_11_4_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "other"
+      ],
+      "expected_audit_point_id": "11.4.1",
+      "predicted_audit_point_ids": [
+        "11.4.1"
+      ],
+      "predicted_categories": [
+        "other",
+        "national_flag_emblem_anthem"
+      ],
+      "expected_text_slices": [
+        "放国旗国徽，更能显得这款保险有权威性"
+      ],
+      "predicted_location_slices": [
+        "有人建议海报上放国旗国徽"
+      ]
+    },
+    {
+      "sample_id": "审查点违规_11_6_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "other"
+      ],
+      "expected_audit_point_id": "11.6.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "趁着这次公共卫生事件关注高"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_12_1_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "agent_title_violation"
+      ],
+      "expected_audit_point_id": "12.1.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "直接写家庭理财规划师"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_12_2_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "violation",
+      "expected_categories": [
+        "agent_title_violation"
+      ],
+      "expected_audit_point_id": "12.2.1",
+      "predicted_audit_point_ids": [
+        "12.2.1",
+        "7.1.2"
+      ],
+      "predicted_categories": [
+        "income_promise",
+        "recruitment_inducement",
+        "misleading_statement",
+        "income_exaggeration"
+      ],
+      "expected_text_slices": [
+        "轻松月入过万，收入上不封顶"
+      ],
+      "predicted_location_slices": [
+        "招募新人时我会强调加入我们轻松月入过万",
+        "收入上不封顶"
+      ]
+    },
+    {
+      "sample_id": "审查点违规_12_3_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "agent_title_violation"
+      ],
+      "expected_audit_point_id": "12.3.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "什么金融产品都可以顺带一起讲"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_12_4_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "agent_title_violation"
+      ],
+      "expected_audit_point_id": "12.4.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "这不是招募代理人，就是在招企业合伙人"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_13_1_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "regulatory_misinterpretation"
+      ],
+      "expected_audit_point_id": "13.1.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "国家鼓励推广的保险产品"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_13_2_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "regulatory_misinterpretation"
+      ],
+      "expected_audit_point_id": "13.2.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "监管都备案了，就说明这款产品绝对安全"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_13_3_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "regulatory_misinterpretation"
+      ],
+      "expected_audit_point_id": "13.3.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "某位领导都强调要重视这类保障，现在买最合适"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_13_4_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "compliant",
+      "expected_categories": [
+        "regulatory_misinterpretation"
+      ],
+      "expected_audit_point_id": "13.4.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "保险公司不会倒闭，所以这份保单绝对安全"
+      ],
+      "predicted_location_slices": []
+    },
+    {
+      "sample_id": "审查点违规_14_1_1",
+      "source_sheet": "三级审查点",
+      "expected_label": "violation",
+      "predicted_verdict": "error",
+      "expected_categories": [
+        "other"
+      ],
+      "expected_audit_point_id": "14.1.1",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
+      "expected_text_slices": [
+        "开过光，还能祈福保平安"
+      ],
+      "predicted_location_slices": []
+    }
+  ]
+}

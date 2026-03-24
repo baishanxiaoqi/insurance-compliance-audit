@@ -1,0 +1,1735 @@
+{
+  "sample_id": "合规_0001",
+  "label": "compliant",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "source_sheet": "合规",
+  "quality_status": "accepted",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 60.0247,
+  "predicted_verdict": "compliant",
+  "predicted_rule_ids": [],
+  "predicted_location_slices": [],
+  "predicted_categories": [],
+  "predicted_decision_bases": [],
+  "predicted_suggestion_types": [],
+  "response": {
+    "doc_id": "合规_0001",
+    "total_violations": 0,
+    "violations": [],
+    "processing_time_seconds": 58.73
+  }
+}
+{
+  "sample_id": "合规_0002",
+  "label": "compliant",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "source_sheet": "合规",
+  "quality_status": "accepted",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 228.6905,
+  "predicted_verdict": "violation",
+  "predicted_rule_ids": [
+    "KB0078"
+  ],
+  "predicted_location_slices": [
+    "您可以根据客户的具体情况选择合适的祝福语进行提供温馨服务"
+  ],
+  "predicted_categories": [
+    "contract_outside_benefits",
+    "gift_giving_implication"
+  ],
+  "predicted_decision_bases": [
+    "explicit_violation"
+  ],
+  "predicted_suggestion_types": [
+    "delete"
+  ],
+  "response": {
+    "doc_id": "合规_0002",
+    "total_violations": 1,
+    "violations": [
+      {
+        "rule_id": "KB0078",
+        "rule_name": "知识库规则-礼品 / 送礼",
+        "risk_level": "high",
+        "verdict": "violation",
+        "reasoning": "文本中明确出现了结构化关键词规则中的违规词'温馨服务'。在最后一句'您可以根据客户的具体情况选择合适的祝福语进行提供温馨服务'中，虽然语境是祝福语建议，但'提供温馨服务'被列入了违规词列表（通常暗示合同外利益或变相送礼）。结合规则定义'宣传或暗示在购买保险过程中送客户东西、优惠、返利、返佣或其他合同外利益'，此处'温馨服务'作为营销话术的一部分，容易被解读为投保后的额外利益承诺。尽管没有直接说'送礼'，但根据给定的结构化关键词规则，'温馨服务'属于违规词，且出现在建议客户使用的语境中，构成了对合同外利益的暗示。因此判定为违规。",
+        "locations": [
+          {
+            "span_ids": [
+              "S_chunk_001_12"
+            ],
+            "original_text_slice": "您可以根据客户的具体情况选择合适的祝福语进行提供温馨服务",
+            "norm_start": 400,
+            "norm_end": 429,
+            "raw_start": 400,
+            "raw_end": 428
+          }
+        ],
+        "reason_codes": [
+          "RC_KB0078"
+        ],
+        "suggestion": "合规建议：送客户东西或优惠存在给予客户保险合同以外利益的风险，建议删除相关表述。 具体违规表述：「提供温馨服务」",
+        "suggestion_type": "delete",
+        "decision_basis": "explicit_violation",
+        "primary_category": "contract_outside_benefits",
+        "secondary_category": "gift_giving_implication",
+        "standard_category": "other"
+      }
+    ],
+    "processing_time_seconds": 227.37
+  }
+}
+{
+  "sample_id": "合规_0003",
+  "label": "compliant",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "source_sheet": "合规",
+  "quality_status": "accepted",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 208.2461,
+  "predicted_verdict": "compliant",
+  "predicted_rule_ids": [],
+  "predicted_location_slices": [],
+  "predicted_categories": [],
+  "predicted_decision_bases": [],
+  "predicted_suggestion_types": [],
+  "response": {
+    "doc_id": "合规_0003",
+    "total_violations": 0,
+    "violations": [],
+    "processing_time_seconds": 206.66
+  }
+}
+{
+  "sample_id": "合规_0004",
+  "label": "compliant",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "source_sheet": "合规",
+  "quality_status": "accepted",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 108.7042,
+  "predicted_verdict": "compliant",
+  "predicted_rule_ids": [],
+  "predicted_location_slices": [],
+  "predicted_categories": [],
+  "predicted_decision_bases": [],
+  "predicted_suggestion_types": [],
+  "response": {
+    "doc_id": "合规_0004",
+    "total_violations": 0,
+    "violations": [],
+    "processing_time_seconds": 107.43
+  }
+}
+{
+  "sample_id": "合规_0005",
+  "label": "compliant",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "source_sheet": "合规",
+  "quality_status": "accepted",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 228.1259,
+  "predicted_verdict": "compliant",
+  "predicted_rule_ids": [],
+  "predicted_location_slices": [],
+  "predicted_categories": [],
+  "predicted_decision_bases": [],
+  "predicted_suggestion_types": [],
+  "response": {
+    "doc_id": "合规_0005",
+    "total_violations": 0,
+    "violations": [],
+    "processing_time_seconds": 226.72
+  }
+}
+{
+  "sample_id": "合规_0006",
+  "label": "compliant",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "source_sheet": "合规",
+  "quality_status": "accepted",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 143.3015,
+  "predicted_verdict": "compliant",
+  "predicted_rule_ids": [],
+  "predicted_location_slices": [],
+  "predicted_categories": [],
+  "predicted_decision_bases": [],
+  "predicted_suggestion_types": [],
+  "response": {
+    "doc_id": "合规_0006",
+    "total_violations": 0,
+    "violations": [],
+    "processing_time_seconds": 141.88
+  }
+}
+{
+  "sample_id": "合规_0007",
+  "label": "compliant",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "source_sheet": "合规",
+  "quality_status": "accepted",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 124.1756,
+  "predicted_verdict": "compliant",
+  "predicted_rule_ids": [],
+  "predicted_location_slices": [],
+  "predicted_categories": [],
+  "predicted_decision_bases": [],
+  "predicted_suggestion_types": [],
+  "response": {
+    "doc_id": "合规_0007",
+    "total_violations": 0,
+    "violations": [],
+    "processing_time_seconds": 122.84
+  }
+}
+{
+  "sample_id": "合规_0008",
+  "label": "compliant",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "source_sheet": "合规",
+  "quality_status": "accepted",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 116.0131,
+  "predicted_verdict": "compliant",
+  "predicted_rule_ids": [],
+  "predicted_location_slices": [],
+  "predicted_categories": [],
+  "predicted_decision_bases": [],
+  "predicted_suggestion_types": [],
+  "response": {
+    "doc_id": "合规_0008",
+    "total_violations": 0,
+    "violations": [],
+    "processing_time_seconds": 114.62
+  }
+}
+{
+  "sample_id": "合规_0009",
+  "label": "compliant",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "source_sheet": "合规",
+  "quality_status": "accepted",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 149.0755,
+  "predicted_verdict": "compliant",
+  "predicted_rule_ids": [],
+  "predicted_location_slices": [],
+  "predicted_categories": [],
+  "predicted_decision_bases": [],
+  "predicted_suggestion_types": [],
+  "response": {
+    "doc_id": "合规_0009",
+    "total_violations": 0,
+    "violations": [],
+    "processing_time_seconds": 147.76
+  }
+}
+{
+  "sample_id": "合规_0010",
+  "label": "compliant",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "source_sheet": "合规",
+  "quality_status": "accepted",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 67.2185,
+  "predicted_verdict": "compliant",
+  "predicted_rule_ids": [],
+  "predicted_location_slices": [],
+  "predicted_categories": [],
+  "predicted_decision_bases": [],
+  "predicted_suggestion_types": [],
+  "response": {
+    "doc_id": "合规_0010",
+    "total_violations": 0,
+    "violations": [],
+    "processing_time_seconds": 65.75
+  }
+}
+{
+  "sample_id": "合规_0011",
+  "label": "compliant",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "source_sheet": "合规",
+  "quality_status": "accepted",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 231.6352,
+  "predicted_verdict": "compliant",
+  "predicted_rule_ids": [],
+  "predicted_location_slices": [],
+  "predicted_categories": [],
+  "predicted_decision_bases": [],
+  "predicted_suggestion_types": [],
+  "response": {
+    "doc_id": "合规_0011",
+    "total_violations": 0,
+    "violations": [],
+    "processing_time_seconds": 230.32
+  }
+}
+{
+  "sample_id": "合规_0012",
+  "label": "compliant",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "source_sheet": "合规",
+  "quality_status": "accepted",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 275.2002,
+  "predicted_verdict": "compliant",
+  "predicted_rule_ids": [],
+  "predicted_location_slices": [],
+  "predicted_categories": [],
+  "predicted_decision_bases": [],
+  "predicted_suggestion_types": [],
+  "response": {
+    "doc_id": "合规_0012",
+    "total_violations": 0,
+    "violations": [],
+    "processing_time_seconds": 273.72
+  }
+}
+{
+  "sample_id": "合规_0013",
+  "label": "compliant",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "source_sheet": "合规",
+  "quality_status": "accepted",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 156.8819,
+  "predicted_verdict": "compliant",
+  "predicted_rule_ids": [],
+  "predicted_location_slices": [],
+  "predicted_categories": [],
+  "predicted_decision_bases": [],
+  "predicted_suggestion_types": [],
+  "response": {
+    "doc_id": "合规_0013",
+    "total_violations": 0,
+    "violations": [],
+    "processing_time_seconds": 155.44
+  }
+}
+{
+  "sample_id": "合规_0014",
+  "label": "compliant",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "source_sheet": "合规",
+  "quality_status": "accepted",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 139.6152,
+  "predicted_verdict": "compliant",
+  "predicted_rule_ids": [],
+  "predicted_location_slices": [],
+  "predicted_categories": [],
+  "predicted_decision_bases": [],
+  "predicted_suggestion_types": [],
+  "response": {
+    "doc_id": "合规_0014",
+    "total_violations": 0,
+    "violations": [],
+    "processing_time_seconds": 138.23
+  }
+}
+{
+  "sample_id": "合规_0015",
+  "label": "compliant",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "source_sheet": "合规",
+  "quality_status": "accepted",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 137.9575,
+  "predicted_verdict": "compliant",
+  "predicted_rule_ids": [],
+  "predicted_location_slices": [],
+  "predicted_categories": [],
+  "predicted_decision_bases": [],
+  "predicted_suggestion_types": [],
+  "response": {
+    "doc_id": "合规_0015",
+    "total_violations": 0,
+    "violations": [],
+    "processing_time_seconds": 136.61
+  }
+}
+{
+  "sample_id": "合规_0016",
+  "label": "compliant",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "source_sheet": "合规",
+  "quality_status": "accepted",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 112.5193,
+  "predicted_verdict": "compliant",
+  "predicted_rule_ids": [],
+  "predicted_location_slices": [],
+  "predicted_categories": [],
+  "predicted_decision_bases": [],
+  "predicted_suggestion_types": [],
+  "response": {
+    "doc_id": "合规_0016",
+    "total_violations": 0,
+    "violations": [],
+    "processing_time_seconds": 111.15
+  }
+}
+{
+  "sample_id": "合规_0017",
+  "label": "compliant",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "source_sheet": "合规",
+  "quality_status": "accepted",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 143.3292,
+  "predicted_verdict": "compliant",
+  "predicted_rule_ids": [],
+  "predicted_location_slices": [],
+  "predicted_categories": [],
+  "predicted_decision_bases": [],
+  "predicted_suggestion_types": [],
+  "response": {
+    "doc_id": "合规_0017",
+    "total_violations": 0,
+    "violations": [],
+    "processing_time_seconds": 141.86
+  }
+}
+{
+  "sample_id": "违规_0001",
+  "label": "violation",
+  "expected_categories": [
+    "financial_product_confusion"
+  ],
+  "expected_text_slices": [
+    "股票市场带来不确定性",
+    "保险产品波动较小"
+  ],
+  "source_sheet": "违规",
+  "quality_status": "accepted",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 122.8507,
+  "predicted_verdict": "violation",
+  "predicted_rule_ids": [
+    "KB0344",
+    "KB0014"
+  ],
+  "predicted_location_slices": [
+    "孩子的教育金和健康保障是他们成长过程中不可或缺的部分",
+    "通常有波动较小的保费和保障"
+  ],
+  "predicted_categories": [
+    "absolute_claim",
+    "indispensable_usage",
+    "financial_product_confusion",
+    "stable_return_implication"
+  ],
+  "predicted_decision_bases": [
+    "explicit_violation"
+  ],
+  "predicted_suggestion_types": [
+    "rephrase",
+    "weaken"
+  ],
+  "response": {
+    "doc_id": "违规_0001",
+    "total_violations": 2,
+    "violations": [
+      {
+        "rule_id": "KB0344",
+        "rule_name": "知识库规则-不可或缺",
+        "risk_level": "high",
+        "verdict": "violation",
+        "reasoning": "原文中明确使用了'不可或缺'这一绝对化词汇（S_chunk_000_07）。虽然该词出现在描述'孩子的教育金和健康保障'的语境中，但紧接着后半句'而保险可以使这些保障不受市场波动的影响'将保险与这些'不可或缺的部分'建立了强关联，暗示保险是实现这些不可或缺保障的必要手段。根据规则 KB0344，使用'不可或缺'等表述绝对化宣传保险的作用属于违规。例外条款要求'没有使用不可或缺...进行商业宣传'，此处明显是在向客户推荐保险的商业场景下使用该词，且未出现否定语境或主体不匹配等推翻证据。因此判定为违规。",
+        "locations": [
+          {
+            "span_ids": [
+              "S_chunk_000_07"
+            ],
+            "original_text_slice": "孩子的教育金和健康保障是他们成长过程中不可或缺的部分",
+            "norm_start": 74,
+            "norm_end": 101,
+            "raw_start": 74,
+            "raw_end": 100
+          }
+        ],
+        "reason_codes": [
+          "RC_KB0344"
+        ],
+        "suggestion": "保险营销建议使用推荐建议的口吻。 具体违规表述：「不可或缺」",
+        "suggestion_type": "rephrase",
+        "decision_basis": "explicit_violation",
+        "primary_category": "absolute_claim",
+        "secondary_category": "indispensable_usage",
+        "standard_category": "other"
+      },
+      {
+        "rule_id": "KB0014",
+        "rule_name": "知识库规则-理财 / 理财产品",
+        "risk_level": "high",
+        "verdict": "violation",
+        "reasoning": "文本中明确表述'保险产品，尤其是少儿保险，通常有波动较小的保费和保障'。根据规则 KB0014，违规词包含'波动较小'，且条件词'保险'在限定距离内。虽然前文提到'保险的本质是风险管理...而非财富管理'，但后文直接宣称保险产品具有'波动较小'的特性，这属于使用具有投资属性的术语（波动性描述）介绍保险，暗示了保险产品的稳定性优于市场波动，容易误导消费者认为保险具备理财属性或保本特性。例外条款中'说明保险产品和其他理财产品不同'需明确对比对象，此处未明确对比理财产品，而是直接描述保险自身波动小，构成违规。",
+        "locations": [
+          {
+            "span_ids": [
+              "S_chunk_000_15"
+            ],
+            "original_text_slice": "通常有波动较小的保费和保障",
+            "norm_start": 180,
+            "norm_end": 194,
+            "raw_start": 180,
+            "raw_end": 193
+          }
+        ],
+        "reason_codes": [
+          "RC_KB0014"
+        ],
+        "suggestion": "理财、投资等表述存在将保险与投资理财等金融产品混淆的风险，建议修改为保险相关表述。如将投资、理财修改为财富管理。 具体违规表述：「通常有波动较小的保费和保障」",
+        "suggestion_type": "weaken",
+        "decision_basis": "explicit_violation",
+        "primary_category": "financial_product_confusion",
+        "secondary_category": "stable_return_implication",
+        "standard_category": "financial_product_confusion"
+      }
+    ],
+    "processing_time_seconds": 121.49
+  }
+}
+{
+  "sample_id": "违规_0002",
+  "label": "violation",
+  "expected_categories": [
+    "guaranteed_return"
+  ],
+  "expected_text_slices": [
+    "锁定年化回报"
+  ],
+  "source_sheet": "违规",
+  "quality_status": "accepted",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 63.2402,
+  "predicted_verdict": "compliant",
+  "predicted_rule_ids": [],
+  "predicted_location_slices": [],
+  "predicted_categories": [],
+  "predicted_decision_bases": [],
+  "predicted_suggestion_types": [],
+  "response": {
+    "doc_id": "违规_0002",
+    "total_violations": 0,
+    "violations": [],
+    "processing_time_seconds": 61.93
+  }
+}
+{
+  "sample_id": "违规_0003",
+  "label": "violation",
+  "expected_categories": [
+    "guaranteed_return"
+  ],
+  "expected_text_slices": [
+    "规划一份稳健的收益"
+  ],
+  "source_sheet": "违规",
+  "quality_status": "accepted",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 235.7818,
+  "predicted_verdict": "violation",
+  "predicted_rule_ids": [
+    "KB0014"
+  ],
+  "predicted_location_slices": [
+    "你手中的年金就像一座波动较小的财富灯塔"
+  ],
+  "predicted_categories": [
+    "financial_product_confusion",
+    "stable_return_implication"
+  ],
+  "predicted_decision_bases": [
+    "explicit_violation"
+  ],
+  "predicted_suggestion_types": [
+    "weaken"
+  ],
+  "response": {
+    "doc_id": "违规_0003",
+    "total_violations": 1,
+    "violations": [
+      {
+        "rule_id": "KB0014",
+        "rule_name": "知识库规则-理财 / 理财产品",
+        "risk_level": "high",
+        "verdict": "violation",
+        "reasoning": "原文将'年金'（保险产品）描述为'波动较小的财富灯塔'，其中'波动较小'属于规则 KB0014 明确列出的违规词（具有投资属性的术语）。该表述暗示年金具备类似理财产品的低波动、稳健增值的投资属性，容易误导消费者将保险与理财产品混淆。虽然文中提到'并非保险的直接称呼'，但后续仍用投资理财类术语（财富灯塔、波动较小）来定义其功能，未触发例外条款中的'说明保险产品和其他理财产品不同'的合规情形，因为此处是在强调其理财属性而非区别。因此判定为违规。",
+        "locations": [
+          {
+            "span_ids": [
+              "S_chunk_000_11"
+            ],
+            "original_text_slice": "你手中的年金就像一座波动较小的财富灯塔",
+            "norm_start": 124,
+            "norm_end": 144,
+            "raw_start": 124,
+            "raw_end": 143
+          }
+        ],
+        "reason_codes": [
+          "RC_KB0014"
+        ],
+        "suggestion": "理财、投资等表述存在将保险与投资理财等金融产品混淆的风险，建议修改为保险相关表述。如将投资、理财修改为财富管理。 具体违规表述：「波动较小的财富灯塔」",
+        "suggestion_type": "weaken",
+        "decision_basis": "explicit_violation",
+        "primary_category": "financial_product_confusion",
+        "secondary_category": "stable_return_implication",
+        "standard_category": "financial_product_confusion"
+      }
+    ],
+    "processing_time_seconds": 234.42
+  }
+}
+{
+  "sample_id": "违规_0004",
+  "label": "violation",
+  "expected_categories": [
+    "financial_product_confusion"
+  ],
+  "expected_text_slices": [
+    "银行存款收益低",
+    "保险提供风险保障"
+  ],
+  "source_sheet": "违规",
+  "quality_status": "accepted",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 145.9912,
+  "predicted_verdict": "violation",
+  "predicted_rule_ids": [
+    "KB0017",
+    "KB0530"
+  ],
+  "predicted_location_slices": [
+    "可以提供可能的收益",
+    "2. 转嫁风险：保险可以转移健康、意外等个人风险"
+  ],
+  "predicted_categories": [
+    "financial_product_confusion",
+    "stable_return_implication",
+    "risk_transfer_claim",
+    "absolute_risk_description"
+  ],
+  "predicted_decision_bases": [
+    "explicit_violation"
+  ],
+  "predicted_suggestion_types": [
+    "weaken",
+    "rephrase"
+  ],
+  "response": {
+    "doc_id": "违规_0004",
+    "total_violations": 2,
+    "violations": [
+      {
+        "rule_id": "KB0017",
+        "rule_name": "知识库规则-本金 / 计息",
+        "risk_level": "high",
+        "verdict": "violation",
+        "reasoning": "文本在第三段明确提到“保险产品如定期存款型保险，可以提供可能的收益”。根据规则 KB0017，直接宣传保险产品具备投资理财功能（使用“收益”、“资金增长”等投资属性术语）属于违规。虽然文中使用了“可能”、“预计”等缓和词，但核心问题在于将保险产品（特别是类储蓄型产品）与“资金增长”、“收益”直接挂钩，暗示了投资回报属性，触犯了“直接宣传保险产品具备投资理财功能”的违规定义。且未找到明确的例外条款适用（如非保险场景、否定语境等）。因此判定为违规。证据锁定在涉及“收益”和“资金增长”的具体描述上。",
+        "locations": [
+          {
+            "span_ids": [
+              "S_chunk_000_22"
+            ],
+            "original_text_slice": "可以提供可能的收益",
+            "norm_start": 280,
+            "norm_end": 290,
+            "raw_start": 280,
+            "raw_end": 289
+          }
+        ],
+        "reason_codes": [
+          "RC_KB0017"
+        ],
+        "suggestion": "本金、存钱等表述存在将保险与储蓄、存款等金融产品混淆的风险，建议修改为保险相关表述。建议将“存”改为 “交”或”交保费“，“存期”根据具体要表述的内容改为“保险期间”或“交费期”，“储蓄”改为“储备”等相关修改。 具体违规表述：「可以提供可能的收益」",
+        "suggestion_type": "weaken",
+        "decision_basis": "explicit_violation",
+        "primary_category": "financial_product_confusion",
+        "secondary_category": "stable_return_implication",
+        "standard_category": "financial_product_confusion"
+      },
+      {
+        "rule_id": "KB0530",
+        "rule_name": "知识库规则-转嫁风险",
+        "risk_level": "high",
+        "verdict": "violation",
+        "reasoning": "原文第2点标题直接使用'转嫁风险：保险可以转移健康、意外等个人风险'，明确宣称保险具有'转嫁风险'的功能。根据规则KB0530，使用'转嫁风险'等过于绝对、夸张的词汇描述宣传或暗示夸大保险有转嫁风险的作用属于违规。虽然文中使用了'可以'一词，但核心主张'转嫁风险'本身被规则禁止作为宣传用语，且未引用权威依据证明该表述合规，也不属于例外条款中的否定语境或非保险场景。因此判定为违规。",
+        "locations": [
+          {
+            "span_ids": [
+              "S_chunk_001_03"
+            ],
+            "original_text_slice": "2. 转嫁风险：保险可以转移健康、意外等个人风险",
+            "norm_start": 299,
+            "norm_end": 324,
+            "raw_start": 299,
+            "raw_end": 323
+          }
+        ],
+        "reason_codes": [
+          "RC_KB0530"
+        ],
+        "suggestion": "保险是助力弥补特定风险带来的经济损失的工具，无此功能。 具体违规表述：「转嫁风险：保险可以转移健康、意外等个人风险」",
+        "suggestion_type": "rephrase",
+        "decision_basis": "explicit_violation",
+        "primary_category": "risk_transfer_claim",
+        "secondary_category": "absolute_risk_description",
+        "standard_category": "other"
+      }
+    ],
+    "processing_time_seconds": 144.64
+  }
+}
+{
+  "sample_id": "违规_0005",
+  "label": "violation",
+  "expected_categories": [
+    "responsibility_exaggeration"
+  ],
+  "expected_text_slices": [
+    "保障未来收入"
+  ],
+  "source_sheet": "违规",
+  "quality_status": "accepted",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 165.7818,
+  "predicted_verdict": "compliant",
+  "predicted_rule_ids": [],
+  "predicted_location_slices": [],
+  "predicted_categories": [],
+  "predicted_decision_bases": [],
+  "predicted_suggestion_types": [],
+  "response": {
+    "doc_id": "违规_0005",
+    "total_violations": 0,
+    "violations": [],
+    "processing_time_seconds": 164.32
+  }
+}
+{
+  "sample_id": "违规_0006",
+  "label": "violation",
+  "expected_categories": [
+    "guaranteed_return"
+  ],
+  "expected_text_slices": [
+    "提供退休品质生活收入"
+  ],
+  "source_sheet": "违规",
+  "quality_status": "accepted",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 202.9844,
+  "predicted_verdict": "violation",
+  "predicted_rule_ids": [
+    "KB0623",
+    "KB0014"
+  ],
+  "predicted_location_slices": [
+    "比如年金险（如财富退休品质生活3.0）可以提供相应的退休品质生活收入",
+    "比如年金险（如财富退休品质生活3.0）可以提供相应的退休品质生活收入"
+  ],
+  "predicted_categories": [
+    "guaranteed_return",
+    "income_promise",
+    "financial_product_confusion",
+    "investment_attribute_misrepresentation"
+  ],
+  "predicted_decision_bases": [
+    "explicit_violation"
+  ],
+  "predicted_suggestion_types": [
+    "weaken"
+  ],
+  "response": {
+    "doc_id": "违规_0006",
+    "total_violations": 2,
+    "violations": [
+      {
+        "rule_id": "KB0623",
+        "rule_name": "知识库规则-退休品质生活收入",
+        "risk_level": "medium",
+        "verdict": "violation",
+        "reasoning": "原文中明确表述'年金险（如财富退休品质生活3.0）可以提供相应的退休品质生活收入'。根据规则 KB0623，宣传保险产品可以'保证退休品质生活收入'或'确保退休后的生活品质'属于违规主张。虽然文本使用了'可以提供'而非绝对化的'保证'，但结合上下文语境，该表述暗示了产品功能等同于保障退休品质生活收入，超出了保险合同约定的保障范围，且未引用具体合同条款或客观说明领取规则。例外条款要求'客观说明年金险的领取规则'或'说明保险合同约定的年金给付金额'，但此处直接承诺提供'退休品质生活收入'这一结果性描述，不符合例外情形。因此判定为违规。",
+        "locations": [
+          {
+            "span_ids": [
+              "S_chunk_000_04"
+            ],
+            "original_text_slice": "比如年金险（如财富退休品质生活3.0）可以提供相应的退休品质生活收入",
+            "norm_start": 69,
+            "norm_end": 104,
+            "raw_start": 69,
+            "raw_end": 103
+          }
+        ],
+        "reason_codes": [
+          "夸大保险保障功能",
+          "超出合同约定范围"
+        ],
+        "suggestion": "请修改为客观说明年金险的领取规则，不要夸大为保证退休品质生活收入。 具体违规表述：「可以提供相应的退休品质生活收入」",
+        "suggestion_type": "weaken",
+        "decision_basis": "explicit_violation",
+        "primary_category": "guaranteed_return",
+        "secondary_category": "income_promise",
+        "standard_category": "guaranteed_return"
+      },
+      {
+        "rule_id": "KB0014",
+        "rule_name": "知识库规则-理财 / 理财产品",
+        "risk_level": "high",
+        "verdict": "violation",
+        "reasoning": "原文在描述年金险功能时，使用了结构化关键词规则中明确列出的违规词'退休品质生活收入'。该表述将保险产品（年金险）与具体的收入保障/理财收益属性直接关联，暗示了确定的现金流回报，符合'直接宣传保险产品具备投资理财功能'的违规定义。虽然文中使用了'可能'、'可以'等弱化词汇，但核心违规短语'退休品质生活收入'本身属于规则禁止的投资属性术语变体，且未出现有效的例外条款（如否定语境或区分说明）。因此判定为违规。",
+        "locations": [
+          {
+            "span_ids": [
+              "S_chunk_000_04"
+            ],
+            "original_text_slice": "比如年金险（如财富退休品质生活3.0）可以提供相应的退休品质生活收入",
+            "norm_start": 69,
+            "norm_end": 104,
+            "raw_start": 69,
+            "raw_end": 103
+          }
+        ],
+        "reason_codes": [
+          "RC_KB0014"
+        ],
+        "suggestion": "理财、投资等表述存在将保险与投资理财等金融产品混淆的风险，建议修改为保险相关表述。如将投资、理财修改为财富管理。 具体违规表述：「退休品质生活收入」",
+        "suggestion_type": "weaken",
+        "decision_basis": "explicit_violation",
+        "primary_category": "financial_product_confusion",
+        "secondary_category": "investment_attribute_misrepresentation",
+        "standard_category": "financial_product_confusion"
+      }
+    ],
+    "processing_time_seconds": 201.64
+  }
+}
+{
+  "sample_id": "违规_0007",
+  "label": "violation",
+  "expected_categories": [
+    "responsibility_exaggeration"
+  ],
+  "expected_text_slices": [
+    "应对法律诉讼"
+  ],
+  "source_sheet": "违规",
+  "quality_status": "accepted",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 130.0072,
+  "predicted_verdict": "violation",
+  "predicted_rule_ids": [
+    "KB0039",
+    "KB0082"
+  ],
+  "predicted_location_slices": [
+    "这样我可以为您定制最适合的保险方案",
+    "比如‘平安创业守护’"
+  ],
+  "predicted_categories": [
+    "absolute_claim",
+    "product_superiority",
+    "misleading_title_nature",
+    "entrepreneurship_implication"
+  ],
+  "predicted_decision_bases": [
+    "explicit_violation"
+  ],
+  "predicted_suggestion_types": [
+    "rephrase",
+    "delete"
+  ],
+  "response": {
+    "doc_id": "违规_0007",
+    "total_violations": 2,
+    "violations": [
+      {
+        "rule_id": "KB0039",
+        "rule_name": "知识库规则-国家级 / 最高级",
+        "risk_level": "high",
+        "verdict": "violation",
+        "reasoning": "文本中 S_chunk_000_14 包含表述'最适合的保险方案'。根据规则 KB0039，'最适合'属于违规词列表中的绝对化表述（最划算、最适合等）。该表述直接指向保险产品方案的效果和优势，暗示该产品具有不可超越的匹配度，违反了禁止使用绝对化表述夸大产品效果的规定。虽然上下文是话术技巧示例，但作为营销话术内容，其本身构成了违规主张。未触发例外条款（如客户需求、主观愿望等），因为这里是代理人承诺定制'最适合'的方案，属于对产品能力的绝对化承诺。",
+        "locations": [
+          {
+            "span_ids": [
+              "S_chunk_000_14"
+            ],
+            "original_text_slice": "这样我可以为您定制最适合的保险方案",
+            "norm_start": 170,
+            "norm_end": 188,
+            "raw_start": 174,
+            "raw_end": 191
+          }
+        ],
+        "reason_codes": [
+          "RC_KB0039"
+        ],
+        "suggestion": "建议避免使用绝对化表述。 具体违规表述：「最适合的保险方案」",
+        "suggestion_type": "rephrase",
+        "decision_basis": "explicit_violation",
+        "primary_category": "absolute_claim",
+        "secondary_category": "product_superiority",
+        "standard_category": "other"
+      },
+      {
+        "rule_id": "KB0082",
+        "rule_name": "知识库规则-创业 / 合伙人",
+        "risk_level": "high",
+        "verdict": "violation",
+        "reasoning": "文本中出现了‘平安创业守护’这一产品名称，其中包含违规词‘创业’。根据规则 KB0082，禁止使用‘创业’词汇暗示代理人或我现在在创业、在平安创业。虽然这是产品名称，但在招募或业务推广语境下，直接使用含‘创业’的产品名容易引发对用工性质（合伙创业）的误解。检查例外条款：1. 未表达客户是创业者；2. 未表达代理人以前创业过；3. 排除词（客户、顾客等）距离‘创业’较远（S_chunk_001_14 与 S_chunk_001_16 之间隔了 S_chunk_001_15），且‘您’指代客户，但‘创业’修饰的是产品名而非直接描述客户身份；4. 前缀后缀不匹配项（辞职、律所、金、精神等）均未出现。因此，该处‘创业’词汇的使用触发了违规风险，属于明确违规。",
+        "locations": [
+          {
+            "span_ids": [
+              "S_chunk_001_14"
+            ],
+            "original_text_slice": "比如‘平安创业守护’",
+            "norm_start": 449,
+            "norm_end": 460,
+            "raw_start": 461,
+            "raw_end": 471
+          }
+        ],
+        "reason_codes": [
+          "RC_KB0082"
+        ],
+        "suggestion": "在增员场景描述代理人的用工性质，建议删除。因为我司与代理人之间基本是委托代理关系、双方签订的是代理合同，不是合伙创业关系。 具体违规表述：「比如‘平安创业守护」",
+        "suggestion_type": "delete",
+        "decision_basis": "explicit_violation",
+        "primary_category": "misleading_title_nature",
+        "secondary_category": "entrepreneurship_implication",
+        "standard_category": "other"
+      }
+    ],
+    "processing_time_seconds": 128.69
+  }
+}
+{
+  "sample_id": "违规_0008",
+  "label": "violation",
+  "expected_categories": [
+    "guaranteed_return"
+  ],
+  "expected_text_slices": [
+    "锁定未来的收益"
+  ],
+  "source_sheet": "违规",
+  "quality_status": "accepted",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 165.7056,
+  "predicted_verdict": "violation",
+  "predicted_rule_ids": [
+    "KB0511"
+  ],
+  "predicted_location_slices": [
+    "客户可以提前规划和锁定未来的经济收益"
+  ],
+  "predicted_categories": [
+    "financial_product_confusion",
+    "stable_return_implication"
+  ],
+  "predicted_decision_bases": [
+    "explicit_violation"
+  ],
+  "predicted_suggestion_types": [
+    "rephrase"
+  ],
+  "response": {
+    "doc_id": "违规_0008",
+    "total_violations": 1,
+    "violations": [
+      {
+        "rule_id": "KB0511",
+        "rule_name": "知识库规则-锁定",
+        "risk_level": "high",
+        "verdict": "violation",
+        "reasoning": "原文中明确使用了'锁定未来的经济收益'这一表述。根据规则 KB0511，禁止使用'锁定'等表述宣传或暗示保险是投资理财等金融产品的意思。虽然文本提到了'保障'，但将'锁定'与'经济收益'直接搭配，构成了对投资收益确定性的暗示，属于违规主张。检查例外条款：文中未出现'追求、避免、没有、不是、非、不'等排除词来否定该行为，也未处于批评或禁止使用该词的语境（如'不得使用锁定'）。因此，该表述触犯了规则核心定义，判定为违规。证据选择包含核心违规词'锁定'及关联对象'经济收益'的最小语义单元。",
+        "locations": [
+          {
+            "span_ids": [
+              "S_chunk_001_01"
+            ],
+            "original_text_slice": "客户可以提前规划和锁定未来的经济收益",
+            "norm_start": 263,
+            "norm_end": 282,
+            "raw_start": 263,
+            "raw_end": 281
+          }
+        ],
+        "reason_codes": [
+          "RC_KB0511"
+        ],
+        "suggestion": "不建议使用锁定的表述。 具体违规表述：「锁定未来的经济收益」",
+        "suggestion_type": "rephrase",
+        "decision_basis": "explicit_violation",
+        "primary_category": "financial_product_confusion",
+        "secondary_category": "stable_return_implication",
+        "standard_category": "financial_product_confusion"
+      }
+    ],
+    "processing_time_seconds": 164.38
+  }
+}
+{
+  "sample_id": "违规_0009",
+  "label": "violation",
+  "expected_categories": [
+    "gifts_or_extra_benefits"
+  ],
+  "expected_text_slices": [
+    "准备温馨服务（实际指代实物）"
+  ],
+  "source_sheet": "违规",
+  "quality_status": "accepted",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 125.0772,
+  "predicted_verdict": "violation",
+  "predicted_rule_ids": [
+    "KB0626",
+    "KB0078"
+  ],
+  "predicted_location_slices": [
+    "我们会准备一些温馨服务作为感谢",
+    "我们会准备一些温馨服务作为感谢"
+  ],
+  "predicted_categories": [
+    "service_commitment",
+    "extra_service_implication",
+    "contract_outside_benefits",
+    "gift_giving"
+  ],
+  "predicted_decision_bases": [
+    "explicit_violation"
+  ],
+  "predicted_suggestion_types": [
+    "delete"
+  ],
+  "response": {
+    "doc_id": "违规_0009",
+    "total_violations": 2,
+    "violations": [
+      {
+        "rule_id": "KB0626",
+        "rule_name": "知识库规则-温馨服务",
+        "risk_level": "high",
+        "verdict": "violation",
+        "reasoning": "1. 识别违规主张：文本中明确出现'我们会准备一些温馨服务作为感谢'，其中'温馨服务'属于规则 KB0626 定义的违规词（温馨服务|贴心服务|专属服务|暖心服务）。\n2. 主体分析：主语为'我们'（代理人/公司），对象为'您'（老客户/客户），符合规则主体范围（agent）。\n3. 例外排查：该表述并非客观说明保险公司的标准客户服务，也不是合同约定内容或理赔流程，而是作为转介激励的额外承诺，暗示给予合同外利益。\n4. 证据提取：核心违规词位于 S_chunk_000_17 '我们会准备一些温馨服务作为感谢'，构成最小完整语义单元。",
+        "locations": [
+          {
+            "span_ids": [
+              "S_chunk_000_17"
+            ],
+            "original_text_slice": "我们会准备一些温馨服务作为感谢",
+            "norm_start": 250,
+            "norm_end": 266,
+            "raw_start": 256,
+            "raw_end": 271
+          }
+        ],
+        "reason_codes": [
+          "暗示合同外利益",
+          "夸大服务承诺"
+        ],
+        "suggestion": "请删除关于温馨服务的表述，或修改为客观说明保险公司的标准客户服务。 具体违规表述：「我们会准备一些温馨服务作为感谢」",
+        "suggestion_type": "delete",
+        "decision_basis": "explicit_violation",
+        "primary_category": "service_commitment",
+        "secondary_category": "extra_service_implication",
+        "standard_category": "other"
+      },
+      {
+        "rule_id": "KB0078",
+        "rule_name": "知识库规则-礼品 / 送礼",
+        "risk_level": "high",
+        "verdict": "violation",
+        "reasoning": "文本中明确提到'如果您成功推荐新客户，我们会准备一些温馨服务作为感谢'。根据规则 KB0078，禁止宣传或暗示在购买保险过程中送客户东西、优惠、返利或其他合同外利益。'温馨服务'属于违规词列表中的'温馨服务'，且与'成功推荐新客户'（转介/投保行为）挂钩，构成给予合同外利益的承诺。虽然文中使用了'话术示例'的语境，但内容本身直接表达了违规的利益诱导主张，不符合例外条款中关于否定或禁止赠送的描述。因此判定为违规。",
+        "locations": [
+          {
+            "span_ids": [
+              "S_chunk_000_17"
+            ],
+            "original_text_slice": "我们会准备一些温馨服务作为感谢",
+            "norm_start": 250,
+            "norm_end": 266,
+            "raw_start": 256,
+            "raw_end": 271
+          }
+        ],
+        "reason_codes": [
+          "RC_KB0078"
+        ],
+        "suggestion": "合规建议：送客户东西或优惠存在给予客户保险合同以外利益的风险，建议删除相关表述。 具体违规表述：「我们会准备一些温馨服务作为感谢」",
+        "suggestion_type": "delete",
+        "decision_basis": "explicit_violation",
+        "primary_category": "contract_outside_benefits",
+        "secondary_category": "gift_giving",
+        "standard_category": "other"
+      }
+    ],
+    "processing_time_seconds": 123.78
+  }
+}
+{
+  "sample_id": "违规_0010",
+  "label": "violation",
+  "expected_categories": [
+    "gifts_or_extra_benefits"
+  ],
+  "expected_text_slices": [
+    "获得惊喜"
+  ],
+  "source_sheet": "违规",
+  "quality_status": "accepted",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 135.372,
+  "predicted_verdict": "violation",
+  "predicted_rule_ids": [
+    "KB0625",
+    "KB0078"
+  ],
+  "predicted_location_slices": [
+    "甚至有可能获得一些惊喜",
+    "甚至有可能获得一些惊喜"
+  ],
+  "predicted_categories": [
+    "improper_inducement",
+    "contract_outside_benefit",
+    "contract_outside_benefits",
+    "activity_rights_gifts"
+  ],
+  "predicted_decision_bases": [
+    "explicit_violation"
+  ],
+  "predicted_suggestion_types": [
+    "delete"
+  ],
+  "response": {
+    "doc_id": "违规_0010",
+    "total_violations": 2,
+    "violations": [
+      {
+        "rule_id": "KB0625",
+        "rule_name": "知识库规则-惊喜/心意",
+        "risk_level": "high",
+        "verdict": "violation",
+        "reasoning": "1. 识别违规主张：文本第3点建议中提到'甚至有可能获得一些惊喜'，直接使用了规则禁止的关键词'惊喜'。2. 主体分析：上下文为'邀约客户时...以下是一些建议'，主语隐含为代理人（营销员），对象为客户（您）。符合规则主体范围'agent'。3. 例外排查：该表述并非客观说明保险公司客户服务，也非合同约定内容，更非纯情感表达的节日祝福。4. 违规定性：暗示参加红酒会可能获得合同外利益（惊喜），属于不当销售诱导，违反《保险法》第116条关于不得给予或承诺给予保险合同约定以外利益的规定。5. 证据提取：核心违规词为'获得一些惊喜'，对应 span S_chunk_000_15。",
+        "locations": [
+          {
+            "span_ids": [
+              "S_chunk_000_15"
+            ],
+            "original_text_slice": "甚至有可能获得一些惊喜",
+            "norm_start": 234,
+            "norm_end": 246,
+            "raw_start": 234,
+            "raw_end": 245
+          }
+        ],
+        "reason_codes": [
+          "暗示合同外利益",
+          "不当销售诱导"
+        ],
+        "suggestion": "请删除关于惊喜、心意的表述，不应暗示给予客户保险合同外的利益。 具体违规表述：「甚至有可能获得一些惊喜」",
+        "suggestion_type": "delete",
+        "decision_basis": "explicit_violation",
+        "primary_category": "improper_inducement",
+        "secondary_category": "contract_outside_benefit",
+        "standard_category": "other"
+      },
+      {
+        "rule_id": "KB0078",
+        "rule_name": "知识库规则-礼品 / 送礼",
+        "risk_level": "high",
+        "verdict": "violation",
+        "reasoning": "文本中明确提到'参加我们的红酒会...甚至有可能获得一些惊喜'。根据规则 KB0078，禁止通过赠送礼品、奖品、卡券、抽奖、红酒会等形式变相给予合同外利益。'红酒会'属于违规形式识别中的活动权益，'获得一些惊喜'暗示了额外的利益或奖品。虽然使用了'可能'一词，但整体语境是邀约客户时利用这些利益点作为吸引力（'具有吸引力和说服力的金句'），构成了对合同外利益的承诺或暗示。该利益与参与/投保行为挂钩（'如果您现在参加'），且未说明是保险合同明确约定的服务或纯粹的宣传活动，因此判定为违规。",
+        "locations": [
+          {
+            "span_ids": [
+              "S_chunk_000_15"
+            ],
+            "original_text_slice": "甚至有可能获得一些惊喜",
+            "norm_start": 234,
+            "norm_end": 246,
+            "raw_start": 234,
+            "raw_end": 245
+          }
+        ],
+        "reason_codes": [
+          "RC_KB0078"
+        ],
+        "suggestion": "合规建议：送客户东西或优惠存在给予客户保险合同以外利益的风险，建议删除相关表述。 具体违规表述：「甚至有可能获得一些惊喜」",
+        "suggestion_type": "delete",
+        "decision_basis": "explicit_violation",
+        "primary_category": "contract_outside_benefits",
+        "secondary_category": "activity_rights_gifts",
+        "standard_category": "other"
+      }
+    ],
+    "processing_time_seconds": 134.06
+  }
+}
+{
+  "sample_id": "违规_0011",
+  "label": "violation",
+  "expected_categories": [
+    "guaranteed_return"
+  ],
+  "expected_text_slices": [
+    "锁定收益"
+  ],
+  "source_sheet": "违规",
+  "quality_status": "accepted",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 64.2275,
+  "predicted_verdict": "violation",
+  "predicted_rule_ids": [
+    "KB0511"
+  ],
+  "predicted_location_slices": [
+    "增额寿险的收益锁定功能对于保障和规划未来具有重要意义"
+  ],
+  "predicted_categories": [
+    "financial_product_confusion",
+    "stable_return_implication"
+  ],
+  "predicted_decision_bases": [
+    "explicit_violation"
+  ],
+  "predicted_suggestion_types": [
+    "rephrase"
+  ],
+  "response": {
+    "doc_id": "违规_0011",
+    "total_violations": 1,
+    "violations": [
+      {
+        "rule_id": "KB0511",
+        "rule_name": "知识库规则-锁定",
+        "risk_level": "high",
+        "verdict": "violation",
+        "reasoning": "原文中明确出现了'增额寿险的收益锁定功能'这一表述。根据规则 KB0511，禁止使用'锁定'等表述宣传或暗示保险是投资理财等金融产品的意思。虽然文中提到了'保障'和'规划'，但'收益锁定功能'直接将保险产品与投资收益的确定性挂钩，暗示了类似理财产品的锁定收益特性，属于违规主张。检查例外条款，文中没有出现'追求、避免、没有、不是、非、不'等排除词来否定该表述（'不属于保险责任范围'仅针对财富传承用途，未否定收益锁定），且非否定语境。因此判定为违规。证据选择包含核心违规词'收益锁定功能'的 span。",
+        "locations": [
+          {
+            "span_ids": [
+              "S_chunk_001_12"
+            ],
+            "original_text_slice": "增额寿险的收益锁定功能对于保障和规划未来具有重要意义",
+            "norm_start": 331,
+            "norm_end": 358,
+            "raw_start": 331,
+            "raw_end": 357
+          }
+        ],
+        "reason_codes": [
+          "RC_KB0511"
+        ],
+        "suggestion": "不建议使用锁定的表述。 具体违规表述：「增额寿险的收益锁定功能」",
+        "suggestion_type": "rephrase",
+        "decision_basis": "explicit_violation",
+        "primary_category": "financial_product_confusion",
+        "secondary_category": "stable_return_implication",
+        "standard_category": "financial_product_confusion"
+      }
+    ],
+    "processing_time_seconds": 62.89
+  }
+}
+{
+  "sample_id": "违规_0012",
+  "label": "violation",
+  "expected_categories": [
+    "financial_product_confusion"
+  ],
+  "expected_text_slices": [
+    "领取灵活性",
+    "随时减保取现"
+  ],
+  "source_sheet": "违规",
+  "quality_status": "accepted",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 217.486,
+  "predicted_verdict": "violation",
+  "predicted_rule_ids": [
+    "KB0027",
+    "KB0047"
+  ],
+  "predicted_location_slices": [
+    "收益是确定的",
+    "可以通过保单贷款等方式提供一定的流动性"
+  ],
+  "predicted_categories": [
+    "guaranteed_return",
+    "stable_return_implication",
+    "policy_loan_misleading",
+    "liquidity_exaggeration"
+  ],
+  "predicted_decision_bases": [
+    "explicit_violation"
+  ],
+  "predicted_suggestion_types": [
+    "delete",
+    "rephrase"
+  ],
+  "response": {
+    "doc_id": "违规_0012",
+    "total_violations": 2,
+    "violations": [
+      {
+        "rule_id": "KB0027",
+        "rule_name": "知识库规则-增值 / 保底",
+        "risk_level": "high",
+        "verdict": "violation",
+        "reasoning": "原文在描述增额终身寿险时，明确表述'收益是确定的'（S_chunk_000_05），并声称有'明确的年化回报率'（S_chunk_000_03）。根据规则 KB0027，禁止宣传或暗示保险有保证收益、稳定分红等意思。虽然文中对比了年金险的不确定性，但对增额终身寿险使用了确定性词汇'确定的'，构成了对收益确定性的违规承诺。检查例外条款，未发现否定语境（如'不是确定的'）或排除词（如'不能'）能推翻该主张。因此判定为违规。",
+        "locations": [
+          {
+            "span_ids": [
+              "S_chunk_000_05"
+            ],
+            "original_text_slice": "收益是确定的",
+            "norm_start": 93,
+            "norm_end": 100,
+            "raw_start": 95,
+            "raw_end": 101
+          }
+        ],
+        "reason_codes": [
+          "RC_KB0027"
+        ],
+        "suggestion": "描述产品收益须准确真实，宣传历史收益时应明确指出过往业绩不预示未来收益。鉴于保险不具备保值增值功能，建议删除相关表述，以免与保险条款相悖，承诺不确定利益保证收益，误导投保人。 具体违规表述：「收益是确定的」",
+        "suggestion_type": "delete",
+        "decision_basis": "explicit_violation",
+        "primary_category": "guaranteed_return",
+        "secondary_category": "stable_return_implication",
+        "standard_category": "guaranteed_return"
+      },
+      {
+        "rule_id": "KB0047",
+        "rule_name": "知识库规则-资金灵活运用 / 随用随取",
+        "risk_level": "high",
+        "verdict": "violation",
+        "reasoning": "文本在描述增额终身寿险时，明确提到'可以通过保单贷款等方式提供一定的流动性'。规则 KB0047 禁止宣传保单贷款时使用'流动性'、'灵活性'等误导或夸大表述，要求从应急性角度宣传。虽然文中使用了'一定的'修饰，但核心词汇'流动性'直接命中违规词列表，且语境是在对比产品优势（相对于年金险流动性较差），属于正面宣传保单贷款的流动性功能，未体现应急性限制，不符合例外条款中'否定保单贷款灵活性和流动性角度'的情形。因此判定为违规。",
+        "locations": [
+          {
+            "span_ids": [
+              "S_chunk_001_16"
+            ],
+            "original_text_slice": "可以通过保单贷款等方式提供一定的流动性",
+            "norm_start": 459,
+            "norm_end": 479,
+            "raw_start": 475,
+            "raw_end": 494
+          }
+        ],
+        "reason_codes": [
+          "RC_KB0047"
+        ],
+        "suggestion": "建议从应急功能角度表述，避免出现“资金灵活周转”、“随用随取”、“相当于白用贷款”、“不会有任何损失”、“流动性”、“灵活性”等类似误导或夸大表述，可以使用“应急性”表述。 具体违规表述：「可以通过保单贷款等方式提供一定的流动性」",
+        "suggestion_type": "rephrase",
+        "decision_basis": "explicit_violation",
+        "primary_category": "policy_loan_misleading",
+        "secondary_category": "liquidity_exaggeration",
+        "standard_category": "other"
+      }
+    ],
+    "processing_time_seconds": 216.1
+  }
+}
+{
+  "sample_id": "违规_0013",
+  "label": "violation",
+  "expected_categories": [
+    "gifts_or_extra_benefits"
+  ],
+  "expected_text_slices": [
+    "送温馨服务（实际指代实物）"
+  ],
+  "source_sheet": "违规",
+  "quality_status": "accepted",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 52.5806,
+  "predicted_verdict": "violation",
+  "predicted_rule_ids": [
+    "KB0626",
+    "KB0625"
+  ],
+  "predicted_location_slices": [
+    "选择实用的温馨服务",
+    "或者与客户兴趣相关的温馨服务",
+    "3. **体现心意**：温馨服务不在于价格"
+  ],
+  "predicted_categories": [
+    "service_commitment",
+    "extra_contractual_benefit",
+    "gift_inducement",
+    "contract_outside_benefit"
+  ],
+  "predicted_decision_bases": [
+    "explicit_violation"
+  ],
+  "predicted_suggestion_types": [
+    "delete"
+  ],
+  "response": {
+    "doc_id": "违规_0013",
+    "total_violations": 2,
+    "violations": [
+      {
+        "rule_id": "KB0626",
+        "rule_name": "知识库规则-温馨服务",
+        "risk_level": "high",
+        "verdict": "violation",
+        "reasoning": "文本中多次出现'温馨服务'这一违规关键词。规则 KB0626 明确禁止宣传代理人提供超出保险合同约定的额外服务（如温馨服务、贴心服务等）。虽然文中提到'选择实用的温馨服务'，但将赠送物品（笔记本、保温杯等）直接定义为'温馨服务'，暗示了合同外的利益输送或服务承诺。检查例外条款：文中未提及这是'保险公司的标准客户服务'或'合同约定内容'，而是作为拜访客户时的个人/代理人行为建议。因此，不存在主体不匹配或例外适用的情况，构成明确违规。证据选取包含核心违规词'温馨服务'的 span。",
+        "locations": [
+          {
+            "span_ids": [
+              "S_chunk_000_07"
+            ],
+            "original_text_slice": "选择实用的温馨服务",
+            "norm_start": 121,
+            "norm_end": 131,
+            "raw_start": 121,
+            "raw_end": 130
+          },
+          {
+            "span_ids": [
+              "S_chunk_000_09"
+            ],
+            "original_text_slice": "或者与客户兴趣相关的温馨服务",
+            "norm_start": 144,
+            "norm_end": 159,
+            "raw_start": 144,
+            "raw_end": 158
+          }
+        ],
+        "reason_codes": [
+          "暗示合同外利益",
+          "夸大服务承诺"
+        ],
+        "suggestion": "请删除关于温馨服务的表述，或修改为客观说明保险公司的标准客户服务。 具体违规表述：「选择实用的温馨服务、或者与客户兴趣相关的温馨服务」",
+        "suggestion_type": "delete",
+        "decision_basis": "explicit_violation",
+        "primary_category": "service_commitment",
+        "secondary_category": "extra_contractual_benefit",
+        "standard_category": "other"
+      },
+      {
+        "rule_id": "KB0625",
+        "rule_name": "知识库规则-惊喜/心意",
+        "risk_level": "high",
+        "verdict": "violation",
+        "reasoning": "1. 识别违规主张：文本中多次出现'体现心意'、'表达的诚意'、'温馨服务'等表述，且上下文是在指导代理人拜访客户时选择物品（购物袋、笔记本、保温杯等）。这符合规则定义的'宣传代理人会给客户准备惊喜、送心意...暗示会给予客户保险合同外的利益'。2. 检查例外条款：规则例外包括'客观说明保险公司的客户服务'、'说明保险合同约定的服务内容'、'节日祝福等纯情感表达'。本文明确提到'选择相关物品'、'印有公司名字的购物袋'、'定制的钢笔'等实物赠送，不属于纯情感表达或合同约定服务，而是额外的物质馈赠建议。3. 主体匹配：文本隐含主语为代理人（'在拜访客户时'、'体现出你对客户的关注'），符合规则主体范围'agent'。4. 结论：文本直接鼓励代理人通过赠送实物来表达心意，属于暗示合同外利益，构成违规。",
+        "locations": [
+          {
+            "span_ids": [
+              "S_chunk_000_11"
+            ],
+            "original_text_slice": "3. **体现心意**：温馨服务不在于价格",
+            "norm_start": 179,
+            "norm_end": 201,
+            "raw_start": 179,
+            "raw_end": 200
+          }
+        ],
+        "reason_codes": [
+          "暗示合同外利益"
+        ],
+        "suggestion": "请删除关于惊喜、心意的表述，不应暗示给予客户保险合同外的利益。 具体违规表述：「体现心意」",
+        "suggestion_type": "delete",
+        "decision_basis": "explicit_violation",
+        "primary_category": "gift_inducement",
+        "secondary_category": "contract_outside_benefit",
+        "standard_category": "other"
+      }
+    ],
+    "processing_time_seconds": 51.22
+  }
+}
+{
+  "sample_id": "违规_0014",
+  "label": "violation",
+  "expected_categories": [
+    "responsibility_exaggeration"
+  ],
+  "expected_text_slices": [
+    "避免保单成为财产分割的焦点",
+    "遇到婚姻变化避免法律纠纷"
+  ],
+  "source_sheet": "违规",
+  "quality_status": "accepted",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 156.7611,
+  "predicted_verdict": "violation",
+  "predicted_rule_ids": [
+    "KB0614"
+  ],
+  "predicted_location_slices": [
+    "如何通过删除被保险人来避免法律纠纷"
+  ],
+  "predicted_categories": [
+    "legal_risk_misrepresentation",
+    "avoid_legal_dispute_claim"
+  ],
+  "predicted_decision_bases": [
+    "explicit_violation"
+  ],
+  "predicted_suggestion_types": [
+    "delete"
+  ],
+  "response": {
+    "doc_id": "违规_0014",
+    "total_violations": 1,
+    "violations": [
+      {
+        "rule_id": "KB0614",
+        "rule_name": "知识库规则-避免法律纠纷",
+        "risk_level": "high",
+        "verdict": "violation",
+        "reasoning": "文本中明确出现了'避免法律纠纷'的表述。在 S_chunk_001_03 中提到'避免保单因法律问题而成为财产分割的焦点'，在 S_chunk_001_15 中提到'如何通过删除被保险人来避免法律纠纷'。规则 KB0614 禁止宣传保险产品可以避免、规避法律纠纷。虽然文中提到了'婚姻变化'等场景，但这属于具体案例描述，并未触发例外条款中的'客观说明保险合同的法律效力'或'引用法律条文'。主体为代理人向客户解释产品功能时，做出了避免法律纠纷的承诺性暗示，属于夸大保险法律保护功能，误导客户认为购买保险可以免除法律责任或避免法律纠纷。因此判定为违规。",
+        "locations": [
+          {
+            "span_ids": [
+              "S_chunk_001_15"
+            ],
+            "original_text_slice": "如何通过删除被保险人来避免法律纠纷",
+            "norm_start": 480,
+            "norm_end": 498,
+            "raw_start": 486,
+            "raw_end": 503
+          }
+        ],
+        "reason_codes": [
+          "夸大保险法律保护功能",
+          "误导法律责任规避"
+        ],
+        "suggestion": "请删除关于避免法律纠纷的表述，保险产品不能规避法律责任。 具体违规表述：「如何通过删除被保险人来避免法律纠纷」",
+        "suggestion_type": "delete",
+        "decision_basis": "explicit_violation",
+        "primary_category": "legal_risk_misrepresentation",
+        "secondary_category": "avoid_legal_dispute_claim",
+        "standard_category": "other"
+      }
+    ],
+    "processing_time_seconds": 155.43
+  }
+}
+{
+  "sample_id": "违规_0015",
+  "label": "violation",
+  "expected_categories": [
+    "gifts_or_extra_benefits"
+  ],
+  "expected_text_slices": [
+    "小物品"
+  ],
+  "source_sheet": "违规",
+  "quality_status": "accepted",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 112.0283,
+  "predicted_verdict": "violation",
+  "predicted_rule_ids": [
+    "KB0078"
+  ],
+  "predicted_location_slices": [
+    "但带上一些小物品"
+  ],
+  "predicted_categories": [
+    "contract_extra_benefit",
+    "gift_giving"
+  ],
+  "predicted_decision_bases": [
+    "explicit_violation"
+  ],
+  "predicted_suggestion_types": [
+    "delete"
+  ],
+  "response": {
+    "doc_id": "违规_0015",
+    "total_violations": 1,
+    "violations": [
+      {
+        "rule_id": "KB0078",
+        "rule_name": "知识库规则-礼品 / 送礼",
+        "risk_level": "high",
+        "verdict": "violation",
+        "reasoning": "文本中明确建议'带上一些小物品，表示关心'。虽然上下文提到是'拜访朋友'且'可能不需要携带销售资料'，但规则 KB0078 禁止宣传或暗示在购买保险过程中送客户东西、优惠、返利等合同外利益。结构化关键词规则中包含'小物品'作为违规词，且条件词'准备'在附近出现（S_chunk_000_08 '2. **准备**'）。尽管有'拜访朋友'的语境，但在保险营销培训或指南类文本中，建议向对象（即使是朋友）携带物品往往被视为变相送礼的暗示，尤其是当该文本出现在保险拜访方法的上下文中（S_chunk_000_01 提到'与上述针对保险拜访客户的方法有所不同'）。这构成了对给予合同外利益的暗示，不符合例外条款中'没有宣传或暗示赠送客户东西'的要求。因此判定为违规。",
+        "locations": [
+          {
+            "span_ids": [
+              "S_chunk_000_10"
+            ],
+            "original_text_slice": "但带上一些小物品",
+            "norm_start": 140,
+            "norm_end": 149,
+            "raw_start": 140,
+            "raw_end": 148
+          }
+        ],
+        "reason_codes": [
+          "RC_KB0078"
+        ],
+        "suggestion": "合规建议：送客户东西或优惠存在给予客户保险合同以外利益的风险，建议删除相关表述。 具体违规表述：「带上一些小物品」",
+        "suggestion_type": "delete",
+        "decision_basis": "explicit_violation",
+        "primary_category": "contract_extra_benefit",
+        "secondary_category": "gift_giving",
+        "standard_category": "other"
+      }
+    ],
+    "processing_time_seconds": 110.65
+  }
+}
+{
+  "sample_id": "违规_0016",
+  "label": "violation",
+  "expected_categories": [
+    "gifts_or_extra_benefits"
+  ],
+  "expected_text_slices": [
+    "提供定制晚宴"
+  ],
+  "source_sheet": "违规",
+  "quality_status": "accepted",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 110.7164,
+  "predicted_verdict": "violation",
+  "predicted_rule_ids": [
+    "KB0078",
+    "KB0628"
+  ],
+  "predicted_location_slices": [
+    "如高端体检或定制晚宴",
+    "如高端体检或定制晚宴"
+  ],
+  "predicted_categories": [
+    "contract_outside_benefit",
+    "gift_service_promotion",
+    "improper_benefit_inducement",
+    "custom_dinner_high_end_banquet"
+  ],
+  "predicted_decision_bases": [
+    "explicit_violation"
+  ],
+  "predicted_suggestion_types": [
+    "delete"
+  ],
+  "response": {
+    "doc_id": "违规_0016",
+    "total_violations": 2,
+    "violations": [
+      {
+        "rule_id": "KB0078",
+        "rule_name": "知识库规则-礼品 / 送礼",
+        "risk_level": "high",
+        "verdict": "violation",
+        "reasoning": "原文在'定制化服务'策略中明确提到'提供定制化的体验，如高端体检或定制晚宴'。根据规则 KB0078，'高端酒会'和'定制晚宴'属于违规词列表中的利益形式（变相给予合同外利益）。虽然文中未直接出现'投保后赠送'字样，但在'经营潜在客户'的语境下，将'高端体检'和'定制晚宴'作为吸引客户注意的策略，暗示了通过提供这些非合同约定的服务/礼品来换取客户关注或促成交易，符合'宣传或暗示在购买保险过程中送客户东西、优惠...或其他合同外利益'的定义。例外条款中未包含此类营销场景下的免费高端服务，且无否定语境排除该行为。因此判定为违规。",
+        "locations": [
+          {
+            "span_ids": [
+              "S_chunk_000_15"
+            ],
+            "original_text_slice": "如高端体检或定制晚宴",
+            "norm_start": 220,
+            "norm_end": 231,
+            "raw_start": 220,
+            "raw_end": 230
+          }
+        ],
+        "reason_codes": [
+          "RC_KB0078"
+        ],
+        "suggestion": "合规建议：送客户东西或优惠存在给予客户保险合同以外利益的风险，建议删除相关表述。 具体违规表述：「如高端体检或定制晚宴」",
+        "suggestion_type": "delete",
+        "decision_basis": "explicit_violation",
+        "primary_category": "contract_outside_benefit",
+        "secondary_category": "gift_service_promotion",
+        "standard_category": "other"
+      },
+      {
+        "rule_id": "KB0628",
+        "rule_name": "知识库规则-定制晚宴/高端宴请",
+        "risk_level": "high",
+        "verdict": "violation",
+        "reasoning": "文本中明确出现了'定制晚宴'这一违规关键词。根据规则 KB0628，宣传代理人会为客户安排定制晚宴、高端宴请等属于暗示给予客户保险合同外的高价值利益。虽然文中提到'提供定制化的体验'，但紧接着列举了'如高端体检或定制晚宴'，且上下文语境是指导代理人如何通过服务建立客户关系（'让客户感受到你的关注和诚意'），主体隐含为代理人向客户提供此类服务。例外条款要求必须是'客观说明保险公司的客户活动'或'保险公司组织的合规客户联谊活动'，但此处表述为'提供...定制晚宴'，更像是代理人个人的承诺或诱导行为，而非客观陈述公司组织的合规活动。因此判定为违规。",
+        "locations": [
+          {
+            "span_ids": [
+              "S_chunk_001_01"
+            ],
+            "original_text_slice": "如高端体检或定制晚宴",
+            "norm_start": 220,
+            "norm_end": 231,
+            "raw_start": 220,
+            "raw_end": 230
+          }
+        ],
+        "reason_codes": [
+          "暗示合同外利益"
+        ],
+        "suggestion": "请删除关于定制晚宴的表述，不应暗示给予客户保险合同外的利益。 具体违规表述：「如高端体检或定制晚宴」",
+        "suggestion_type": "delete",
+        "decision_basis": "explicit_violation",
+        "primary_category": "improper_benefit_inducement",
+        "secondary_category": "custom_dinner_high_end_banquet",
+        "standard_category": "other"
+      }
+    ],
+    "processing_time_seconds": 109.42
+  }
+}

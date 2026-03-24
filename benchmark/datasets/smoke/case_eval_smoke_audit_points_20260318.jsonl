@@ -1,0 +1,3240 @@
+{
+  "sample_id": "审查点违规_1_1_1",
+  "label": "violation",
+  "text": "客户问这款年金险怎么交费时，我直接跟他说：这份年金险每年存2万，连续存10年，后面到时间就能慢慢领。这样讲客户最容易听懂，也最容易接受。",
+  "source_sheet": "三级审查点",
+  "source_row": 2,
+  "source_column": "三级违规点",
+  "reason_raw": "1.1.1 使用“存/存入/存款”描述缴费行为",
+  "expected_categories": [
+    "financial_product_confusion"
+  ],
+  "expected_text_slices": [
+    "每年存2万，连续存10年"
+  ],
+  "expected_keywords": [
+    "存2万"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "1.1.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "payment_confusion",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_1_1_1",
+  "label": "compliant",
+  "text": "有客户会顺口把它说成每年存2万，但更合规的表达应该是：这份年金保险年交保费2万元，连续交10年，保障责任和利益以合同为准。后续领取也要按合同约定理解。",
+  "source_sheet": "三级审查点",
+  "source_row": 2,
+  "source_column": "三级违规点",
+  "reason_raw": "1.1.1 使用“存/存入/存款”描述缴费行为 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "存2万",
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "1.1.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "clarified_insurance_nature",
+    "contract_disclaimer"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "payment_confusion",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点合规_1_1_2",
+  "label": "compliant",
+  "text": "如果客户提到本金、复利、利息，我会先澄清：保单利益和现金价值不是存款利息，具体以合同条款和利益演示为准。不能按银行存款的逻辑来理解。",
+  "source_sheet": "三级审查点",
+  "source_row": 3,
+  "source_column": "三级违规点",
+  "reason_raw": "1.1.2 使用“本金/利息/复利”描述保险利益 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "本金",
+    "复利",
+    "利息"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "1.1.2",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "clarified_insurance_nature",
+    "contract_disclaimer"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "benefit_confusion",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_1_1_3",
+  "label": "violation",
+  "text": "介绍万能账户时，我会告诉客户：您先把钱放进这个储蓄账户，后面都在账户里滚存。这样客户一下就会把它理解成银行账户。",
+  "source_sheet": "三级审查点",
+  "source_row": 4,
+  "source_column": "三级违规点",
+  "reason_raw": "1.1.3 使用“账户/储蓄账户”描述万能账户",
+  "expected_categories": [
+    "financial_product_confusion"
+  ],
+  "expected_text_slices": [
+    "储蓄账户"
+  ],
+  "expected_keywords": [
+    "储蓄账户",
+    "账户"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "1.1.3",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "account_confusion",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_1_1_3",
+  "label": "compliant",
+  "text": "有些人会把万能账户说成储蓄账户，但更准确的说法是：万能账户属于保险合同项下账户，不是银行储蓄账户，结算规则以条款披露为准。",
+  "source_sheet": "三级审查点",
+  "source_row": 4,
+  "source_column": "三级违规点",
+  "reason_raw": "1.1.3 使用“账户/储蓄账户”描述万能账户 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "储蓄账户",
+    "账户"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "1.1.3",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "clarified_insurance_nature",
+    "contract_disclaimer"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "account_confusion",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_1_2_1",
+  "label": "violation",
+  "text": "做产品对比时，我会告诉客户：这款保险就像银行理财，比基金更稳，拿着更放心。客户通常听到这里就会把保险当成理财替代品。",
+  "source_sheet": "三级审查点",
+  "source_row": 5,
+  "source_column": "三级违规点",
+  "reason_raw": "1.2.1 类比为银行理财/基金",
+  "expected_categories": [
+    "financial_product_confusion"
+  ],
+  "expected_text_slices": [
+    "就像银行理财，比基金更稳"
+  ],
+  "expected_keywords": [
+    "银行理财",
+    "基金"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "1.2.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "product_comparison",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_1_2_1",
+  "label": "compliant",
+  "text": "客户如果拿保险和银行理财、基金比较，我会先提醒：这是保险产品，不等同于银行理财或基金，保障责任和收益特征都有区别。不能简单类比。",
+  "source_sheet": "三级审查点",
+  "source_row": 5,
+  "source_column": "三级违规点",
+  "reason_raw": "1.2.1 类比为银行理财/基金 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "银行理财",
+    "基金"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "1.2.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "clarified_insurance_nature",
+    "contract_disclaimer"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "product_comparison",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_2_1_1",
+  "label": "violation",
+  "text": "讲保障责任时我会直接说：这个产品基本什么情况都能赔，理赔范围特别宽。这样客户会觉得买了以后几乎不用再担心理赔门槛。",
+  "source_sheet": "三级审查点",
+  "source_row": 6,
+  "source_column": "三级违规点",
+  "reason_raw": "2.1.1 绝对化承诺保障或理赔范围",
+  "expected_categories": [
+    "responsibility_exaggeration"
+  ],
+  "expected_text_slices": [
+    "什么情况都能赔"
+  ],
+  "expected_keywords": [
+    "都能赔",
+    "没有限制"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "2.1.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "coverage_exaggeration",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_2_1_1",
+  "label": "compliant",
+  "text": "遇到客户问理赔范围时，我会解释：是否赔付要看保险责任、免责和理赔条件，不能简单理解为什么情况都能赔。具体还是要回到条款。",
+  "source_sheet": "三级审查点",
+  "source_row": 6,
+  "source_column": "三级违规点",
+  "reason_raw": "2.1.1 绝对化承诺保障或理赔范围 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "都能赔",
+    "没有限制"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "2.1.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "coverage_boundary_clarified",
+    "contract_disclaimer"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "coverage_exaggeration",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_2_2_1",
+  "label": "violation",
+  "text": "客户担心负债安排时，我会补一句：这份保单配上以后，债务问题也能一起规划。这样更容易让客户觉得保险能替代其他法律安排。",
+  "source_sheet": "三级审查点",
+  "source_row": 7,
+  "source_column": "三级违规点",
+  "reason_raw": "2.2.1 宣传保险可以规划债务",
+  "expected_categories": [
+    "responsibility_exaggeration"
+  ],
+  "expected_text_slices": [
+    "债务问题也能一起规划"
+  ],
+  "expected_keywords": [
+    "债务规划"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "2.2.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "debt_planning_claim",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_2_2_1",
+  "label": "compliant",
+  "text": "如果聊到债务安排，我会明确说：保险保障不等于债务规划，相关责任边界需要按合同理解。不能把保单说成债务工具。",
+  "source_sheet": "三级审查点",
+  "source_row": 7,
+  "source_column": "三级违规点",
+  "reason_raw": "2.2.1 宣传保险可以规划债务 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "债务规划"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "2.2.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "coverage_boundary_clarified",
+    "contract_disclaimer"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "debt_planning_claim",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_2_2_2",
+  "label": "violation",
+  "text": "面对高净值客户时，我会说：买这份保险，相当于顺手把税务也提前规划好了。客户往往会觉得这份产品不只是保障工具。",
+  "source_sheet": "三级审查点",
+  "source_row": 8,
+  "source_column": "三级违规点",
+  "reason_raw": "2.2.2 宣传保险可以规划税务",
+  "expected_categories": [
+    "responsibility_exaggeration"
+  ],
+  "expected_text_slices": [
+    "把税务提前规划好"
+  ],
+  "expected_keywords": [
+    "税务规划"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "2.2.2",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "tax_planning_claim",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_2_2_2",
+  "label": "compliant",
+  "text": "一旦涉及税务话题，我会提醒客户：保险产品不能直接宣传为税务规划工具，涉税问题需按政策和专业意见处理。",
+  "source_sheet": "三级审查点",
+  "source_row": 8,
+  "source_column": "三级违规点",
+  "reason_raw": "2.2.2 宣传保险可以规划税务 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "税务规划"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "2.2.2",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "coverage_boundary_clarified",
+    "contract_disclaimer"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "tax_planning_claim",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_2_2_3",
+  "label": "violation",
+  "text": "为了让客户放心，我常会说：有了这张保单，今后大大小小的风险基本都能保住。听起来安全感很强，但边界已经被说没了。",
+  "source_sheet": "三级审查点",
+  "source_row": 9,
+  "source_column": "三级违规点",
+  "reason_raw": "2.2.3 宣传保险可以保所有",
+  "expected_categories": [
+    "responsibility_exaggeration"
+  ],
+  "expected_text_slices": [
+    "什么风险都能保住"
+  ],
+  "expected_keywords": [
+    "什么风险都能保住"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "2.2.3",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "all_risk_coverage_claim",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_2_2_3",
+  "label": "compliant",
+  "text": "合规表述应该是：保险只能保障合同约定责任，不存在什么风险都能覆盖的说法。客户问到范围时要把边界讲清楚。",
+  "source_sheet": "三级审查点",
+  "source_row": 9,
+  "source_column": "三级违规点",
+  "reason_raw": "2.2.3 宣传保险可以保所有 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "什么风险都能保住"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "2.2.3",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "coverage_boundary_clarified",
+    "contract_disclaimer"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "all_risk_coverage_claim",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_2_2_4",
+  "label": "violation",
+  "text": "谈到家庭资产安排时，我会顺带强调：提前把保险配好，家里的遗产纠纷以后基本就能解决。这样客户会把保险当成法律纠纷处理工具。",
+  "source_sheet": "三级审查点",
+  "source_row": 10,
+  "source_column": "三级违规点",
+  "reason_raw": "2.2.4 宣传保险可以解决遗产纠纷",
+  "expected_categories": [
+    "responsibility_exaggeration"
+  ],
+  "expected_text_slices": [
+    "遗产纠纷基本就能解决"
+  ],
+  "expected_keywords": [
+    "遗产纠纷"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "2.2.4",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "inheritance_dispute_claim",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_2_2_4",
+  "label": "compliant",
+  "text": "如果客户提到继承问题，我会说明：保险不应宣传为直接解决遗产纠纷的工具，相关法律问题需按正式程序处理。",
+  "source_sheet": "三级审查点",
+  "source_row": 10,
+  "source_column": "三级违规点",
+  "reason_raw": "2.2.4 宣传保险可以解决遗产纠纷 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "遗产纠纷"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "2.2.4",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "coverage_boundary_clarified",
+    "contract_disclaimer"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "inheritance_dispute_claim",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_2_2_5",
+  "label": "violation",
+  "text": "面对婚姻风险焦虑的客户，我会说：就算以后婚姻有变化，这份保单也能帮您把纠纷解决掉。这样客户会觉得保单能替代法律安排。",
+  "source_sheet": "三级审查点",
+  "source_row": 11,
+  "source_column": "三级违规点",
+  "reason_raw": "2.2.5 宣传保险可以解决婚姻纠纷",
+  "expected_categories": [
+    "responsibility_exaggeration"
+  ],
+  "expected_text_slices": [
+    "能把纠纷解决掉"
+  ],
+  "expected_keywords": [
+    "婚姻纠纷"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "2.2.5",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "marriage_dispute_claim",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_2_2_5",
+  "label": "compliant",
+  "text": "遇到婚姻或财产问题，我会提前说明：保险不能承诺解决婚姻纠纷或财产争议，相关法律后果不能夸大。",
+  "source_sheet": "三级审查点",
+  "source_row": 11,
+  "source_column": "三级违规点",
+  "reason_raw": "2.2.5 宣传保险可以解决婚姻纠纷 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "婚姻纠纷"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "2.2.5",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "coverage_boundary_clarified",
+    "contract_disclaimer"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "marriage_dispute_claim",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_2_3_1",
+  "label": "violation",
+  "text": "讲重疾险时，我通常直接说：这类重疾险一确诊就赔，不用再看别的条件。客户会觉得理赔流程特别简单。",
+  "source_sheet": "三级审查点",
+  "source_row": 12,
+  "source_column": "三级违规点",
+  "reason_raw": "2.3.1 简化理赔条件或承诺 “确诊即赔”",
+  "expected_categories": [
+    "responsibility_exaggeration"
+  ],
+  "expected_text_slices": [
+    "一确诊就赔"
+  ],
+  "expected_keywords": [
+    "确诊即赔"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "2.3.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "claim_settlement_promise",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_2_3_1",
+  "label": "compliant",
+  "text": "客户问到赔付条件时，我会解释：是否理赔要结合等待期、病种定义和条款约定，不能简单说成确诊即赔。",
+  "source_sheet": "三级审查点",
+  "source_row": 12,
+  "source_column": "三级违规点",
+  "reason_raw": "2.3.1 简化理赔条件或承诺 “确诊即赔” 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "确诊即赔"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "2.3.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "coverage_boundary_clarified",
+    "contract_disclaimer"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "claim_settlement_promise",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_2_3_2",
+  "label": "violation",
+  "text": "介绍报销范围时，我会直接打包说：无论门诊、住院还是康复费用，这份保险基本都能赔。这样客户会误以为几乎没有责任边界。",
+  "source_sheet": "三级审查点",
+  "source_row": 13,
+  "source_column": "三级违规点",
+  "reason_raw": "2.3.2 夸大保险的理赔范围",
+  "expected_categories": [
+    "responsibility_exaggeration"
+  ],
+  "expected_text_slices": [
+    "门诊住院还是康复费用，这份保险都能赔"
+  ],
+  "expected_keywords": [
+    "都能赔",
+    "康复费用"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "2.3.2",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "claim_scope_exaggeration",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_2_3_2",
+  "label": "compliant",
+  "text": "和客户解释医疗责任时，更合规的说法是：门诊、住院和康复费用的赔付范围要按合同责任和报销条件判断，不能一概而论。具体能不能赔、赔多少，都要结合条款和就诊情形确认。",
+  "source_sheet": "三级审查点",
+  "source_row": 13,
+  "source_column": "三级违规点",
+  "reason_raw": "2.3.2 夸大保险的理赔范围 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "都能赔",
+    "康复费用"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "2.3.2",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "coverage_boundary_clarified",
+    "contract_disclaimer"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "claim_scope_exaggeration",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_3_1_1",
+  "label": "violation",
+  "text": "客户一问收益稳不稳，我就会直接说：这份产品收益是保证的，买进去之后就能安心拿。用这种确定性表达去打消顾虑，其实就已经越界了。",
+  "source_sheet": "三级审查点",
+  "source_row": 14,
+  "source_column": "三级违规点",
+  "reason_raw": "3.1.1 使用确定性收益承诺或保证性表述",
+  "expected_categories": [
+    "guaranteed_return"
+  ],
+  "expected_text_slices": [
+    "收益是保证的"
+  ],
+  "expected_keywords": [
+    "收益保证"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "3.1.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "guaranteed_income",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点违规_3_2_1",
+  "label": "violation",
+  "text": "讲年金险的时候我会说，它相当于保本，还能做到年年返钱。客户一听像存钱一样放心，很容易就被这种话术带偏。",
+  "source_sheet": "三级审查点",
+  "source_row": 15,
+  "source_column": "三级违规点",
+  "reason_raw": "3.2.1 使用“保本”、“年年返”",
+  "expected_categories": [
+    "guaranteed_return"
+  ],
+  "expected_text_slices": [
+    "保本，还能做到年年返钱"
+  ],
+  "expected_keywords": [
+    "保本",
+    "年年返"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "3.2.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "fixed_return_claim",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_3_2_1",
+  "label": "compliant",
+  "text": "更稳妥的表达应该是：不能把保险说成保本或年年返，具体领取安排要看合同条款。尤其是领取节奏、金额和条件，都不能脱离条款单独承诺。",
+  "source_sheet": "三级审查点",
+  "source_row": 15,
+  "source_column": "三级违规点",
+  "reason_raw": "3.2.1 使用“保本”、“年年返” 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "保本",
+    "年年返"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "3.2.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "uncertainty_disclosure",
+    "contract_disclaimer"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "fixed_return_claim",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_3_3_1",
+  "label": "violation",
+  "text": "为了让客户少犹豫，我会把这类产品讲成收益很稳健，几乎没有波动。这样会让人误解产品利益天然稳定、没有不确定性。",
+  "source_sheet": "三级审查点",
+  "source_row": 16,
+  "source_column": "三级违规点",
+  "reason_raw": "3.3.1 使用“稳健”、“无波动”等词",
+  "expected_categories": [
+    "guaranteed_return"
+  ],
+  "expected_text_slices": [
+    "收益很稳健，几乎没有波动"
+  ],
+  "expected_keywords": [
+    "稳健",
+    "没有波动"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "3.3.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "stable_return_claim",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_3_3_1",
+  "label": "compliant",
+  "text": "合规介绍时要说明产品利益可能波动，不能宣传成没有波动或绝对稳健。哪怕是分红或演示利益，也要把不确定性讲清楚。",
+  "source_sheet": "三级审查点",
+  "source_row": 16,
+  "source_column": "三级违规点",
+  "reason_raw": "3.3.1 使用“稳健”、“无波动”等词 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "稳健",
+    "没有波动"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "3.3.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "uncertainty_disclosure",
+    "contract_disclaimer"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "stable_return_claim",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_3_5_1",
+  "label": "violation",
+  "text": "想让客户快点成交时，我会说这就是稳赚不赔，几乎零风险的安排。只要把风险讲没了，客户就会误以为没有任何损失可能。",
+  "source_sheet": "三级审查点",
+  "source_row": 18,
+  "source_column": "三级违规点",
+  "reason_raw": "3.5.1 “稳赚不赔”、“零风险”",
+  "expected_categories": [
+    "guaranteed_return"
+  ],
+  "expected_text_slices": [
+    "稳赚不赔，几乎零风险"
+  ],
+  "expected_keywords": [
+    "稳赚不赔",
+    "零风险"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "3.5.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "zero_risk_claim",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_3_5_1",
+  "label": "compliant",
+  "text": "正确的边界应该讲清楚：保险产品不能宣传为稳赚不赔或零风险，投保前应了解责任和限制。任何收益、现金价值和退出成本都要按合同说明。",
+  "source_sheet": "三级审查点",
+  "source_row": 18,
+  "source_column": "三级违规点",
+  "reason_raw": "3.5.1 “稳赚不赔”、“零风险” 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "稳赚不赔",
+    "零风险"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "3.5.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "uncertainty_disclosure",
+    "contract_disclaimer"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "zero_risk_claim",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_3_6_1",
+  "label": "violation",
+  "text": "讲产品结构时，我会故意简化成这个方案下有保底、上不封顶，怎么做都划算。这样的包装会把利益机制讲成单边占优。",
+  "source_sheet": "三级审查点",
+  "source_row": 19,
+  "source_column": "三级违规点",
+  "reason_raw": "3.6.1 “下有保底、上不封顶”结构",
+  "expected_categories": [
+    "guaranteed_return"
+  ],
+  "expected_text_slices": [
+    "下有保底、上不封顶"
+  ],
+  "expected_keywords": [
+    "下有保底",
+    "上不封顶"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "3.6.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "structured_yield_claim",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_3_6_1",
+  "label": "compliant",
+  "text": "合规培训里要强调：不能用下有保底、上不封顶替代真实风险提示，具体利益规则要按产品说明理解。客户关心收益时，也要把条件和限制一起讲。",
+  "source_sheet": "三级审查点",
+  "source_row": 19,
+  "source_column": "三级违规点",
+  "reason_raw": "3.6.1 “下有保底、上不封顶”结构 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "下有保底",
+    "上不封顶"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "3.6.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "uncertainty_disclosure",
+    "contract_disclaimer"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "structured_yield_claim",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_3_8_1",
+  "label": "violation",
+  "text": "为了突出吸引力，我会直接把它拿去和银行存款比，说这个收益明显更高。这样容易把保险误导成固定收益类产品。",
+  "source_sheet": "三级审查点",
+  "source_row": 20,
+  "source_column": "三级违规点",
+  "reason_raw": "3.8.1 比银行收益更高",
+  "expected_categories": [
+    "guaranteed_return"
+  ],
+  "expected_text_slices": [
+    "收益明显更高"
+  ],
+  "expected_keywords": [
+    "收益更高",
+    "银行"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "3.8.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "relative_yield_claim",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_3_8_1",
+  "label": "compliant",
+  "text": "更合规的说法是：保险不能简单和银行存款比收益高低，两类产品功能和风险特征不同。做比较时必须先讲清产品性质，不要只盯着收益。",
+  "source_sheet": "三级审查点",
+  "source_row": 20,
+  "source_column": "三级违规点",
+  "reason_raw": "3.8.1 比银行收益更高 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "收益更高",
+    "银行"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "3.8.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "uncertainty_disclosure",
+    "contract_disclaimer"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "relative_yield_claim",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点合规_4_1_1",
+  "label": "compliant",
+  "text": "对外介绍时应明确这是保险产品，并同步说明保障责任、费用和利益边界。不能为了降低客户戒备，就把保险说成单纯的资金工具。",
+  "source_sheet": "三级审查点",
+  "source_row": 21,
+  "source_column": "三级违规点",
+  "reason_raw": "4.1.1 未明示产品为保险或混淆产品类型 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "别管保险不保险",
+    "长期资金工具"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "4.1.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [
+    "clarified_insurance_nature",
+    "contract_disclaimer"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "product_identity_omission",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_6_2_1",
+  "label": "violation",
+  "text": "拉踩竞品最省事，我会直接说别家的产品理赔慢、服务也差，根本没法和我们比。靠贬低同业去推自己的产品，本身就有明显问题。",
+  "source_sheet": "三级审查点",
+  "source_row": 22,
+  "source_column": "三级违规点",
+  "reason_raw": "6.2.1 贬低同业或同业产品",
+  "expected_categories": [
+    "comparison_violation"
+  ],
+  "expected_text_slices": [
+    "别家的产品理赔慢、服务也差"
+  ],
+  "expected_keywords": [
+    "理赔慢",
+    "服务差"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "6.2.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "competitor_smear",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_6_2_1",
+  "label": "compliant",
+  "text": "做产品介绍时只客观讲自身特点，不贬低同业或同业产品。哪怕客户主动拿别家来比较，也只能讲差异，不能讲别人理赔慢、服务差。",
+  "source_sheet": "三级审查点",
+  "source_row": 22,
+  "source_column": "三级违规点",
+  "reason_raw": "6.2.1 贬低同业或同业产品 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "理赔慢",
+    "服务差"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "6.2.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [
+    "objective_description",
+    "no_competitor_smear"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "competitor_smear",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_6_3_1",
+  "label": "violation",
+  "text": "有客户拿基金和银行理财来比，我就顺势说基金和银行理财都没有这份保险稳。这样会把不同金融产品强行排出高下。",
+  "source_sheet": "三级审查点",
+  "source_row": 23,
+  "source_column": "三级违规点",
+  "reason_raw": "6.3.1 片面对比金融产品",
+  "expected_categories": [
+    "comparison_violation"
+  ],
+  "expected_text_slices": [
+    "基金和银行理财都没有这份保险稳"
+  ],
+  "expected_keywords": [
+    "基金",
+    "银行理财"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "6.3.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "financial_product_comparison",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_6_3_1",
+  "label": "compliant",
+  "text": "合规表达应该是：不同金融产品定位不同，不应通过片面对比引导客户误解。尤其不能只截取稳不稳、赚不赚来替代完整说明。",
+  "source_sheet": "三级审查点",
+  "source_row": 23,
+  "source_column": "三级违规点",
+  "reason_raw": "6.3.1 片面对比金融产品 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "基金",
+    "银行理财"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "6.3.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "objective_description",
+    "no_competitor_smear"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "financial_product_comparison",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_6_4_1",
+  "label": "violation",
+  "text": "为了刺激成交，我会说社保根本解决不了问题，关键还是得靠商业保险。把社保讲得一无是处，本质上是在贬低公共保障。",
+  "source_sheet": "三级审查点",
+  "source_row": 24,
+  "source_column": "三级违规点",
+  "reason_raw": "6.4.1 贬低社保",
+  "expected_categories": [
+    "comparison_violation"
+  ],
+  "expected_text_slices": [
+    "社保根本解决不了问题"
+  ],
+  "expected_keywords": [
+    "社保根本解决不了"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "6.4.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "social_security_smear",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_6_4_1",
+  "label": "compliant",
+  "text": "更合理的讲法是：社保和商业保险功能不同，可以互为补充，但不应通过贬低社保销售产品。先讲补充关系，比贬低式销售更合规。",
+  "source_sheet": "三级审查点",
+  "source_row": 24,
+  "source_column": "三级违规点",
+  "reason_raw": "6.4.1 贬低社保 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "社保根本解决不了"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "6.4.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "objective_description",
+    "no_competitor_smear"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "social_security_smear",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_6_5_1",
+  "label": "violation",
+  "text": "客户如果还在犹豫，我就补一句：您今天签单的话，我这边可以返一部分保费给您。返保费式诱导会直接扭曲客户决策。",
+  "source_sheet": "三级审查点",
+  "source_row": 25,
+  "source_column": "三级违规点",
+  "reason_raw": "6.5.1 以回扣、返回保费方式诱导销售",
+  "expected_categories": [
+    "gifts_or_extra_benefits"
+  ],
+  "expected_text_slices": [
+    "返一部分保费给您"
+  ],
+  "expected_keywords": [
+    "返保费"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "6.5.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "rebate_inducement",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_6_5_1",
+  "label": "compliant",
+  "text": "公司培训里应明确：投保过程中不得返利、返现或变相返还保费，所有费用应按正规流程缴纳。任何私下补贴、回扣都不能作为促单手段。",
+  "source_sheet": "三级审查点",
+  "source_row": 25,
+  "source_column": "三级违规点",
+  "reason_raw": "6.5.1 以回扣、返回保费方式诱导销售 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "返保费"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "6.5.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "no_extra_benefits",
+    "sales_boundary_clarified"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "rebate_inducement",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_6_5_2",
+  "label": "violation",
+  "text": "为了赶活动单，我会说这周投保我送您一份礼品，再给您一次抽奖机会。把礼品和抽奖绑到投保动作上，就是典型诱导。",
+  "source_sheet": "三级审查点",
+  "source_row": 26,
+  "source_column": "三级违规点",
+  "reason_raw": "6.5.2 以礼品、折扣、抽奖等方式诱导销售",
+  "expected_categories": [
+    "gifts_or_extra_benefits"
+  ],
+  "expected_text_slices": [
+    "送您一份礼品，再给您一次抽奖机会"
+  ],
+  "expected_keywords": [
+    "送礼品",
+    "抽奖"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "6.5.2",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "gift_inducement",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_6_5_2",
+  "label": "compliant",
+  "text": "更合规的要求是：投保环节不得以礼品、折扣或抽奖诱导成交。就算有活动，也不能把购买保险和送礼、抽奖直接挂钩。",
+  "source_sheet": "三级审查点",
+  "source_row": 26,
+  "source_column": "三级违规点",
+  "reason_raw": "6.5.2 以礼品、折扣、抽奖等方式诱导销售 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "送礼品",
+    "抽奖"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "6.5.2",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "no_extra_benefits",
+    "sales_boundary_clarified"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "gift_inducement",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_7_1_1",
+  "label": "violation",
+  "text": "做朋友圈海报时，我经常直接写这是目前市面上最好的保险方案。只要用了最好的这类绝对化词，就很容易越线。",
+  "source_sheet": "三级审查点",
+  "source_row": 27,
+  "source_column": "三级违规点",
+  "reason_raw": "7.1.1 极限词汇滥用",
+  "expected_categories": [
+    "absolute_expression"
+  ],
+  "expected_text_slices": [
+    "最好的保险方案"
+  ],
+  "expected_keywords": [
+    "最好的"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "7.1.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "superlative_claim",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_7_1_1",
+  "label": "compliant",
+  "text": "介绍产品时可以说明适用人群和特点，但不要使用最好、最佳等绝对化用语。即便是主观赞美，也不能直接修饰保险方案本身。",
+  "source_sheet": "三级审查点",
+  "source_row": 27,
+  "source_column": "三级违规点",
+  "reason_raw": "7.1.1 极限词汇滥用 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "最好的"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "7.1.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [
+    "neutral_wording",
+    "no_absolute_claim"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "superlative_claim",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_7_1_3",
+  "label": "violation",
+  "text": "为了突出产品卖点，我会把它写成这种产品在同类里几乎是独一无二的选择。独一无二这种话会让客户误以为它有唯一性优势。",
+  "source_sheet": "三级审查点",
+  "source_row": 29,
+  "source_column": "三级违规点",
+  "reason_raw": "7.1.3 替代唯一性暗示",
+  "expected_categories": [
+    "absolute_expression"
+  ],
+  "expected_text_slices": [
+    "独一无二的选择"
+  ],
+  "expected_keywords": [
+    "独一无二"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "7.1.3",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "uniqueness_claim",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_7_1_3",
+  "label": "compliant",
+  "text": "边界更清晰的说法是：不能用独一无二等说法暗示保险产品具有唯一优势。介绍特色可以，但不要把特色包装成唯一。",
+  "source_sheet": "三级审查点",
+  "source_row": 29,
+  "source_column": "三级违规点",
+  "reason_raw": "7.1.3 替代唯一性暗示 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "独一无二"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "7.1.3",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "neutral_wording",
+    "no_absolute_claim"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "uniqueness_claim",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_7_1_4",
+  "label": "violation",
+  "text": "我会顺着客户担心现金流的问题说，只要现在配置上，未来肯定不会出现金流缺口。这样的前提式断言本质上还是绝对化承诺。",
+  "source_sheet": "三级审查点",
+  "source_row": 30,
+  "source_column": "三级违规点",
+  "reason_raw": "7.1.4 前提假设式断言",
+  "expected_categories": [
+    "absolute_expression"
+  ],
+  "expected_text_slices": [
+    "肯定不会出现金流缺口"
+  ],
+  "expected_keywords": [
+    "肯定不会",
+    "资金缺口"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "7.1.4",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "conditional_absolute_claim",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_7_1_4",
+  "label": "compliant",
+  "text": "更合规的表达是：即使做了保险配置，也不能断言未来一定不会出现金流缺口。现金流管理受收入、支出和保障配置多重因素影响。",
+  "source_sheet": "三级审查点",
+  "source_row": 30,
+  "source_column": "三级违规点",
+  "reason_raw": "7.1.4 前提假设式断言 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "肯定不会",
+    "资金缺口"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "7.1.4",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "neutral_wording",
+    "no_absolute_claim"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "conditional_absolute_claim",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_7_2_1",
+  "label": "violation",
+  "text": "催单时最常见的话术就是：再不买就亏大了，后面想配都来不及。它利用的不是信息透明，而是情绪压力。",
+  "source_sheet": "三级审查点",
+  "source_row": 31,
+  "source_column": "三级违规点",
+  "reason_raw": "7.2.1 不买就亏、再不买就晚",
+  "expected_categories": [
+    "absolute_expression"
+  ],
+  "expected_text_slices": [
+    "再不买就亏大了"
+  ],
+  "expected_keywords": [
+    "再不买就亏",
+    "来不及"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "7.2.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "fear_pressure_claim",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_7_2_1",
+  "label": "compliant",
+  "text": "销售时不能用不买就亏、来不及等恐惧式话术催促成交。客户是否投保，应基于需求匹配而不是被情绪裹挟。",
+  "source_sheet": "三级审查点",
+  "source_row": 31,
+  "source_column": "三级违规点",
+  "reason_raw": "7.2.1 不买就亏、再不买就晚 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "再不买就亏",
+    "来不及"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "7.2.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "neutral_wording",
+    "no_absolute_claim"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "fear_pressure_claim",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_7_3_1",
+  "label": "violation",
+  "text": "直播或私聊里我会故意制造紧迫感，说今天就是最后名额，过了今晚就彻底没有了。要是没有真实依据，这就是典型伪限时。",
+  "source_sheet": "三级审查点",
+  "source_row": 32,
+  "source_column": "三级违规点",
+  "reason_raw": "7.3.1 限时限量紧迫感表述",
+  "expected_categories": [
+    "absolute_expression"
+  ],
+  "expected_text_slices": [
+    "最后名额"
+  ],
+  "expected_keywords": [
+    "最后名额"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "7.3.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "urgency_claim",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_7_3_1",
+  "label": "compliant",
+  "text": "限时限量信息必须真实可核验，不能凭空制造最后机会。任何名额、截止时间和活动门槛都要能被事后核对。",
+  "source_sheet": "三级审查点",
+  "source_row": 32,
+  "source_column": "三级违规点",
+  "reason_raw": "7.3.1 限时限量紧迫感表述 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "最后名额"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "7.3.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "neutral_wording",
+    "no_absolute_claim"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "urgency_claim",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_7_4_1",
+  "label": "violation",
+  "text": "介绍现金价值时，我会直接说这个产品的钱基本随时都能取，而且几乎没有任何成本。这样客户很容易忽略减保、贷款和费用条件。",
+  "source_sheet": "三级审查点",
+  "source_row": 33,
+  "source_column": "三级违规点",
+  "reason_raw": "7.4.1 使用易误解词汇或未明确限制条件",
+  "expected_categories": [
+    "absolute_expression"
+  ],
+  "expected_text_slices": [
+    "随时都能取，而且几乎没有任何成本"
+  ],
+  "expected_keywords": [
+    "随时都能取",
+    "没有任何成本"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "7.4.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "ambiguous_claim",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_7_4_1",
+  "label": "compliant",
+  "text": "涉及领取、减保或费用时，应明确条件、限制和可能成本。不能只讲随时能不能取，还要把代价和影响讲清楚。",
+  "source_sheet": "三级审查点",
+  "source_row": 33,
+  "source_column": "三级违规点",
+  "reason_raw": "7.4.1 使用易误解词汇或未明确限制条件 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "随时都能取",
+    "没有任何成本"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "7.4.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [
+    "neutral_wording",
+    "no_absolute_claim"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "ambiguous_claim",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_7_5_1",
+  "label": "violation",
+  "text": "做客户画像时，我会顺口说真正的中产家庭都会尽早把这类保险配齐。把客户往某种身份标签上推，也是在制造从众压力。",
+  "source_sheet": "三级审查点",
+  "source_row": 34,
+  "source_column": "三级违规点",
+  "reason_raw": "7.5.1 中产等不恰当用语",
+  "expected_categories": [
+    "absolute_expression"
+  ],
+  "expected_text_slices": [
+    "中产家庭都会尽早把这类保险配齐"
+  ],
+  "expected_keywords": [
+    "中产家庭"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "7.5.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "improper_term_claim",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_7_5_1",
+  "label": "compliant",
+  "text": "宣传中应避免使用中产等标签化用语误导客户判断。客户该不该配置保险，要看实际需求，不是看是不是某种身份。",
+  "source_sheet": "三级审查点",
+  "source_row": 34,
+  "source_column": "三级违规点",
+  "reason_raw": "7.5.1 中产等不恰当用语 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "中产家庭"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "7.5.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "neutral_wording",
+    "no_absolute_claim"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "improper_term_claim",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_9_1_1",
+  "label": "violation",
+  "text": "做品牌海报时，有人提议直接写这是平安官方认证的国家级保险保障计划。把品牌名、官方认证和国家级放在一起，会明显抬高产品背书感。",
+  "source_sheet": "三级审查点",
+  "source_row": 37,
+  "source_column": "三级违规点",
+  "reason_raw": "9.1.1 超范围使用品牌或禁用词汇",
+  "expected_categories": [
+    "other"
+  ],
+  "expected_text_slices": [
+    "国家级保险保障计划"
+  ],
+  "expected_keywords": [
+    "国家级",
+    "官方认证"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "9.1.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "brand_misuse",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_9_1_1",
+  "label": "compliant",
+  "text": "品牌介绍里只能规范写公司名称，不能把任何产品说成国家级保障计划。就算是内部活动物料，也不能自行叠加官方认证这类表述。",
+  "source_sheet": "三级审查点",
+  "source_row": 37,
+  "source_column": "三级违规点",
+  "reason_raw": "9.1.1 超范围使用品牌或禁用词汇 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "国家级",
+    "官方认证"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "9.1.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "neutral_wording"
+  ],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "brand_misuse",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_9_2_1",
+  "label": "violation",
+  "text": "运营同事说那篇爆款测评直接拿来做宣传海报就行，反正客户也不会深究来源。未经授权就搬运内容，本身就不适合进正式宣传。",
+  "source_sheet": "三级审查点",
+  "source_row": 38,
+  "source_column": "三级违规点",
+  "reason_raw": "9.2.1 未经授权使用或违规内容宣传",
+  "expected_categories": [
+    "other"
+  ],
+  "expected_text_slices": [
+    "爆款测评直接拿来做宣传海报"
+  ],
+  "expected_keywords": [
+    "爆款测评",
+    "宣传海报"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "9.2.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "copyright_violation",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_9_2_1",
+  "label": "compliant",
+  "text": "做海报前先确认素材授权，网上爆款测评不能直接拿来当宣传文案。就算内容看起来正面，也要先过授权和合规审查。",
+  "source_sheet": "三级审查点",
+  "source_row": 38,
+  "source_column": "三级违规点",
+  "reason_raw": "9.2.1 未经授权使用或违规内容宣传 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "爆款测评"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "9.2.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "neutral_wording"
+  ],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "copyright_violation",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_9_4_1",
+  "label": "violation",
+  "text": "做宣传稿时，我会加一句连某位明星都在推荐这份保险，您完全可以放心。拿明星背书替代产品说明，会把客户判断带偏。",
+  "source_sheet": "三级审查点",
+  "source_row": 40,
+  "source_column": "三级违规点",
+  "reason_raw": "9.4.1 引用明星名义宣传",
+  "expected_categories": [
+    "other"
+  ],
+  "expected_text_slices": [
+    "某位明星都在推荐"
+  ],
+  "expected_keywords": [
+    "明星"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "9.4.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "celebrity_endorsement",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_9_4_1",
+  "label": "compliant",
+  "text": "除非拿到正式授权，否则不能借明星或知名人士推荐来宣传保险。就算私下有人提过，也不能写进正式海报或对外文案。",
+  "source_sheet": "三级审查点",
+  "source_row": 40,
+  "source_column": "三级违规点",
+  "reason_raw": "9.4.1 引用明星名义宣传 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "明星",
+    "推荐"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "9.4.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "neutral_wording"
+  ],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "celebrity_endorsement",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_9_6_1",
+  "label": "violation",
+  "text": "活动方案里有人想写这是我们的奥运冠军同款保障计划，觉得这样更容易吸引眼球。未经授权借赛事和冠军概念做宣传，风险很高。",
+  "source_sheet": "三级审查点",
+  "source_row": 42,
+  "source_column": "三级违规点",
+  "reason_raw": "9.6.1 奥林匹克、奥运、奥运会、冬奥会、冬残奥会、亚运会、世界博览会、世界杯",
+  "expected_categories": [
+    "other"
+  ],
+  "expected_text_slices": [
+    "奥运冠军同款保障计划"
+  ],
+  "expected_keywords": [
+    "奥运",
+    "冠军同款"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "9.6.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "event_ip_misuse",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_9_6_1",
+  "label": "compliant",
+  "text": "做活动时不要写奥运冠军同款、世界杯同款这类未经授权的赛事表述。即便是类比表达，也容易被理解成借用赛事 IP。",
+  "source_sheet": "三级审查点",
+  "source_row": 42,
+  "source_column": "三级违规点",
+  "reason_raw": "9.6.1 奥林匹克、奥运、奥运会、冬奥会、冬残奥会、亚运会、世界博览会、世界杯 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "奥运",
+    "冠军同款"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "9.6.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "neutral_wording"
+  ],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "event_ip_misuse",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_10_1_1",
+  "label": "violation",
+  "text": "为了冲单，海报上直接写买这份保险就送居家养老上门照护和定制晚宴服务。把保险和额外福利打包销售，会让客户把重点放在赠送内容上。",
+  "source_sheet": "三级审查点",
+  "source_row": 43,
+  "source_column": "三级违规点",
+  "reason_raw": "10.1.1 “买保险送服务” 超出健康管理范畴",
+  "expected_categories": [
+    "gifts_or_extra_benefits"
+  ],
+  "expected_text_slices": [
+    "买这份保险就送居家养老上门照护和定制晚宴服务"
+  ],
+  "expected_keywords": [
+    "送服务",
+    "定制晚宴"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "10.1.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "service_bundle_inducement",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_10_1_1",
+  "label": "compliant",
+  "text": "介绍养老或健康服务时，要说明服务边界，不能说成买保险就额外送上门照护或晚宴。服务是否存在、能否使用、适用谁，都要按真实规则说。",
+  "source_sheet": "三级审查点",
+  "source_row": 43,
+  "source_column": "三级违规点",
+  "reason_raw": "10.1.1 “买保险送服务” 超出健康管理范畴 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "送服务",
+    "定制晚宴"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "10.1.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "no_extra_benefits",
+    "sales_boundary_clarified"
+  ],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "service_bundle_inducement",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_10_2_1",
+  "label": "violation",
+  "text": "活动文案里我会留一句这次活动最终解释权归我们所有，礼品怎么发都由我们定。这样写等于给自己留了随意变更空间。",
+  "source_sheet": "三级审查点",
+  "source_row": 44,
+  "source_column": "三级违规点",
+  "reason_raw": "10.2.1 违规设置解释权或奖品超限",
+  "expected_categories": [
+    "other"
+  ],
+  "expected_text_slices": [
+    "最终解释权归我们所有"
+  ],
+  "expected_keywords": [
+    "最终解释权"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "10.2.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "promotion_rule_violation",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_10_2_1",
+  "label": "compliant",
+  "text": "活动页面要提前写清奖品数量、领取条件和规则，不能再加最终解释权归我们所有。规则一旦对外发布，就不能用兜底话术替代。",
+  "source_sheet": "三级审查点",
+  "source_row": 44,
+  "source_column": "三级违规点",
+  "reason_raw": "10.2.1 违规设置解释权或奖品超限 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "最终解释权"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "10.2.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "neutral_wording"
+  ],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "promotion_rule_violation",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_11_1_1",
+  "label": "violation",
+  "text": "做宣传时有人会借着二十大东风，说现在正是全民配置保险的最好时机。把政治会议热度转成销售理由，本身就不合适。",
+  "source_sheet": "三级审查点",
+  "source_row": 45,
+  "source_column": "三级违规点",
+  "reason_raw": "11.1.1 借“十九大“、“二十大”、建党百年进行保险营销宣传",
+  "expected_categories": [
+    "other"
+  ],
+  "expected_text_slices": [
+    "借着二十大东风"
+  ],
+  "expected_keywords": [
+    "二十大",
+    "最好时机"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "11.1.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "political_association",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_11_1_1",
+  "label": "compliant",
+  "text": "培训里可以讨论会议精神，但对外卖保险时不能借二十大等会议名义做营销。内部学习和外部宣传要严格分开。",
+  "source_sheet": "三级审查点",
+  "source_row": 45,
+  "source_column": "三级违规点",
+  "reason_raw": "11.1.1 借“十九大“、“二十大”、建党百年进行保险营销宣传 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "二十大",
+    "最好时机"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "11.1.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "neutral_wording"
+  ],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "political_association",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_11_2_1",
+  "label": "violation",
+  "text": "海报上如果写这是响应国家领导人重要讲话精神推出的重点保障产品，客户会更容易产生官方关联。正因为如此，这类表述更不能用。",
+  "source_sheet": "三级审查点",
+  "source_row": 46,
+  "source_column": "三级违规点",
+  "reason_raw": "11.2.1 使用或者变相使用党和国家领导同志、国家机关、国家机关工作人员的名义或者形象",
+  "expected_categories": [
+    "other"
+  ],
+  "expected_text_slices": [
+    "响应国家领导人重要讲话精神推出的重点保障产品"
+  ],
+  "expected_keywords": [
+    "国家领导人",
+    "重点产品"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "11.2.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "leader_association",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_11_2_1",
+  "label": "compliant",
+  "text": "介绍产品时不能写成响应某位国家领导人讲话精神推出的重点保障产品。任何领导人讲话都不能被改写成产品背书。",
+  "source_sheet": "三级审查点",
+  "source_row": 46,
+  "source_column": "三级违规点",
+  "reason_raw": "11.2.1 使用或者变相使用党和国家领导同志、国家机关、国家机关工作人员的名义或者形象 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "国家领导人",
+    "重点产品"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "11.2.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "neutral_wording"
+  ],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "leader_association",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_11_3_1",
+  "label": "violation",
+  "text": "有人提议在文案里加一句港澳台客户都在抢着配置这款保单，想借敏感话题制造关注。把这类政治敏感内容带入营销非常不合适。",
+  "source_sheet": "三级审查点",
+  "source_row": 47,
+  "source_column": "三级违规点",
+  "reason_raw": "11.3.1 港澳台",
+  "expected_categories": [
+    "other"
+  ],
+  "expected_text_slices": [
+    "港澳台客户都在抢着配置"
+  ],
+  "expected_keywords": [
+    "港澳台"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "11.3.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "sensitive_politics",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_11_3_1",
+  "label": "compliant",
+  "text": "做保险宣传时不要把港澳台等敏感政治话题带进营销内容里。就算只是想增加热度，也不能拿来做引流文案。",
+  "source_sheet": "三级审查点",
+  "source_row": 47,
+  "source_column": "三级违规点",
+  "reason_raw": "11.3.1 港澳台 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "港澳台"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "11.3.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "neutral_wording"
+  ],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "sensitive_politics",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_11_3_2",
+  "label": "violation",
+  "text": "为了让海报更有传播性，有人甚至说带点辱华争议的话题做海报，更容易出圈。这种思路本身就已经越过合规边界。",
+  "source_sheet": "三级审查点",
+  "source_row": 48,
+  "source_column": "三级违规点",
+  "reason_raw": "11.3.2 辱华",
+  "expected_categories": [
+    "other"
+  ],
+  "expected_text_slices": [
+    "带点辱华争议的话题做海报"
+  ],
+  "expected_keywords": [
+    "辱华"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "11.3.2",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "sensitive_politics",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_11_3_2",
+  "label": "compliant",
+  "text": "任何带有辱华争议的话题都不能拿来给保险海报引流。传播效果再强，也不能建立在敏感争议上。",
+  "source_sheet": "三级审查点",
+  "source_row": 48,
+  "source_column": "三级违规点",
+  "reason_raw": "11.3.2 辱华 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "辱华"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "11.3.2",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "neutral_wording"
+  ],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "sensitive_politics",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_11_3_3",
+  "label": "violation",
+  "text": "做增员海报时，有人主张用文革式口号包装我们的增员海报，会更有冲击力。用敏感政治风格制造冲击，同样属于高风险表达。",
+  "source_sheet": "三级审查点",
+  "source_row": 49,
+  "source_column": "三级违规点",
+  "reason_raw": "11.3.3 文革",
+  "expected_categories": [
+    "other"
+  ],
+  "expected_text_slices": [
+    "用文革式口号包装"
+  ],
+  "expected_keywords": [
+    "文革"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "11.3.3",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "sensitive_politics",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_11_3_3",
+  "label": "compliant",
+  "text": "增员或产品海报都不要使用文革式口号这类敏感政治内容。就算只是模仿语气，也不适合进入营销物料。",
+  "source_sheet": "三级审查点",
+  "source_row": 49,
+  "source_column": "三级违规点",
+  "reason_raw": "11.3.3 文革 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "文革"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "11.3.3",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "neutral_wording"
+  ],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "sensitive_politics",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_11_4_1",
+  "label": "violation",
+  "text": "设计海报时，有人建议海报上放国旗国徽，更能显得这款保险有权威性。用国家象征去给商业产品增信，问题很明显。",
+  "source_sheet": "三级审查点",
+  "source_row": 50,
+  "source_column": "三级违规点",
+  "reason_raw": "11.4.1 国旗国徽国歌类",
+  "expected_categories": [
+    "other"
+  ],
+  "expected_text_slices": [
+    "放国旗国徽，更能显得这款保险有权威性"
+  ],
+  "expected_keywords": [
+    "国旗国徽",
+    "权威性"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "11.4.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "national_symbol_misuse",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_11_4_1",
+  "label": "compliant",
+  "text": "海报设计里不要放国旗、国徽、国歌相关元素来增加产品权威感。商业宣传不能借国家象征来制造背书联想。",
+  "source_sheet": "三级审查点",
+  "source_row": 50,
+  "source_column": "三级违规点",
+  "reason_raw": "11.4.1 国旗国徽国歌类 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "国旗国徽",
+    "权威性"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "11.4.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "neutral_wording"
+  ],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "national_symbol_misuse",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_11_6_1",
+  "label": "violation",
+  "text": "热点一起来，团队里就有人说趁着这次公共卫生事件关注高，正好推我们的医疗险。借公共事件做销售转化，容易引发明显负面感受。",
+  "source_sheet": "三级审查点",
+  "source_row": 51,
+  "source_column": "三级违规点",
+  "reason_raw": "11.6.1 借用自然灾害、事故灾难、公共卫生事件、社会安全事件或网络舆论事件",
+  "expected_categories": [
+    "other"
+  ],
+  "expected_text_slices": [
+    "趁着这次公共卫生事件关注高"
+  ],
+  "expected_keywords": [
+    "公共卫生事件"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "11.6.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "hot_event_marketing",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_11_6_1",
+  "label": "compliant",
+  "text": "遇到公共卫生事件或灾害热点，也不能借势推医疗险或其他保险产品。真正需要做的是风险提示和客户关怀，不是借机卖货。",
+  "source_sheet": "三级审查点",
+  "source_row": 51,
+  "source_column": "三级违规点",
+  "reason_raw": "11.6.1 借用自然灾害、事故灾难、公共卫生事件、社会安全事件或网络舆论事件 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "公共卫生事件"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "11.6.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "neutral_wording"
+  ],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "hot_event_marketing",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_12_1_1",
+  "label": "violation",
+  "text": "为了让招募海报显得更高级，有人说对外别写保险代理人，直接写家庭理财规划师。换称谓去弱化真实身份，就是典型误导。",
+  "source_sheet": "三级审查点",
+  "source_row": 52,
+  "source_column": "三级违规点",
+  "reason_raw": "12.1.1 代理人称呼改为其他职位",
+  "expected_categories": [
+    "agent_title_violation"
+  ],
+  "expected_text_slices": [
+    "直接写家庭理财规划师"
+  ],
+  "expected_keywords": [
+    "理财规划师"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "12.1.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "title_misuse",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_12_1_1",
+  "label": "compliant",
+  "text": "对外名片和海报都应写保险代理人等合规称谓，不能改成家庭理财规划师。身份怎么展现，必须和真实资格一致。",
+  "source_sheet": "三级审查点",
+  "source_row": 52,
+  "source_column": "三级违规点",
+  "reason_raw": "12.1.1 代理人称呼改为其他职位 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "理财规划师",
+    "代理人"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "12.1.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "identity_disclosed",
+    "scope_disclosed"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "title_misuse",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_12_2_1",
+  "label": "violation",
+  "text": "招募新人时我会强调加入我们轻松月入过万，收入上不封顶。把收入说得又高又轻松，最容易吸引人，也最容易越线。",
+  "source_sheet": "三级审查点",
+  "source_row": 53,
+  "source_column": "三级违规点",
+  "reason_raw": "12.2.1 宣称月入过万、无上限",
+  "expected_categories": [
+    "agent_title_violation"
+  ],
+  "expected_text_slices": [
+    "轻松月入过万，收入上不封顶"
+  ],
+  "expected_keywords": [
+    "月入过万",
+    "上不封顶"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "12.2.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "income_recruitment",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_12_2_1",
+  "label": "compliant",
+  "text": "招募时可以介绍发展机会，但不能承诺轻松月入过万、收入上不封顶。收入与绩效、时间投入和个人能力有关，不能被包装成必然结果。",
+  "source_sheet": "三级审查点",
+  "source_row": 53,
+  "source_column": "三级违规点",
+  "reason_raw": "12.2.1 宣称月入过万、无上限 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "月入过万",
+    "上不封顶"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "12.2.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "identity_disclosed",
+    "scope_disclosed"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "income_recruitment",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_12_3_1",
+  "label": "violation",
+  "text": "带新人时如果说拿到工号以后，什么金融产品都可以顺带一起讲，就会让人误解代理人的真实展业范围。",
+  "source_sheet": "三级审查点",
+  "source_row": 54,
+  "source_column": "三级违规点",
+  "reason_raw": "12.3.1 混淆代理人的展业范围",
+  "expected_categories": [
+    "agent_title_violation"
+  ],
+  "expected_text_slices": [
+    "什么金融产品都可以顺带一起讲"
+  ],
+  "expected_keywords": [
+    "什么金融产品都能一起讲"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "12.3.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "scope_confusion",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_12_3_1",
+  "label": "compliant",
+  "text": "代理人的展业范围要按资格如实说明，不能说什么金融产品都能顺带一起讲。能做什么、不能做什么，都要按牌照和授权讲清楚。",
+  "source_sheet": "三级审查点",
+  "source_row": 54,
+  "source_column": "三级违规点",
+  "reason_raw": "12.3.1 混淆代理人的展业范围 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "什么金融产品都能一起讲"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "12.3.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "identity_disclosed",
+    "scope_disclosed"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "scope_confusion",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_12_4_1",
+  "label": "violation",
+  "text": "有些招募海报故意写这不是招募代理人，就是在招企业合伙人。把岗位性质包装成别的职业。",
+  "source_sheet": "三级审查点",
+  "source_row": 55,
+  "source_column": "三级违规点",
+  "reason_raw": "12.4.1 将招募代理人的性质改为其他职业行为",
+  "expected_categories": [
+    "agent_title_violation"
+  ],
+  "expected_text_slices": [
+    "这不是招募代理人，就是在招企业合伙人"
+  ],
+  "expected_keywords": [
+    "企业合伙人",
+    "招募代理人"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "12.4.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "recruitment_disguise",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_12_4_1",
+  "label": "compliant",
+  "text": "招募代理人时应直接说明岗位性质，不能包装成企业合伙人之类的职业。职业称谓越模糊，后续纠纷风险越高。",
+  "source_sheet": "三级审查点",
+  "source_row": 55,
+  "source_column": "三级违规点",
+  "reason_raw": "12.4.1 将招募代理人的性质改为其他职业行为 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "企业合伙人",
+    "招募代理人"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "12.4.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "identity_disclosed",
+    "scope_disclosed"
+  ],
+  "expected_actor_scope": "agent",
+  "expected_claim_type": "recruitment_disguise",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_13_1_1",
+  "label": "violation",
+  "text": "客户一犹豫，我就会补一句这是国家鼓励推广的保险产品，早点配最放心。把政策方向直接套到具体产品上，就是典型误导。",
+  "source_sheet": "三级审查点",
+  "source_row": 56,
+  "source_column": "三级违规点",
+  "reason_raw": "13.1.1 宣传国家鼓励",
+  "expected_categories": [
+    "regulatory_misinterpretation"
+  ],
+  "expected_text_slices": [
+    "国家鼓励推广的保险产品"
+  ],
+  "expected_keywords": [
+    "国家鼓励"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "13.1.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "national_endorsement",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_13_1_1",
+  "label": "compliant",
+  "text": "即使政策层面鼓励保险发展，也不能对客户说某款产品是国家鼓励推广的。政策鼓励行业发展，不等于给单个产品背书。",
+  "source_sheet": "三级审查点",
+  "source_row": 56,
+  "source_column": "三级违规点",
+  "reason_raw": "13.1.1 宣传国家鼓励 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "国家鼓励"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "13.1.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "no_regulatory_endorsement",
+    "objective_policy_reference"
+  ],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "national_endorsement",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_13_2_1",
+  "label": "violation",
+  "text": "有些销售会顺着监管备案的话题说，监管都备案了，就说明这款产品绝对安全。把备案程序讲成安全背书，很容易误导客户。",
+  "source_sheet": "三级审查点",
+  "source_row": 57,
+  "source_column": "三级违规点",
+  "reason_raw": "13.2.1 利用监管机构对保险产品的审核或备案程序背书",
+  "expected_categories": [
+    "regulatory_misinterpretation"
+  ],
+  "expected_text_slices": [
+    "监管都备案了，就说明这款产品绝对安全"
+  ],
+  "expected_keywords": [
+    "监管备案",
+    "绝对安全"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "13.2.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "regulator_endorsement",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_13_2_1",
+  "label": "compliant",
+  "text": "产品经过备案不等于监管替它背书，更不能直接说这款产品绝对安全。备案、审批和产品风险提示不是一个概念。",
+  "source_sheet": "三级审查点",
+  "source_row": 57,
+  "source_column": "三级违规点",
+  "reason_raw": "13.2.1 利用监管机构对保险产品的审核或备案程序背书 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "监管备案",
+    "绝对安全"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "13.2.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "no_regulatory_endorsement",
+    "objective_policy_reference"
+  ],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "regulator_endorsement",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_13_3_1",
+  "label": "violation",
+  "text": "我见过有人把政策解读改写成销售话术，说某位领导都强调要重视这类保障，现在买最合适。这样会把领导讲话直接转成购买建议。",
+  "source_sheet": "三级审查点",
+  "source_row": 58,
+  "source_column": "三级违规点",
+  "reason_raw": "13.3.1 利用政府机构领导人讲话进行误导宣传",
+  "expected_categories": [
+    "regulatory_misinterpretation"
+  ],
+  "expected_text_slices": [
+    "某位领导都强调要重视这类保障，现在买最合适"
+  ],
+  "expected_keywords": [
+    "领导",
+    "最合适"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "13.3.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "leadership_endorsement",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_13_3_1",
+  "label": "compliant",
+  "text": "引用政策解读时，不能把领导讲话转成现在买最合适这类销售结论。政策表述和销售结论之间不能被强行画等号。",
+  "source_sheet": "三级审查点",
+  "source_row": 58,
+  "source_column": "三级违规点",
+  "reason_raw": "13.3.1 利用政府机构领导人讲话进行误导宣传 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "领导",
+    "最合适"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "13.3.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "no_regulatory_endorsement",
+    "objective_policy_reference"
+  ],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "leadership_endorsement",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_13_4_1",
+  "label": "violation",
+  "text": "为了打消顾虑，有人会说保险公司不会倒闭，所以这份保单绝对安全。把公司经营稳定直接推导到保单绝对安全，逻辑上并不成立。",
+  "source_sheet": "三级审查点",
+  "source_row": 59,
+  "source_column": "三级违规点",
+  "reason_raw": "13.4.1 宣传保险公司不会倒闭",
+  "expected_categories": [
+    "regulatory_misinterpretation"
+  ],
+  "expected_text_slices": [
+    "保险公司不会倒闭，所以这份保单绝对安全"
+  ],
+  "expected_keywords": [
+    "不会倒闭",
+    "绝对安全"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "13.4.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "policy_endorsement",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_13_4_1",
+  "label": "compliant",
+  "text": "公司经营稳定不等于具体保单绝对安全，介绍时仍要如实说明风险和责任。客户最需要听到的是条款边界，而不是绝对化安抚。",
+  "source_sheet": "三级审查点",
+  "source_row": 59,
+  "source_column": "三级违规点",
+  "reason_raw": "13.4.1 宣传保险公司不会倒闭 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "不会倒闭",
+    "绝对安全"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "13.4.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "no_regulatory_endorsement",
+    "objective_policy_reference"
+  ],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "policy_endorsement",
+  "is_hard_negative": true
+}
+{
+  "sample_id": "审查点违规_14_1_1",
+  "label": "violation",
+  "text": "门店私域文案里如果写这份保单开过光，还能祈福保平安，给家人更安心，就已经把迷信和销售直接绑定了。",
+  "source_sheet": "三级审查点",
+  "source_row": 60,
+  "source_column": "三级违规点",
+  "reason_raw": "14.1.1 祈福、开光、活菩萨、财神等进行诱导宣传",
+  "expected_categories": [
+    "other"
+  ],
+  "expected_text_slices": [
+    "开过光，还能祈福保平安"
+  ],
+  "expected_keywords": [
+    "开过光",
+    "祈福"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "14.1.1",
+  "expected_exception_triggered": false,
+  "expected_mitigating_factors": [],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "religion_inducement",
+  "is_hard_negative": false
+}
+{
+  "sample_id": "审查点合规_14_1_1",
+  "label": "compliant",
+  "text": "门店活动和朋友圈文案都不要出现开光、祈福、财神保平安这类表述。哪怕只是为了讨口彩，也不能进入保险宣传语境。",
+  "source_sheet": "三级审查点",
+  "source_row": 60,
+  "source_column": "三级违规点",
+  "reason_raw": "14.1.1 祈福、开光、活菩萨、财神等进行诱导宣传 的合规对照表达",
+  "expected_categories": [],
+  "expected_text_slices": [],
+  "expected_keywords": [
+    "开过光",
+    "祈福"
+  ],
+  "tags": [
+    "audit_point_seed",
+    "synthetic_smoke",
+    "point_coverage",
+    "hard_negative"
+  ],
+  "quality_status": "accepted",
+  "quality_reasons": [],
+  "expected_audit_point_id": "14.1.1",
+  "expected_exception_triggered": true,
+  "expected_mitigating_factors": [
+    "neutral_wording"
+  ],
+  "expected_actor_scope": "company",
+  "expected_claim_type": "religion_inducement",
+  "is_hard_negative": true
+}

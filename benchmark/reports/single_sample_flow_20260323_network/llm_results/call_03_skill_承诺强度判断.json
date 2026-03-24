@@ -1,0 +1,18 @@
+{
+  "rule_id": "KB0155",
+  "chunk_id": "chunk_000",
+  "verdict": "violation",
+  "reasoning_cot": "原文直接表述“收益稳定”，属于规则 KB0155 明确禁止的宣传暗示保险具有收益稳定作用的违规行为。经检查，文本中未出现“没有、不是、不能、可能”等排除词，也未包含风险提示或否定语境。该表述直接承诺了收益的稳定性，误导消费者预期，构成明确违规。证据选择包含核心违规词“收益稳定”的 span。",
+  "evidence_span_ids": [
+    "S_chunk_000_00"
+  ],
+  "evidence_texts": [
+    "收益稳定"
+  ],
+  "reason_codes": [
+    "RC_KB0155"
+  ],
+  "decision_basis": "explicit_violation",
+  "primary_category": "guaranteed_return",
+  "secondary_category": "stable_return_implication"
+}
