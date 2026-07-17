@@ -259,7 +259,7 @@ def _check_exception_likely(
 
 # 金融混淆类的负向主体（不应判违规的主体）
 FINANCIAL_CONFUSION_NEGATIVE_SUBJECTS = [
-    "公司", "保险公司", "平安公司", "集团", "中国平安",
+    "公司", "平安公司", "集团", "中国平安",
     "理赔服务", "客服服务", "核保服务", "投资团队",
     "介绍", "案例", "成功案例", "监管文件", "产品说明书",
     "违规", "处罚", "禁止", "不要这样说", "反面案例",
@@ -933,12 +933,30 @@ def run_gate(
         if not rule_card:
             continue
 
+        # 优化：base 轨且规则引擎已 hard_block（无违规词命中）的组合，Stage 2 必然输出
+        # compliant，Gate 检查对其无意义，直接跳过以减少无效计算
+        chunk = chunk_map.get(pair.chunk_id)
+        if pair.strategy == "base" and chunk:
+            try:
+                pre_report = evaluate_rule_on_text(chunk.chunk_text, rule_card)
+                if pre_report.hard_block and not pre_report.has_violation_hit:
+                    # 规则引擎无命中，直接产出空 GateResult（不 skip，保持 Stage 2 正常处理）
+                    results.append(GateResult(
+                        chunk_id=pair.chunk_id,
+                        rule_id=pair.rule_id,
+                        gate_signals=[],
+                        should_skip=False,
+                    ))
+                    continue
+            except Exception:
+                pass  # 异常时继续正常 Gate 流程
+
         chunk_fact = chunk_facts.get(pair.chunk_id) if chunk_facts else None
 
         # 获取文本内容（用于锚点检查）
         # 优先使用原始 chunk 文本，如果不可用则使用 fact summary
+        # chunk 已在提前过滤阶段查找过，直接复用
         text_content = ""
-        chunk = chunk_map.get(pair.chunk_id)
         if chunk:
             text_content = chunk.chunk_text
         elif chunk_fact:
@@ -960,7 +978,7 @@ def run_gate(
             except Exception as e:
                 logger.debug(f"Gate 规则引擎检测异常 [{pair.chunk_id} x {pair.rule_id}]: {e}")
 
-        # 运行 11 个检查（原有 4 个 + Phase 4 新增 3 个 + Phase 4 P1++ 新增 4 个）
+        # 运行 7 个检查（原有 4 个 + Phase 4 新增 3 个）
         gate_signals: List[GateSignal] = []
 
         # 原有 4 个检查

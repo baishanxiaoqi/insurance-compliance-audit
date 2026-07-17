@@ -184,7 +184,7 @@ python scripts/import_excel_kb.py
 2. **单规则注入**：Stage 2 每次 LLM 调用只注入单条 RuleCard，避免规则混淆
 3. **双轨架构**：确定性规则引擎 (base) + LLM 语义判定 (skill)，提升准确率和可解释性
 4. **强类型约束**：全链路 Pydantic Schema，结构化输出锁死 LLM 自由度
-5. **并发控制**：`asyncio.Semaphore(3)` 限制 Moonshot 并发上限
+5. **并发控制**：`asyncio.Semaphore(10)` 
 6. **AC 自动机优化**：使用 Aho-Corasick 算法进行多模式字符串匹配，性能提升 10-50 倍
 
 ### 核心数据结构 (`schemas.py`)

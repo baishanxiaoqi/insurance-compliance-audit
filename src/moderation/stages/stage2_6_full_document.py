@@ -16,7 +16,7 @@ Stage 2.6: 全文审核子流水线（并行于主流程）
 from __future__ import annotations
 
 import re
-import json
+import asyncio
 from typing import Dict, List, Optional
 
 from .. import config
@@ -98,6 +98,69 @@ def _has_nearby_source(document: DocumentState, data_span: Span) -> bool:
     return bool(_SOURCE_RE.search(norm_text[start:end]))
 
 
+def _find_source_indicator_ranges(document: DocumentState) -> List[tuple[int, int]]:
+    return [(match.start(), match.end()) for match in _SOURCE_RE.finditer(document.normalized_text)]
+
+
+def _merge_ranges(ranges: List[tuple[int, int]], gap: int = 40) -> List[tuple[int, int]]:
+    if not ranges:
+        return []
+    ordered = sorted(ranges, key=lambda item: item[0])
+    merged: List[tuple[int, int]] = [ordered[0]]
+    for start, end in ordered[1:]:
+        prev_start, prev_end = merged[-1]
+        if start <= prev_end + gap:
+            merged[-1] = (prev_start, max(prev_end, end))
+        else:
+            merged.append((start, end))
+    return merged
+
+
+def _slice_with_window(text: str, start: int, end: int, window: int) -> tuple[int, int, str]:
+    left = max(0, start - window)
+    right = min(len(text), end + window)
+    return left, right, text[left:right]
+
+
+def _build_fulldoc_text_block(
+    document: DocumentState,
+    missing_span_ids: List[str],
+) -> str:
+    full_text = document.normalized_text
+    if len(full_text) <= config.FULLDOC_INLINE_TEXT_LIMIT:
+        return f"【全文文本】\n{full_text}"
+
+    window = max(0, config.FULLDOC_CONTEXT_WINDOW)
+    ranges: List[tuple[int, int]] = []
+    for span_id in missing_span_ids:
+        span = document.span_pool.get(span_id)
+        if span is None:
+            continue
+        left, right, _ = _slice_with_window(full_text, span.start_index, span.end_index, window)
+        ranges.append((left, right))
+
+    for start, end in _find_source_indicator_ranges(document):
+        left, right, _ = _slice_with_window(full_text, start, end, window)
+        ranges.append((left, right))
+
+    merged_ranges = _merge_ranges(ranges, gap=max(window // 2, 20))
+    if not merged_ranges:
+        return f"【全文文本（截断）】\n{full_text[:config.FULLDOC_INLINE_TEXT_LIMIT]}"
+
+    sections: List[str] = []
+    for idx, (start, end) in enumerate(merged_ranges, 1):
+        snippet = full_text[start:end].strip()
+        if not snippet:
+            continue
+        sections.append(f"[全文片段 {idx} | {start}:{end}]\n{snippet}")
+
+    return (
+        "【全文相关片段包】\n"
+        "以下片段覆盖了缺少来源的数据引用，以及全文内已出现的来源说明位置。\n"
+        + "\n\n".join(sections)
+    )
+
+
 def extract_document_audit_signals(document: DocumentState) -> Dict[str, object]:
     data_spans = _find_data_citation_spans(document)
     if not data_spans:
@@ -148,8 +211,9 @@ def _build_fulldoc_prompt(
     all_span_ids_str = "\n".join(
         f"  {sid}" for sid in missing_span_ids
     )
+    fulldoc_text_block = _build_fulldoc_text_block(document, missing_span_ids)
     return (
-        f"【全文文本】\n{document.normalized_text[:3000]}\n\n"
+        f"{fulldoc_text_block}\n\n"
         f"【纯代码检测到以下可能缺少来源说明的数据引用 span】\n{missing_spans_text}\n\n"
         f"请判断上述数据引用是否确实缺少数据来源说明，构成违规。\n"
         f"如违规，从上述 span_id 列表中选取最能体现违规的 span_id 填入 evidence_span_ids：\n"
@@ -157,44 +221,77 @@ def _build_fulldoc_prompt(
         f"判断时请注意：\n"
         f"- 仅选有外部可验证性的数据（行业排名、增速、市场份额等）\n"
         f"- 全文若已有来源说明（即使不在 200 字符内），亦可酌情判 compliant\n"
-        f"- 若所有数据均有来源，输出 verdict=compliant"
+        f"- 若所有数据均有来源，输出 verdict=compliant\n"
+        f"- 若输出 violation，primary_category 固定为 data_citation，secondary_category 固定为 missing_third_party_source"
     )
+
+
+def _normalize_fulldoc_result(
+    result: JudgmentResult,
+    document: DocumentState,
+    missing_span_ids: List[str],
+) -> JudgmentResult:
+    result.rule_id = FULLDOC_RULE_ID_THIRD_PARTY_SOURCE
+    result.chunk_id = FULLDOC_CHUNK_ID
+    result.primary_category = "data_citation"
+    result.secondary_category = "missing_third_party_source"
+    result.evidence_span_ids = [
+        sid for sid in result.evidence_span_ids
+        if sid in document.span_pool
+    ]
+
+    if result.verdict == "violation":
+        if not result.evidence_span_ids:
+            result.evidence_span_ids = [
+                sid for sid in missing_span_ids if sid in document.span_pool
+            ][:5]
+        if not result.evidence_texts:
+            result.evidence_texts = [
+                document.span_pool[sid].span_text.strip()
+                for sid in result.evidence_span_ids
+                if sid in document.span_pool
+            ][:3]
+        if not result.decision_basis:
+            result.decision_basis = "insufficient_evidence"
+    else:
+        result.evidence_span_ids = []
+        result.evidence_texts = []
+
+    return result
 
 
 async def _call_fulldoc_llm(
     document: DocumentState,
     missing_span_ids: List[str],
+    semaphore: asyncio.Semaphore | None = None,
 ) -> Optional[JudgmentResult]:
     prompt = _build_fulldoc_prompt(document, missing_span_ids)
     agent = create_agent(
-        system_instructions=[_FULLDOC_SYSTEM_INSTRUCTIONS],
         output_schema=JudgmentResult,
-        model_profile=config.JUDGE_MODEL_PROFILE,
+        instructions=[_FULLDOC_SYSTEM_INSTRUCTIONS],
+        name="full_document_audit",
+        profile=config.FULLDOC_MODEL_PROFILE,
     )
-    raw = await safe_arun(agent, prompt)
-    if not raw:
+    if semaphore:
+        async with semaphore:
+            result = await safe_arun(
+                agent,
+                prompt,
+                max_retries=config.FULLDOC_MODEL_PROFILE.max_retries,
+                timeout_seconds=config.FULLDOC_MODEL_PROFILE.timeout_seconds,
+            )
+    else:
+        result = await safe_arun(
+            agent,
+            prompt,
+            max_retries=config.FULLDOC_MODEL_PROFILE.max_retries,
+            timeout_seconds=config.FULLDOC_MODEL_PROFILE.timeout_seconds,
+        )
+    if not result:
         logger.warning("Stage 2.6 LLM 返回空结果")
         return None
-    try:
-        data = json.loads(raw) if isinstance(raw, str) else raw
-        result = JudgmentResult(
-            rule_id=FULLDOC_RULE_ID_THIRD_PARTY_SOURCE,
-            chunk_id=FULLDOC_CHUNK_ID,
-            verdict=data.get("verdict", "compliant"),
-            reasoning_cot=data.get("reasoning_cot", ""),
-            evidence_span_ids=[
-                sid for sid in data.get("evidence_span_ids", [])
-                if sid in document.span_pool
-            ],
-            reason_codes=data.get("reason_codes", []),
-            decision_basis=data.get("decision_basis"),
-            primary_category="data_citation",
-            secondary_category="missing_third_party_source",
-        )
-        return result
-    except Exception as exc:
-        logger.warning(f"Stage 2.6 解析 LLM 结果失败: {exc}")
-        return None
+
+    return _normalize_fulldoc_result(result, document, missing_span_ids)
 
 
 # ============================================================
@@ -203,6 +300,7 @@ async def _call_fulldoc_llm(
 
 async def run_stage2_6(
     document: DocumentState,
+    semaphore: asyncio.Semaphore | None = None,
 ) -> List[JudgmentResult]:
     """
     执行全文审核子流水线。
@@ -229,7 +327,7 @@ async def run_stage2_6(
         f"Stage 2.6: 检测到 {len(missing_ids)} 个缺少来源的数据引用，调用 LLM 精判"
     )
 
-    result = await _call_fulldoc_llm(document, missing_ids)
+    result = await _call_fulldoc_llm(document, missing_ids, semaphore=semaphore)
     if result is None:
         return []
 
@@ -238,4 +336,3 @@ async def run_stage2_6(
         f"evidence_span_ids={result.evidence_span_ids}"
     )
     return [result]
-

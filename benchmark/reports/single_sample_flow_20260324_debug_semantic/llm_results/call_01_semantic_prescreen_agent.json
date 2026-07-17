@@ -1,0 +1,13 @@
+{
+  "status": "ok",
+  "module": "stage1_1_semantic_prescreen",
+  "agent_name": "semantic_prescreen_agent",
+  "duration_seconds": 9.9788,
+  "result": {
+    "risk_directions": [
+      "financial_confusion"
+    ],
+    "confidence": 0.75,
+    "reasoning": "文本将保险产品描述为'收益稳定'且'适合长期投资'，容易让消费者误认为其等同于银行存款或理财产品，存在混淆产品属性的风险。"
+  }
+}

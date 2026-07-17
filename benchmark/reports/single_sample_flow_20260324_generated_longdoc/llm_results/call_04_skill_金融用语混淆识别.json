@@ -1,0 +1,18 @@
+{
+  "status": "ok",
+  "module": "stage2_deep_judge",
+  "agent_name": "skill_金融用语混淆识别",
+  "duration_seconds": 87.8745,
+  "result": {
+    "rule_id": "KB0013",
+    "chunk_id": "chunk_000",
+    "verdict": "compliant",
+    "reasoning_cot": "文本中虽然出现了“社保”关键词（如 S_chunk_000_20 和 S_chunk_000_28），但均属于客观陈述客户已有保障情况或需求梳理要素，未宣传社保不足，也未暗示保险优于社保。符合规则例外条款中“没有宣传社保和医保的不足之处，只是客观独立的介绍社保和医保，没有暗示将社保和保险对比的意思”的情形，因此判定为合规。",
+    "evidence_span_ids": [],
+    "evidence_texts": [],
+    "reason_codes": [],
+    "decision_basis": "exception_applied",
+    "primary_category": null,
+    "secondary_category": null
+  }
+}

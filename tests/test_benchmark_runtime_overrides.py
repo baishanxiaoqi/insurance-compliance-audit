@@ -14,6 +14,7 @@ class TestBenchmarkRuntimeOverrides(unittest.TestCase):
         self.assertEqual(overrides["STAGE2_MAX_CONCURRENT_CALLS"], "1")
         self.assertEqual(overrides["FILTER_MODEL_ENABLE_THINKING"], "false")
         self.assertEqual(overrides["JUDGE_MODEL_ENABLE_THINKING"], "true")
+        self.assertEqual(overrides["FULLDOC_MODEL_ENABLE_THINKING"], "true")
         self.assertEqual(overrides["SUGGESTION_USE_LLM_RENDERER"], "false")
 
     def test_explicit_benchmark_values_override_stable_defaults(self):
@@ -23,6 +24,7 @@ class TestBenchmarkRuntimeOverrides(unittest.TestCase):
                 "BENCHMARK_STABLE_MODE": "true",
                 "BENCHMARK_MAX_CONCURRENT_CALLS": "2",
                 "BENCHMARK_JUDGE_MODEL_ENABLE_THINKING": "false",
+                "BENCHMARK_FULLDOC_MODEL_TIMEOUT_SECONDS": "120",
             },
             clear=True,
         ):
@@ -30,6 +32,7 @@ class TestBenchmarkRuntimeOverrides(unittest.TestCase):
 
         self.assertEqual(overrides["MAX_CONCURRENT_CALLS"], "2")
         self.assertEqual(overrides["JUDGE_MODEL_ENABLE_THINKING"], "false")
+        self.assertEqual(overrides["FULLDOC_MODEL_TIMEOUT_SECONDS"], "120")
 
     def test_non_stable_mode_only_applies_explicit_values(self):
         with patch.dict(

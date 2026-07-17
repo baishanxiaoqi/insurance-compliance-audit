@@ -1,0 +1,13 @@
+{
+  "status": "ok",
+  "module": "stage1_recall_filter",
+  "agent_name": "filter_agent",
+  "duration_seconds": 4.2815,
+  "result": {
+    "relevant_rule_ids": [
+      "KB0013",
+      "KB0430",
+      "KB0068"
+    ]
+  }
+}

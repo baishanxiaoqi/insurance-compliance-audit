@@ -1,0 +1,24 @@
+{
+  "status": "ok",
+  "module": "stage2_deep_judge",
+  "agent_name": "skill_承诺强度判断",
+  "duration_seconds": 7.6049,
+  "result": {
+    "rule_id": "KB0155",
+    "chunk_id": "chunk_000",
+    "verdict": "violation",
+    "reasoning_cot": "原文中明确表述'这款产品收益稳定'，直接使用了规则禁止的'收益稳定'词汇，暗示保险产品具有确定性收益。经排查，文本中未出现'没有'、'不是'、'不能'、'可能'、'希望'、'致力于'、'追求'等排除词，且不存在否定语境或风险提示。该表述直接违反了禁止宣传或暗示保险具有收益稳定作用的规则，属于明确违规。",
+    "evidence_span_ids": [
+      "S_chunk_000_00"
+    ],
+    "evidence_texts": [
+      "收益稳定"
+    ],
+    "reason_codes": [
+      "RC_KB0155"
+    ],
+    "decision_basis": "explicit_violation",
+    "primary_category": "guaranteed_return",
+    "secondary_category": "stable_return_implication"
+  }
+}

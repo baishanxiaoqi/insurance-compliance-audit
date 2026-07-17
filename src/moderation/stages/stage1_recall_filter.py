@@ -25,6 +25,87 @@ from ..ac_matcher import AhocorasickMatcher
 logger = get_logger(__name__)
 
 
+def _candidate_diversity_keys(rule_card: RuleCard) -> List[tuple[str, str]]:
+    keys: List[tuple[str, str]] = []
+    if rule_card.audit_point_id:
+        keys.append(("audit_point", rule_card.audit_point_id))
+    if rule_card.primary_category or rule_card.secondary_category:
+        keys.append(
+            (
+                "category",
+                f"{rule_card.primary_category or ''}|{rule_card.secondary_category or ''}",
+            )
+        )
+    if rule_card.category_group:
+        keys.append(("group", rule_card.category_group))
+    if rule_card.claim_type:
+        keys.append(("claim_type", rule_card.claim_type))
+    return keys
+
+
+def _compress_fallback_candidates(
+    candidate_ids: List[str],
+    rule_cards: Dict[str, RuleCard],
+    *,
+    keep_head: int | None = None,
+    max_rules: int | None = None,
+) -> List[str]:
+    """
+    Filter 失败时的低风险候选压缩：
+    1. 永远保留前若干条高相关候选
+    2. 尽量保留新的 audit point / category / group，减少同质规则重复下放
+    3. 最终数量控制在小上限内，避免 Top-20 全量进入 Stage 2
+    """
+    if not candidate_ids:
+        return []
+
+    keep_head = keep_head or config.FILTER_FALLBACK_KEEP_HEAD
+    max_rules = max_rules or config.FILTER_FALLBACK_MAX_RULES
+    if len(candidate_ids) <= max_rules:
+        return list(candidate_ids)
+
+    compressed: List[str] = []
+    seen_ids: Set[str] = set()
+    seen_diversity: Set[tuple[str, str]] = set()
+
+    def _append(rule_id: str) -> None:
+        if rule_id in seen_ids:
+            return
+        compressed.append(rule_id)
+        seen_ids.add(rule_id)
+        card = rule_cards.get(rule_id)
+        if card is None:
+            return
+        seen_diversity.update(_candidate_diversity_keys(card))
+
+    # 先保留最前面的高相关候选，避免因压缩伤及主召回
+    for rule_id in candidate_ids[:keep_head]:
+        _append(rule_id)
+        if len(compressed) >= max_rules:
+            return compressed
+
+    # 再优先补充“带来新审查点/新类别”的候选，减少同质重复深判
+    for rule_id in candidate_ids[keep_head:]:
+        if len(compressed) >= max_rules:
+            break
+        card = rule_cards.get(rule_id)
+        if card is None:
+            continue
+        diversity_keys = _candidate_diversity_keys(card)
+        if not diversity_keys:
+            continue
+        if any(key not in seen_diversity for key in diversity_keys):
+            _append(rule_id)
+
+    # 如果仍未达到上限，再按原始顺序补齐，保证保守性
+    for rule_id in candidate_ids[keep_head:]:
+        if len(compressed) >= max_rules:
+            break
+        _append(rule_id)
+
+    return compressed
+
+
 # ============================================================
 # 轻量级 TF-IDF 实现（不依赖 sklearn）
 # ============================================================
@@ -506,9 +587,14 @@ async def _filter_single_chunk(
 
         except Exception as e:
             logger.warning(f"  Chunk {chunk.chunk_id} LLM 过滤失败: {e}")
-            # 失败时尽量保留完整召回，避免因为 Filter 解析异常导致真实候选被过早剪掉
-            fallback_ids = candidate_ids
-            logger.info(f"  保留混合检索候选全集用于后续精判: {fallback_ids}")
+            fallback_ids = _compress_fallback_candidates(
+                candidate_ids,
+                rule_cards,
+            )
+            logger.info(
+                f"  Filter 失败后压缩候选: {len(candidate_ids)} -> {len(fallback_ids)} "
+                f"({fallback_ids})"
+            )
             return ChunkCandidates(
                 chunk_id=chunk.chunk_id,
                 candidate_rule_ids=fallback_ids
@@ -520,7 +606,7 @@ async def run_stage1(
     rule_cards: Dict[str, RuleCard],
     top_k_recall: int = 20,
     top_k_filter: int = 3,
-    max_concurrent: int = 10,
+    max_concurrent: int = 6,
 ) -> List[ChunkCandidates]:
     """
     Stage 1 执行逻辑（并发优化版 + 缓存优化）：
@@ -591,7 +677,7 @@ async def run_stage1_filter_only(
     rule_cards: Dict[str, RuleCard],
     chunks_map: Dict[str, "Chunk"],
     top_k_filter: int = 3,
-    max_concurrent: int = 10,
+    max_concurrent: int = 6,
 ) -> List[ChunkCandidates]:
     """
     Stage 1D: 对合并后的 raw candidates 执行统一 LLM Filter。
@@ -635,8 +721,15 @@ async def run_stage1_filter_only(
                 logger.info(f"  [filter] Chunk {cands.chunk_id}: no rules after filter")
                 return None
             except Exception as e:
-                logger.warning(f"  [filter] Chunk {cands.chunk_id} LLM filter failed: {e}, keeping all")
-                return ChunkCandidates(chunk_id=cands.chunk_id, candidate_rule_ids=cands.candidate_rule_ids)
+                fallback_ids = _compress_fallback_candidates(
+                    cands.candidate_rule_ids,
+                    rule_cards,
+                )
+                logger.warning(
+                    f"  [filter] Chunk {cands.chunk_id} LLM filter failed: {e}, "
+                    f"fallback compress {len(cands.candidate_rule_ids)} -> {len(fallback_ids)}"
+                )
+                return ChunkCandidates(chunk_id=cands.chunk_id, candidate_rule_ids=fallback_ids)
 
     tasks = [_filter_one(c) for c in raw_candidates]
     raw_results = await asyncio.gather(*tasks)

@@ -1,0 +1,18 @@
+{
+  "status": "ok",
+  "module": "stage2_deep_judge",
+  "agent_name": "skill_金融用语混淆识别",
+  "duration_seconds": 83.7496,
+  "result": {
+    "rule_id": "KB0019",
+    "chunk_id": "chunk_002",
+    "verdict": "compliant",
+    "reasoning_cot": "文本属于合规培训与提醒语境，明确使用‘不能’、‘不要’等否定词禁止将保险宣传为理财或储蓄替代品。根据规则 KB0019 例外条款第 2 条，否定将保险与投资理财联系的意思或在违规案例/处罚语境中指出该类表述为负面违规内容，不构成违规。此处为教育员工避免违规，而非实际销售主张，故判定为合规。",
+    "evidence_span_ids": [],
+    "evidence_texts": [],
+    "reason_codes": [],
+    "decision_basis": "negation_context",
+    "primary_category": null,
+    "secondary_category": null
+  }
+}

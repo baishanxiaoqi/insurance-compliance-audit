@@ -50,6 +50,7 @@ class ComplianceSkill:
         spans_dict: List[Dict[str, str]],
         chunk_fact: ChunkFactProfile | None = None,
         deterministic_report: RuleEvalReport | None = None,
+        context_bundle: str | None = None,
     ) -> str:
         """
         构建包含 Few-shot 正反例的精判 Prompt。
@@ -125,6 +126,13 @@ class ComplianceSkill:
                 f"hard_block: {deterministic_report.hard_block}"
             )
 
+        context_block = ""
+        if context_bundle:
+            context_block = (
+                "\n========== 邻近上下文（辅助判断，不直接作为定位证据）==========\n"
+                f"{context_bundle}\n"
+            )
+
         return f"""你是一位保险合规审核裁判，负责判断当前文本片段在当前规则下是否成立。
 
 ========== 核心工作准则（必须严格遵守）==========
@@ -161,6 +169,7 @@ class ComplianceSkill:
 
 ========== 待审核文本 ==========
 {chunk.chunk_text}
+{context_block}
 
 ========== 合规规则 ==========
 规则ID: {rule_card.rule_id}
@@ -518,7 +527,7 @@ _SKILL_KEYWORDS: Dict[str, List[str]] = {
         "停售", "限时", "抢购", "先到先得", "国家", "监管", "政策", "号召", "银保监", "背书",
     ],
     SKILL_CONSUMER.name: [
-        "免责", "理赔", "全额赔付", "无条件", "存款", "存钱", "银行", "现金价值",
+        "免责", "理赔", "报销", "实报实销", "全额赔付", "无条件", "存款", "存钱", "银行", "现金价值",
     ],
     SKILL_MARKETING.name: [
         "薪", "月入", "年薪", "招募", "代理人", "同业", "诋毁", "案例", "客户信息", "宣传",

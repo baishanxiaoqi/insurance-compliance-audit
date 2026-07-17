@@ -1,0 +1,74 @@
+{
+  "completed_count": 31,
+  "target_count": 33,
+  "avg_duration_seconds": 316.9538,
+  "median_duration_seconds": 242.479,
+  "p90_duration_seconds": 714.201,
+  "max_duration_seconds": 1451.5544,
+  "slowest_samples": [
+    {
+      "sample_id": "违规_0005",
+      "duration_seconds": 1451.5544,
+      "status": "ok",
+      "predicted_verdict": "compliant"
+    },
+    {
+      "sample_id": "违规_0014",
+      "duration_seconds": 1114.2141,
+      "status": "ok",
+      "predicted_verdict": "violation"
+    },
+    {
+      "sample_id": "违规_0006",
+      "duration_seconds": 942.1874,
+      "status": "ok",
+      "predicted_verdict": "violation"
+    },
+    {
+      "sample_id": "合规_0002",
+      "duration_seconds": 714.201,
+      "status": "ok",
+      "predicted_verdict": "violation"
+    },
+    {
+      "sample_id": "违规_0012",
+      "duration_seconds": 444.2943,
+      "status": "ok",
+      "predicted_verdict": "violation"
+    },
+    {
+      "sample_id": "违规_0003",
+      "duration_seconds": 440.6903,
+      "status": "ok",
+      "predicted_verdict": "violation"
+    },
+    {
+      "sample_id": "违规_0015",
+      "duration_seconds": 415.9211,
+      "status": "ok",
+      "predicted_verdict": "violation"
+    },
+    {
+      "sample_id": "违规_0011",
+      "duration_seconds": 366.9064,
+      "status": "ok",
+      "predicted_verdict": "compliant"
+    },
+    {
+      "sample_id": "合规_0010",
+      "duration_seconds": 363.493,
+      "status": "ok",
+      "predicted_verdict": "compliant"
+    },
+    {
+      "sample_id": "合规_0017",
+      "duration_seconds": 360.1384,
+      "status": "ok",
+      "predicted_verdict": "violation"
+    }
+  ],
+  "missing_sample_ids": [
+    "违规_0007",
+    "违规_0008"
+  ]
+}

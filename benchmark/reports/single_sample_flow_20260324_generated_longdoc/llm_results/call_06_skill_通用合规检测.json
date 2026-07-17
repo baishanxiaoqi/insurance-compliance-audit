@@ -1,0 +1,24 @@
+{
+  "status": "ok",
+  "module": "stage2_deep_judge",
+  "agent_name": "skill_通用合规检测",
+  "duration_seconds": 118.3294,
+  "result": {
+    "rule_id": "KB0068",
+    "chunk_id": "chunk_000",
+    "verdict": "violation",
+    "reasoning_cot": "文本在 S_chunk_000_22 中明确使用了“报销”一词来描述“医疗险”的关注点。在当前保险规划直播的语境下，“医疗险”指代商业医疗保险产品，而非规则例外条款中允许的“社保”或“医保”。且前文出现的“社保”一词距离较远，不构成对“医疗险”的修饰或排除。因此，该表述违反了禁止在商业保险介绍中使用“报销”的规则，判定为违规。",
+    "evidence_span_ids": [
+      "S_chunk_000_22"
+    ],
+    "evidence_texts": [
+      "报销范围"
+    ],
+    "reason_codes": [
+      "RC_KB0068"
+    ],
+    "decision_basis": "explicit_violation",
+    "primary_category": "misleading_statement",
+    "secondary_category": "reimbursement_terminology"
+  }
+}

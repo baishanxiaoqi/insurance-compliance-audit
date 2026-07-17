@@ -1,0 +1,18 @@
+{
+  "status": "ok",
+  "module": "stage2_deep_judge",
+  "agent_name": "skill_金融用语混淆识别",
+  "duration_seconds": 360.5411,
+  "result": {
+    "rule_id": "KB0014",
+    "chunk_id": "chunk_001",
+    "verdict": "compliant",
+    "reasoning_cot": "该文本属于合规培训或指引文档，旨在警示销售人员避免将保险与理财混淆。文中虽出现“理财”“固定收益”等词，但均是在引用违规话术案例（如“部分营销话术会进一步写成”）并进行风险提示（如“容易把保险和理财、存款混在一起”“需要非常谨慎”）。这符合例外条款中“在违规案例/处罚语境中指出该类表述”及“否定将保险与投资理财联系的意思”的情形，并非实际销售主张，故判定为合规。",
+    "evidence_span_ids": [],
+    "evidence_texts": [],
+    "reason_codes": [],
+    "decision_basis": "exception_applied",
+    "primary_category": null,
+    "secondary_category": null
+  }
+}

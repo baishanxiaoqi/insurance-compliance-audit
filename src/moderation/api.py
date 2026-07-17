@@ -51,11 +51,13 @@ async def lifespan(app: FastAPI):
         config.GLOBAL_MODEL_PROFILE.model,
     )
     logger.info(
-        "Judge 模型: %s/%s | Filter 模型: %s/%s | Suggestion 模型: %s/%s",
+        "Judge 模型: %s/%s | Filter 模型: %s/%s | FullDoc 模型: %s/%s | Suggestion 模型: %s/%s",
         config.JUDGE_MODEL_PROFILE.provider,
         config.JUDGE_MODEL_PROFILE.model,
         config.FILTER_MODEL_PROFILE.provider,
         config.FILTER_MODEL_PROFILE.model,
+        config.FULLDOC_MODEL_PROFILE.provider,
+        config.FULLDOC_MODEL_PROFILE.model,
         config.SUGGESTION_MODEL_PROFILE.provider,
         config.SUGGESTION_MODEL_PROFILE.model,
     )

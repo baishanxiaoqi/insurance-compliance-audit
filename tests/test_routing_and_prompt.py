@@ -2,7 +2,7 @@ import unittest
 
 from src.moderation.rule_engine import RuleEvalReport
 from src.moderation.schemas import RuleCard
-from src.moderation.skills import SKILL_LANGUAGE
+from src.moderation.skills import SKILL_LANGUAGE, get_skill_for_rule
 from src.moderation.stages.stage0_preprocess import preprocess
 from src.moderation.stages.stage1_8_route_dispatch import decide_route
 from src.moderation.stages.stage2_deep_judge import _select_prompt_deterministic_report
@@ -76,6 +76,21 @@ class TestRoutingOptimization(unittest.TestCase):
         self.assertEqual(strategy, "base")
         self.assertEqual(reason, "rule_route_hint=prefer_base")
         self.assertIsNone(skill_type)
+
+    def test_reimbursement_rule_prefers_consumer_skill_over_default(self):
+        rule = RuleCard(
+            rule_id="TEST_REIMBURSE",
+            rule_name="知识库规则-报销 / 实报实销",
+            risk_level="high",
+            violation_definition="介绍商业保险产品过程中使用报销表述",
+            keywords=["报销"],
+            violation_terms=["报销", "实报实销"],
+            exclusion_terms=["社保", "医保"],
+        )
+
+        skill = get_skill_for_rule(rule)
+
+        self.assertEqual(skill.name, "消费者保护检测")
 
 
 class TestPromptOptimization(unittest.TestCase):

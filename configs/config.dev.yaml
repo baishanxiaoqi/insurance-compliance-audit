@@ -1,0 +1,136 @@
+# 开发环境配置
+# API Key 等敏感值可通过同名环境变量覆盖，例如：export OPENAI_API_KEY=sk-xxx
+
+# ==================== LLM 基础兼容配置（全局默认）====================
+llm:
+  api_base: https://api.siliconflow.cn/v1
+  api_key: sk-ctdhpnfgciomqkygzaezvlxkgfdgvwkfqggwknrflcsopdfc
+  model: Qwen/Qwen3.5-27B
+  provider: siliconflow
+  model_preset: qwen35_27b_siliconflow
+  enable_thinking: true
+
+# ==================== 供应商档案 ====================
+providers:
+  openai:
+    api_base: https://api.openai.com/v1
+    api_key: ""        # 覆盖：OPENAI_API_KEY
+    default_model: gpt-4o-mini
+  dashscope:
+    api_base: https://dashscope.aliyuncs.com/compatible-mode/v1
+    api_key: sk-6dabb39ac8354820b9d1eac9085e54a0
+    default_model: qwen3.5-27b
+  siliconflow:
+    api_base: https://api.siliconflow.cn/v1
+    api_key: sk-ctdhpnfgciomqkygzaezvlxkgfdgvwkfqggwknrflcsopdfc
+    default_model: Qwen/Qwen3.5-27B
+  glm:
+    api_base: https://open.bigmodel.cn/api/paas/v4
+    api_key: 00fbb6ebdd924740977b8f1dd1618e0b.A0z5TO0RDkyuGStt
+    default_model: GLM-4-Air
+
+# ==================== Stage 1 粗筛模型 ====================
+stage1_filter:
+  enable_thinking: false
+  max_tokens: 10000
+  timeout_seconds: 15.0
+  max_retries: 1
+  fallback_keep_head: 4
+  fallback_max_rules: 8
+
+# 粗筛模型选择（留空则继承全局 llm 配置）
+filter_model:
+  provider: ""
+  model_preset: ""
+
+# ==================== Stage 2 深度精判 ====================
+stage2:
+  max_concurrent_calls: 6
+  max_tokens: 10000
+  timeout_seconds: 240.0
+  max_retries: 2
+  thinking_budget: 32
+
+# 精判模型选择（留空则继承全局 llm 配置）
+judge_model:
+  provider: ""
+  model_preset: ""
+
+# ==================== Stage 2.6 全文审核模型 ====================
+fulldoc_model:
+  max_tokens: 10000
+  timeout_seconds: 240.0
+  max_retries: 2
+  enable_thinking: false
+  thinking_budget: 32
+  provider: ""
+  model_preset: ""
+
+# ==================== Stage 2.7 建议生成模型 ====================
+suggestion_model:
+  use_llm_renderer: false
+  max_tokens: 10000
+  timeout_seconds: 45.0
+  max_retries: 1
+  enable_thinking: false
+  thinking_budget: null
+  provider: glm
+  model_preset: glm4_default
+
+# ==================== 文本处理参数 ====================
+text_processing:
+  chunk_size: 300
+  chunk_min_size: 80
+  longdoc_threshold: 1500
+  longdoc_chunk_size: 1000
+  longdoc_chunk_min_size: 200
+  longdoc_chunk_overlap: 220
+  longdoc_context_chars: 240
+
+# ==================== 全文审核（Stage 2.6）参数 ====================
+fulldoc:
+  inline_text_limit: 12000
+  context_window: 220
+
+# ==================== 规则引擎缓存 ====================
+rule_engine:
+  cache_max_size: 4096
+
+# ==================== 规则召回参数 ====================
+rule_recall:
+  top_k_rules: 20
+  top_k_filter: 3
+
+# ==================== 并发控制 ====================
+concurrency:
+  max_concurrent_calls: 8
+
+# ==================== 语义预检（Stage 1.1）====================
+semantic_prescreen:
+  enabled: false
+  max_directions: 2
+  max_extended_rules: 4
+  enable_llm: true
+  timeout_seconds: 15.0
+  max_retries: 1
+  enabled_groups:
+    - financial_confusion
+    - absolute_expression
+
+# ==================== 数据路径 ====================
+paths:
+  rule_cards: data/rule_cards.json
+  audit_point_workbook: "plan/smoke数据构造种子集.xlsx"
+
+# ==================== API 服务配置 ====================
+api:
+  host: 0.0.0.0
+  port: 8000
+
+# ==================== 日志 ====================
+logging:
+  enable_trace_log: true
+
+# ==================== Feature Flags ====================
+feature_flags:
+  benchmark_stable_mode: true

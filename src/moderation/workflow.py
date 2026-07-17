@@ -17,6 +17,7 @@ Agno Workflow 提供：
 """
 
 import json
+import threading
 import time
 import asyncio
 from contextvars import ContextVar
@@ -49,44 +50,53 @@ from .stages.stage3_assemble import run_stage3
 
 logger = get_logger(__name__)
 
+_FULDOC_TASK_KEY = "_fulldoc_task"
+_SHARED_STAGE2_SEMAPHORE_KEY = "_shared_stage2_semaphore"
+
 # ============================================================
 # 规则卡片缓存（避免重复加载和解析 JSON）
 # ============================================================
 
 _cached_rule_cards: dict[str, RuleCard] | None = None
 _cached_rule_cards_path: str | None = None
+_rule_cards_lock = threading.Lock()
+
+
+def _load_rule_cards_raw(path: str) -> dict[str, RuleCard]:
+    """从磁盘加载并解析规则卡片（不含缓存逻辑）"""
+    rule_path = Path(path)
+    if not rule_path.is_absolute():
+        rule_path = config.BASE_DIR / rule_path
+    with open(rule_path, "r", encoding="utf-8") as f:
+        raw_list = json.load(f)
+    cards = {}
+    for item in raw_list:
+        card = enrich_rule_card(RuleCard(**item))
+        cards[card.rule_id] = card
+    logger.info(f"已加载 {len(cards)} 条规则卡片")
+    return cards
 
 
 def load_rule_cards(path: str | None = None, force_reload: bool = False) -> dict[str, RuleCard]:
-    """从 JSON 文件加载规则卡片（自动缓存，避免重复 IO）"""
+    """从 JSON 文件加载规则卡片（自动缓存，threading.Lock 防并发重复加载）"""
     global _cached_rule_cards, _cached_rule_cards_path
 
     if path is None:
         path = config.RULE_CARDS_PATH
 
-    # 命中缓存
+    # 快速路径：命中缓存（无锁读）
     if not force_reload and _cached_rule_cards is not None and _cached_rule_cards_path == path:
         logger.debug(f"使用缓存的规则卡片 ({len(_cached_rule_cards)} 条)")
         return _cached_rule_cards
 
-    rule_path = Path(path)
-    if not rule_path.is_absolute():
-        rule_path = config.BASE_DIR / rule_path
-
-    with open(rule_path, "r", encoding="utf-8") as f:
-        raw_list = json.load(f)
-
-    cards = {}
-    for item in raw_list:
-        card = enrich_rule_card(RuleCard(**item))
-        cards[card.rule_id] = card
-
-    # 写入缓存
-    _cached_rule_cards = cards
-    _cached_rule_cards_path = path
-
-    logger.info(f"已加载 {len(cards)} 条规则卡片")
-    return cards
+    # 慢路径：加锁后 double-checked，防止并发首次加载重复 IO
+    with _rule_cards_lock:
+        if not force_reload and _cached_rule_cards is not None and _cached_rule_cards_path == path:
+            return _cached_rule_cards
+        cards = _load_rule_cards_raw(path)
+        _cached_rule_cards = cards
+        _cached_rule_cards_path = path
+        return cards
 
 
 # ============================================================
@@ -94,7 +104,7 @@ def load_rule_cards(path: str | None = None, force_reload: bool = False) -> dict
 # ============================================================
 
 _current_state: ContextVar[WorkflowState | None] = ContextVar("_current_state", default=None)
-_current_meta: ContextVar[dict[str, object]] = ContextVar("_current_meta", default={})
+_current_meta: ContextVar[dict[str, object] | None] = ContextVar("_current_meta", default=None)
 
 
 def _get_state() -> WorkflowState:
@@ -107,7 +117,41 @@ def _get_state() -> WorkflowState:
 
 def _get_meta() -> dict[str, object]:
     """获取当前请求上下文元信息（例如 start_time/doc_id）"""
-    return _current_meta.get()
+    meta = _current_meta.get()
+    if meta is None:
+        raise RuntimeError("meta 未初始化，请通过 run_audit() 调用工作流")
+    return meta
+
+
+def _get_or_create_stage2_semaphore() -> asyncio.Semaphore:
+    meta = _get_meta()
+    semaphore = meta.get(_SHARED_STAGE2_SEMAPHORE_KEY)
+    if isinstance(semaphore, asyncio.Semaphore):
+        return semaphore
+
+    limit = max(1, min(config.MAX_CONCURRENT_CALLS, config.STAGE2_MAX_CONCURRENT_CALLS))
+    semaphore = asyncio.Semaphore(limit)
+    meta[_SHARED_STAGE2_SEMAPHORE_KEY] = semaphore
+    return semaphore
+
+
+def _start_fulldoc_task_if_needed() -> None:
+    state = _get_state()
+    meta = _get_meta()
+
+    if state.document is None:
+        return
+
+    state.rule_cards.update(get_fulldoc_rule_cards())
+    existing = meta.get(_FULDOC_TASK_KEY)
+    if isinstance(existing, asyncio.Task):
+        return
+
+    semaphore = _get_or_create_stage2_semaphore()
+    meta[_FULDOC_TASK_KEY] = asyncio.create_task(
+        run_stage2_6(document=state.document, semaphore=semaphore)
+    )
+    logger.info("Stage 2.6 已并行启动，后续在 Stage 2.6 步骤统一收口结果")
 
 
 # ============================================================
@@ -135,13 +179,15 @@ async def _stage0_executor(step_input: StepInput) -> StepOutput:
     if is_long_doc:
         chunk_size = config.LONGDOC_CHUNK_SIZE
         chunk_min_size = config.LONGDOC_CHUNK_MIN_SIZE
+        chunk_overlap_chars = config.LONGDOC_CHUNK_OVERLAP
         logger.info(
             f"检测到长文本 ({text_len} 字符 >= {config.LONGDOC_THRESHOLD})，"
-            f"启用长文本模式 (chunk_size={chunk_size})"
+            f"启用长文本模式 (chunk_size={chunk_size}, overlap={chunk_overlap_chars})"
         )
     else:
         chunk_size = config.CHUNK_SIZE
         chunk_min_size = config.CHUNK_MIN_SIZE
+        chunk_overlap_chars = config.CHUNK_MIN_SIZE
 
     state.document = preprocess(
         original_text=input_text,  # 保存用户真正的输入
@@ -149,7 +195,9 @@ async def _stage0_executor(step_input: StepInput) -> StepOutput:
         doc_id=doc_id if isinstance(doc_id, str) else None,
         chunk_size=chunk_size,
         chunk_min_size=chunk_min_size,
+        chunk_overlap_chars=chunk_overlap_chars,
     )
+    _start_fulldoc_task_if_needed()
 
     logger.info(
         f"Stage 0 完成: doc_id={state.document.doc_id}, "
@@ -326,6 +374,7 @@ async def _stage2_executor(step_input: StepInput) -> StepOutput:
         chunk_facts=state.stage15_facts,
         gate_results=state.stage19_gate_results,
         max_concurrent=config.STAGE2_MAX_CONCURRENT_CALLS,
+        shared_semaphore=_get_or_create_stage2_semaphore(),
     )
 
     violation_count = sum(1 for j in state.stage2_judgments if j.verdict == "violation")
@@ -474,9 +523,33 @@ async def _stage26_executor(step_input: StepInput) -> StepOutput:
     logger.info("=== Stage 2.6: 全文审核（数据引用来源检测）===")
 
     state = _get_state()
-    # 注入全文审核合成规则卡片
     state.rule_cards.update(get_fulldoc_rule_cards())
-    results = await run_stage2_6(document=state.document)
+    meta = _get_meta()
+    task = meta.get(_FULDOC_TASK_KEY)
+    if isinstance(task, asyncio.Task):
+        if not task.done():
+            logger.info("Stage 2.6: 等待并行全文审核结果收口")
+        try:
+            results = await asyncio.wait_for(
+                task, timeout=config.FULLDOC_MODEL_PROFILE.timeout_seconds
+            )
+        except asyncio.TimeoutError:
+            logger.error("Stage 2.6 全文审核任务超时，跳过全文审核")
+            task.cancel()
+            results = []
+        except Exception as e:
+            logger.error(f"Stage 2.6 全文审核任务异常: {e}，跳过全文审核")
+            results = []
+    else:
+        logger.info("Stage 2.6: 未命中并行任务，退回串行执行")
+        try:
+            results = await run_stage2_6(
+                document=state.document,
+                semaphore=_get_or_create_stage2_semaphore(),
+            )
+        except Exception as e:
+            logger.error(f"Stage 2.6 串行执行异常: {e}，跳过全文审核")
+            results = []
     state.stage26_full_document_judgments = results
 
     violations = sum(1 for r in results if r.verdict == "violation")
@@ -529,11 +602,6 @@ def create_workflow() -> Workflow:
 # 公开接口（供 API 和 CLI 使用）
 # ============================================================
 
-
-# ============================================================
-# 公开接口（供 API 和 CLI 使用）
-# ============================================================
-
 async def run_audit(input_text: str, doc_id: str | None = None) -> AuditResponse:
     """
     异步执行完整的合规审核流水线（基于 Agno Workflow）。
@@ -555,7 +623,7 @@ async def run_audit(input_text: str, doc_id: str | None = None) -> AuditResponse
 
     # 初始化当前请求的隔离状态
     state = WorkflowState()
-    state.rule_cards = load_rule_cards()
+    state.rule_cards = await asyncio.to_thread(load_rule_cards)
     state_token = _current_state.set(state)
     meta_token = _current_meta.set({
         "start_time": start_time,
@@ -571,6 +639,13 @@ async def run_audit(input_text: str, doc_id: str | None = None) -> AuditResponse
         response = state.final_response
         return response
     finally:
+        fulldoc_task = _current_meta.get().get(_FULDOC_TASK_KEY)
+        if isinstance(fulldoc_task, asyncio.Task) and not fulldoc_task.done():
+            fulldoc_task.cancel()
+            try:
+                await fulldoc_task
+            except asyncio.CancelledError:
+                pass
         _current_state.reset(state_token)
         _current_meta.reset(meta_token)
 

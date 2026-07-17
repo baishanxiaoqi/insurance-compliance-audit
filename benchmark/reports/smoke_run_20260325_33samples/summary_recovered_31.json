@@ -1,24 +1,25 @@
 {
-  "total": 33,
-  "tp": 14,
-  "fp": 1,
+  "total": 31,
+  "tp": 12,
+  "fp": 3,
   "fn": 2,
-  "tn": 16,
-  "precision": 0.9333,
-  "recall": 0.875,
-  "f1": 0.9032,
-  "f2": 0.8861,
-  "category_hit_rate": 0.1875,
+  "tn": 14,
+  "precision": 0.8,
+  "recall": 0.8571,
+  "f1": 0.8276,
+  "f2": 0.8451,
+  "category_hit_rate": 0.1429,
+  "audit_point_hit_rate": 0.0,
   "location_exact_hit_rate": 0.0,
-  "location_fuzzy_hit_rate": 0.0625,
+  "location_fuzzy_hit_rate": 0.1429,
   "by_sheet": {
     "合规": {
       "total": 17,
-      "accuracy": 0.9412
+      "accuracy": 0.8235
     },
     "违规": {
-      "total": 16,
-      "accuracy": 0.875
+      "total": 14,
+      "accuracy": 0.8571
     }
   },
   "error_samples": [
@@ -28,13 +29,58 @@
       "expected_label": "compliant",
       "predicted_verdict": "violation",
       "expected_categories": [],
+      "expected_audit_point_id": "",
+      "predicted_audit_point_ids": [
+        "6.5.2",
+        "10.1.1"
+      ],
       "predicted_categories": [
-        "contract_outside_benefits",
-        "gift_giving_implication"
+        "service_commitment",
+        "warm_service",
+        "outside_contract_benefit"
       ],
       "expected_text_slices": [],
       "predicted_location_slices": [
+        "您可以根据客户的具体情况选择合适的祝福语进行提供温馨服务",
         "您可以根据客户的具体情况选择合适的祝福语进行提供温馨服务"
+      ]
+    },
+    {
+      "sample_id": "合规_0009",
+      "source_sheet": "合规",
+      "expected_label": "compliant",
+      "predicted_verdict": "violation",
+      "expected_categories": [],
+      "expected_audit_point_id": "",
+      "predicted_audit_point_ids": [
+        "1.1.1"
+      ],
+      "predicted_categories": [
+        "financial_product_confusion",
+        "pension_confusion"
+      ],
+      "expected_text_slices": [],
+      "predicted_location_slices": [
+        "包括年金险的品质晚年金或退休金收入、保险公司的信誉和稳定性等方面"
+      ]
+    },
+    {
+      "sample_id": "合规_0017",
+      "source_sheet": "合规",
+      "expected_label": "compliant",
+      "predicted_verdict": "violation",
+      "expected_categories": [],
+      "expected_audit_point_id": "",
+      "predicted_audit_point_ids": [
+        "1.1.1"
+      ],
+      "predicted_categories": [
+        "financial_product_confusion",
+        "misleading_statement"
+      ],
+      "expected_text_slices": [],
+      "predicted_location_slices": [
+        "通过不断优化客户体验撬动转化"
       ]
     },
     {
@@ -45,11 +91,16 @@
       "expected_categories": [
         "financial_product_confusion"
       ],
+      "expected_audit_point_id": "",
+      "predicted_audit_point_ids": [
+        "7.1.2",
+        "1.2.1"
+      ],
       "predicted_categories": [
-        "absolute_claim",
-        "indispensable_usage",
+        "misleading_statement",
+        "assertive_promise",
         "financial_product_confusion",
-        "stable_return_implication"
+        "investment_terminology_usage"
       ],
       "expected_text_slices": [
         "股票市场带来不确定性",
@@ -64,15 +115,24 @@
       "sample_id": "违规_0002",
       "source_sheet": "违规",
       "expected_label": "violation",
-      "predicted_verdict": "compliant",
+      "predicted_verdict": "violation",
       "expected_categories": [
         "guaranteed_return"
       ],
-      "predicted_categories": [],
+      "expected_audit_point_id": "",
+      "predicted_audit_point_ids": [
+        "1.2.1"
+      ],
+      "predicted_categories": [
+        "financial_product_confusion",
+        "stable_return_implication"
+      ],
       "expected_text_slices": [
         "锁定年化回报"
       ],
-      "predicted_location_slices": []
+      "predicted_location_slices": [
+        "比如锁定年化回报的产品"
+      ]
     },
     {
       "sample_id": "违规_0003",
@@ -81,6 +141,10 @@
       "predicted_verdict": "violation",
       "expected_categories": [
         "guaranteed_return"
+      ],
+      "expected_audit_point_id": "",
+      "predicted_audit_point_ids": [
+        "1.2.1"
       ],
       "predicted_categories": [
         "financial_product_confusion",
@@ -101,19 +165,21 @@
       "expected_categories": [
         "financial_product_confusion"
       ],
+      "expected_audit_point_id": "",
+      "predicted_audit_point_ids": [
+        "1.1.2"
+      ],
       "predicted_categories": [
         "financial_product_confusion",
-        "stable_return_implication",
-        "risk_transfer_claim",
-        "absolute_risk_description"
+        "savings_account_confusion"
       ],
       "expected_text_slices": [
         "银行存款收益低",
         "保险提供风险保障"
       ],
       "predicted_location_slices": [
-        "可以提供可能的收益",
-        "2. 转嫁风险：保险可以转移健康、意外等个人风险"
+        "长期预计资金增长：保险产品如定期存款型保险",
+        "可以提供可能的收益"
       ]
     },
     {
@@ -124,6 +190,8 @@
       "expected_categories": [
         "responsibility_exaggeration"
       ],
+      "expected_audit_point_id": "",
+      "predicted_audit_point_ids": [],
       "predicted_categories": [],
       "expected_text_slices": [
         "保障未来收入"
@@ -138,11 +206,15 @@
       "expected_categories": [
         "guaranteed_return"
       ],
+      "expected_audit_point_id": "",
+      "predicted_audit_point_ids": [
+        "3.1.1",
+        "1.2.1"
+      ],
       "predicted_categories": [
-        "guaranteed_return",
         "income_promise",
-        "financial_product_confusion",
-        "investment_attribute_misrepresentation"
+        "retirement_income_guarantee",
+        "financial_product_confusion"
       ],
       "expected_text_slices": [
         "提供退休品质生活收入"
@@ -153,47 +225,6 @@
       ]
     },
     {
-      "sample_id": "违规_0007",
-      "source_sheet": "违规",
-      "expected_label": "violation",
-      "predicted_verdict": "violation",
-      "expected_categories": [
-        "responsibility_exaggeration"
-      ],
-      "predicted_categories": [
-        "absolute_claim",
-        "product_superiority",
-        "misleading_title_nature",
-        "entrepreneurship_implication"
-      ],
-      "expected_text_slices": [
-        "应对法律诉讼"
-      ],
-      "predicted_location_slices": [
-        "这样我可以为您定制最适合的保险方案",
-        "比如‘平安创业守护’"
-      ]
-    },
-    {
-      "sample_id": "违规_0008",
-      "source_sheet": "违规",
-      "expected_label": "violation",
-      "predicted_verdict": "violation",
-      "expected_categories": [
-        "guaranteed_return"
-      ],
-      "predicted_categories": [
-        "financial_product_confusion",
-        "stable_return_implication"
-      ],
-      "expected_text_slices": [
-        "锁定未来的收益"
-      ],
-      "predicted_location_slices": [
-        "客户可以提前规划和锁定未来的经济收益"
-      ]
-    },
-    {
       "sample_id": "违规_0009",
       "source_sheet": "违规",
       "expected_label": "violation",
@@ -201,11 +232,16 @@
       "expected_categories": [
         "gifts_or_extra_benefits"
       ],
+      "expected_audit_point_id": "",
+      "predicted_audit_point_ids": [
+        "6.5.2",
+        "10.1.1"
+      ],
       "predicted_categories": [
-        "service_commitment",
-        "extra_service_implication",
-        "contract_outside_benefits",
-        "gift_giving"
+        "extra_benefit_promise",
+        "service_incentive",
+        "contract_outside_benefit",
+        "referral_incentive"
       ],
       "expected_text_slices": [
         "准备温馨服务（实际指代实物）"
@@ -223,17 +259,18 @@
       "expected_categories": [
         "gifts_or_extra_benefits"
       ],
+      "expected_audit_point_id": "",
+      "predicted_audit_point_ids": [
+        "6.5.2"
+      ],
       "predicted_categories": [
-        "improper_inducement",
-        "contract_outside_benefit",
-        "contract_outside_benefits",
-        "activity_rights_gifts"
+        "contract_outside_interest",
+        "surprise_promise"
       ],
       "expected_text_slices": [
         "获得惊喜"
       ],
       "predicted_location_slices": [
-        "甚至有可能获得一些惊喜",
         "甚至有可能获得一些惊喜"
       ]
     },
@@ -241,20 +278,17 @@
       "sample_id": "违规_0011",
       "source_sheet": "违规",
       "expected_label": "violation",
-      "predicted_verdict": "violation",
+      "predicted_verdict": "compliant",
       "expected_categories": [
         "guaranteed_return"
       ],
-      "predicted_categories": [
-        "financial_product_confusion",
-        "stable_return_implication"
-      ],
+      "expected_audit_point_id": "",
+      "predicted_audit_point_ids": [],
+      "predicted_categories": [],
       "expected_text_slices": [
         "锁定收益"
       ],
-      "predicted_location_slices": [
-        "增额寿险的收益锁定功能对于保障和规划未来具有重要意义"
-      ]
+      "predicted_location_slices": []
     },
     {
       "sample_id": "违规_0012",
@@ -264,19 +298,24 @@
       "expected_categories": [
         "financial_product_confusion"
       ],
+      "expected_audit_point_id": "",
+      "predicted_audit_point_ids": [
+        "3.2.1",
+        "1.1.1"
+      ],
       "predicted_categories": [
         "guaranteed_return",
         "stable_return_implication",
-        "policy_loan_misleading",
-        "liquidity_exaggeration"
+        "misleading_statement",
+        "liquidity_flexibility_abuse"
       ],
       "expected_text_slices": [
         "领取灵活性",
         "随时减保取现"
       ],
       "predicted_location_slices": [
-        "收益是确定的",
-        "可以通过保单贷款等方式提供一定的流动性"
+        "1. **预期收益确定性",
+        "4. **流动性"
       ]
     },
     {
@@ -287,11 +326,19 @@
       "expected_categories": [
         "gifts_or_extra_benefits"
       ],
+      "expected_audit_point_id": "",
+      "predicted_audit_point_ids": [
+        "6.5.2",
+        "10.1.1"
+      ],
       "predicted_categories": [
-        "service_commitment",
-        "extra_contractual_benefit",
-        "gift_inducement",
-        "contract_outside_benefit"
+        "contract_extra_benefit",
+        "warm_service_promotion",
+        "contract_outside_benefits",
+        "gift_giving",
+        "extra_service_benefit",
+        "warm_service",
+        "gift_benefit"
       ],
       "expected_text_slices": [
         "送温馨服务（实际指代实物）"
@@ -299,7 +346,9 @@
       "predicted_location_slices": [
         "选择实用的温馨服务",
         "或者与客户兴趣相关的温馨服务",
-        "3. **体现心意**：温馨服务不在于价格"
+        "3. **体现心意**：温馨服务不在于价格",
+        "使温馨服务看起来精致",
+        "选择温馨服务时"
       ]
     },
     {
@@ -310,15 +359,22 @@
       "expected_categories": [
         "responsibility_exaggeration"
       ],
+      "expected_audit_point_id": "",
+      "predicted_audit_point_ids": [
+        "2.2.5"
+      ],
       "predicted_categories": [
-        "legal_risk_misrepresentation",
-        "avoid_legal_dispute_claim"
+        "property_division_claim",
+        "marital_risk_isolation",
+        "legal_protection_exaggeration",
+        "legal_dispute_avoidance"
       ],
       "expected_text_slices": [
         "避免保单成为财产分割的焦点",
         "遇到婚姻变化避免法律纠纷"
       ],
       "predicted_location_slices": [
+        "避免保单因法律问题而成为财产分割的焦点",
         "如何通过删除被保险人来避免法律纠纷"
       ]
     },
@@ -330,14 +386,22 @@
       "expected_categories": [
         "gifts_or_extra_benefits"
       ],
+      "expected_audit_point_id": "",
+      "predicted_audit_point_ids": [
+        "6.5.2",
+        "10.1.1"
+      ],
       "predicted_categories": [
-        "contract_extra_benefit",
-        "gift_giving"
+        "contract_outside_benefit",
+        "small_gifts",
+        "gift_giving",
+        "small_items"
       ],
       "expected_text_slices": [
         "小物品"
       ],
       "predicted_location_slices": [
+        "但带上一些小物品",
         "但带上一些小物品"
       ]
     },
@@ -349,19 +413,33 @@
       "expected_categories": [
         "gifts_or_extra_benefits"
       ],
+      "expected_audit_point_id": "",
+      "predicted_audit_point_ids": [
+        "6.5.1",
+        "10.1.1"
+      ],
       "predicted_categories": [
+        "outside_benefits",
+        "custom_dinner",
         "contract_outside_benefit",
-        "gift_service_promotion",
-        "improper_benefit_inducement",
-        "custom_dinner_high_end_banquet"
+        "high_end_checkup",
+        "off_contract_benefits",
+        "gift_giving"
       ],
       "expected_text_slices": [
         "提供定制晚宴"
       ],
       "predicted_location_slices": [
         "如高端体检或定制晚宴",
+        "如高端体检或定制晚宴",
         "如高端体检或定制晚宴"
       ]
     }
+  ],
+  "completed_count": 31,
+  "target_count": 33,
+  "missing_sample_ids": [
+    "违规_0007",
+    "违规_0008"
   ]
 }

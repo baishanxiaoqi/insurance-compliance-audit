@@ -1,0 +1,24 @@
+{
+  "status": "ok",
+  "module": "stage2_6_full_document",
+  "agent_name": "full_document_audit",
+  "duration_seconds": 694.113,
+  "result": {
+    "rule_id": "R_DATA_SOURCE_01",
+    "chunk_id": "chunk_001",
+    "verdict": "violation",
+    "reasoning_cot": "文本中明确引用了'超过 82% 的中高收入家庭'这一第三方统计数据，但仅标注为'某机构研究显示'，未提供具体的机构名称、报告名称或发布时间。尽管该段落意在说明合规问题，但在面向客户的直播脚本中直接呈现未注明来源的统计数据，仍构成'引用第三方数据未提供来源'的违规风险，不符合数据可验证性要求。",
+    "evidence_span_ids": [
+      "S_chunk_001_53"
+    ],
+    "evidence_texts": [
+      "超过 82% 的中高收入家庭希望通过商业工具提升养老安全感"
+    ],
+    "reason_codes": [
+      "MISSING_SOURCE"
+    ],
+    "decision_basis": "explicit_violation",
+    "primary_category": "data_compliance",
+    "secondary_category": "unverified_statistics"
+  }
+}

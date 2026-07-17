@@ -1,0 +1,198 @@
+{
+  "doc_id": "longdoc_test_1774440464",
+  "text_length": 2235,
+  "text_preview": "\n尊敬的投保人：\n\n感谢您选择我们的尊享人生年金保险计划。为了让您更好地了解本产品，我们精心准备了以下说明。\n\n一、产品收益亮点\n\n根据XX保险公司2024年度业绩报告显示，我公司投资收益率达到8.5%，远超行业平均水平。在过去五年中，我们的年金保险产品累计为客户创造了超过120亿元的收益，客户满意度高达98.6%，位列行业前三甲。\n\n本产品采用复利计息方式，以30岁男性为例，年缴保费10万元，缴...",
+  "start_time": "2026-03-25T20:07:45.144412",
+  "end_time": "2026-03-25T20:21:29.096070",
+  "total_duration_seconds": 823.95,
+  "stages": [
+    {
+      "stage_name": "overall",
+      "duration_seconds": 823.95,
+      "details": {
+        "total_violations": 4,
+        "violations_count": 4,
+        "locations_count": 0
+      }
+    }
+  ],
+  "final_response": {
+    "doc_id": "longdoc_test_1774440464",
+    "total_violations": 4,
+    "violations": [
+      {
+        "rule_id": "KB0259",
+        "rule_name": "知识库规则-封闭期",
+        "risk_level": "high",
+        "verdict": "violation",
+        "reasoning": "文本明确描述的是“尊享人生年金保险计划”，属于保险产品。在“风险提示”部分，原文直接使用“前 5 年为封闭期”来描述保险合同的流动性限制。根据规则 KB0259，禁止使用“封闭期”等表述形容保险，易将保险产品混同于储蓄/理财/投资产品。该场景不属于非保险场景或否定语境，因此构成违规。",
+        "locations": [
+          {
+            "span_ids": [
+              "S_chunk_000_48"
+            ],
+            "original_text_slice": "前5年为封闭期",
+            "norm_start": 712,
+            "norm_end": 720,
+            "raw_start": 712,
+            "raw_end": 719
+          }
+        ],
+        "reason_codes": [
+          "RC_KB0259"
+        ],
+        "suggestion": "封闭期为理财专用词汇，保险产品不涉及封闭期，建议修改此表述，以避免被质疑混淆保险与理财产品性质。 具体违规表述：「前 5 年为封闭期」",
+        "suggestion_type": "rephrase",
+        "audit_point_id": "1.1.1",
+        "audit_point_name": "使用“存/存入/存款”描述缴费行为",
+        "decision_basis": "explicit_violation",
+        "primary_category": "financial_product_confusion",
+        "secondary_category": "savings_account_confusion",
+        "standard_category": "financial_product_confusion"
+      },
+      {
+        "rule_id": "KB0281",
+        "rule_name": "知识库规则-通货膨胀",
+        "risk_level": "high",
+        "verdict": "violation",
+        "reasoning": "文本在'三、风险提示'章节中明确提及'通胀风险'，并指出'通货膨胀可能侵蚀保险金的实际购买力'。虽然该段落位于风险提示部分，但其核心逻辑是利用通货膨胀带来的购买力下降风险，暗示客户若不购买保险将面临资产缩水，从而激发客户的危机感以促成购买。这符合规则 KB0281 中'使用通货膨胀宣传保险，让客户产生危机感'的违规定义。该表述并非独立客观介绍通货膨胀概念，而是将其作为产品销售的营销论据，因此判定为违规。",
+        "locations": [
+          {
+            "span_ids": [
+              "S_chunk_000_57"
+            ],
+            "original_text_slice": "通货膨胀可能侵蚀保险金的实际购买力",
+            "norm_start": 797,
+            "norm_end": 815,
+            "raw_start": 797,
+            "raw_end": 814
+          }
+        ],
+        "reason_codes": [
+          "RC_KB0281"
+        ],
+        "suggestion": "建议删除，不建议用通货膨胀宣传保险，也并非保险责任。 具体违规表述：「通货膨胀可能侵蚀保险金的实际购买力」",
+        "suggestion_type": "delete",
+        "audit_point_id": "8.2.1",
+        "audit_point_name": "互联网平台违规营销",
+        "decision_basis": "explicit_violation",
+        "primary_category": "inflation_marketing",
+        "secondary_category": "fear_mongering",
+        "standard_category": "other"
+      },
+      {
+        "rule_id": "KB0024",
+        "rule_name": "知识库规则-结算利率远高于 / 比存银行",
+        "risk_level": "high",
+        "verdict": "violation",
+        "reasoning": "文本在投保案例部分明确将保险产品的收益与银行定期存款进行对比，声称'比银行定期存款的收益高出约 40%'。这属于将保险产品与其他金融产品（银行存款）进行简单对比，暗示保险优势，违反了 KB0024 规则中禁止'比存银行'等表述的规定。该表述出现在营销宣传语境下，无例外条款适用，构成明确违规。",
+        "locations": [
+          {
+            "span_ids": [
+              "S_chunk_000_73"
+            ],
+            "original_text_slice": "这个数字比银行定期存款的收益高出约40",
+            "norm_start": 952,
+            "norm_end": 973,
+            "raw_start": 952,
+            "raw_end": 971
+          }
+        ],
+        "reason_codes": [
+          "RC_KB0024"
+        ],
+        "suggestion": "将保险产品与其他金融产品进行片面比较，建议删除。 具体违规表述：「比银行定期存款的收益高出约 40%」",
+        "suggestion_type": "delete",
+        "audit_point_id": "6.3.1",
+        "audit_point_name": "片面对比金融产品",
+        "decision_basis": "explicit_violation",
+        "primary_category": "financial_product_confusion",
+        "secondary_category": "savings_account_confusion",
+        "standard_category": "financial_product_confusion"
+      },
+      {
+        "rule_id": "KB0621",
+        "rule_name": "知识库规则-稳健收益",
+        "risk_level": "high",
+        "verdict": "violation",
+        "reasoning": "原文在常见问题 Q1 中明确表述“收益相对稳定”，在 Q3 中表述“追求稳健收益”。根据规则 KB0621，禁止宣传保险产品提供稳健或稳定收益，暗示收益无风险。上述表述直接触犯了违规词“稳定收益”和“稳健收益”，且不属于例外条款中的客观说明长期性特点或合同约定。因此判定为明确违规。",
+        "locations": [
+          {
+            "span_ids": [
+              "S_chunk_001_57"
+            ],
+            "original_text_slice": "A：适合有长期养老规划、追求稳健收益、希望获得终身保障的人群",
+            "norm_start": 1730,
+            "norm_end": 1761,
+            "raw_start": 1730,
+            "raw_end": 1760
+          }
+        ],
+        "reason_codes": [
+          "暗示收益稳定性"
+        ],
+        "suggestion": "请删除关于稳健收益的表述，保险产品的收益存在不确定性，不应暗示收益稳定。 具体违规表述：「追求稳健收益」",
+        "suggestion_type": "delete",
+        "audit_point_id": "3.3.1",
+        "audit_point_name": "使用“稳健”、“无波动”等词",
+        "decision_basis": "explicit_violation",
+        "primary_category": "guaranteed_return",
+        "secondary_category": "stable_return_implication",
+        "standard_category": "guaranteed_return"
+      }
+    ],
+    "processing_time_seconds": 822.9
+  },
+  "errors": [],
+  "stages_from_logs": [
+    {
+      "stage_name": "Stage 0 预处理",
+      "detected": false
+    },
+    {
+      "stage_name": "Stage 1 召回过滤",
+      "detected": false
+    },
+    {
+      "stage_name": "Stage 1.5 事实抽取",
+      "detected": false
+    },
+    {
+      "stage_name": "Stage 1.8 路由分发",
+      "detected": false
+    },
+    {
+      "stage_name": "Stage 1.9 Gate",
+      "detected": false
+    },
+    {
+      "stage_name": "Stage 2 深度精判",
+      "detected": false
+    },
+    {
+      "stage_name": "Stage 2.5 Override",
+      "detected": false
+    },
+    {
+      "stage_name": "Stage 2.6 全文审核",
+      "detected": false
+    },
+    {
+      "stage_name": "Stage 2.7 建议生成",
+      "detected": false
+    },
+    {
+      "stage_name": "Stage 3 组装",
+      "detected": false
+    }
+  ],
+  "config": {
+    "MAX_CONCURRENT_CALLS": 6,
+    "STAGE2_MAX_CONCURRENT_CALLS": 6,
+    "CHUNK_SIZE": 300,
+    "CHUNK_MIN_SIZE": 80,
+    "LONGDOC_THRESHOLD": 1500,
+    "LONGDOC_CHUNK_SIZE": 1000,
+    "LONGDOC_CHUNK_MIN_SIZE": 200
+  }
+}

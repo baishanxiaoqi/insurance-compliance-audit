@@ -1,0 +1,26 @@
+{
+  "status": "ok",
+  "module": "stage2_deep_judge",
+  "agent_name": "skill_金融用语混淆识别",
+  "duration_seconds": 8.0632,
+  "result": {
+    "rule_id": "KB0134",
+    "chunk_id": "chunk_000",
+    "verdict": "violation",
+    "reasoning_cot": "文本中明确出现'收益稳定'和'适合长期投资'的表述。'收益稳定'直接暗示了保险产品的确定性收益，违反了保险收益不确定性的监管要求；'适合长期投资'将保险产品直接定义为投资工具，混淆了保险保障与投资理财的界限。经排查，文本不存在否定语境、培训语境或主体不匹配等例外情况，属于直接的销售违规主张。",
+    "evidence_span_ids": [
+      "S_chunk_000_00",
+      "S_chunk_000_01"
+    ],
+    "evidence_texts": [
+      "收益稳定",
+      "适合长期投资"
+    ],
+    "reason_codes": [
+      "RC_KB0134"
+    ],
+    "decision_basis": "explicit_violation",
+    "primary_category": "financial_product_confusion",
+    "secondary_category": "stable_return_implication"
+  }
+}

@@ -6,10 +6,13 @@
 
 import pytest
 
+from src.moderation.rule_indexes import build_category_group_index
+from src.moderation.schemas import RuleCard
 from src.moderation.stages.stage1_1_semantic_prescreen import (
     _detect_financial_confusion_signal,
     _detect_absolute_expression_signal,
     _detect_signals,
+    _extend_rules_from_directions,
 )
 
 
@@ -89,6 +92,11 @@ class TestAbsoluteExpressionSignal:
         text = "我们始终追求最好的服务体验"
         assert _detect_absolute_expression_signal(text) is False
 
+    def test_miss_service_concept_negative(self):
+        """负向保护词出现时，不应触发 absolute_expression 预检"""
+        text = "公司服务理念是做客户心中最好的伙伴"
+        assert _detect_absolute_expression_signal(text) is False
+
     def test_miss_no_absolute_word(self):
         """无绝对化词 -> 不命中"""
         text = "这款产品收益稳定，保障全面"
@@ -136,3 +144,80 @@ class TestDetectSignals:
         text = "本产品依法合规销售，请仔细阅读条款"
         signals = _detect_signals(text, ["financial_confusion", "absolute_expression"])
         assert signals == []
+
+
+class TestExtendRulesFromDirections:
+
+    def _build_rule_cards(self):
+        return {
+            "R_FAMILY": RuleCard(
+                rule_id="R_FAMILY",
+                rule_name="知识库规则-家庭纠纷",
+                risk_level="high",
+                violation_definition="宣传保险可以解决家庭纠纷。",
+                keywords=["家庭纠纷"],
+                violation_terms=["家庭纠纷"],
+                category_group="financial_confusion",
+            ),
+            "R_INVEST": RuleCard(
+                rule_id="R_INVEST",
+                rule_name="知识库规则-理财 / 理财产品",
+                risk_level="high",
+                violation_definition="直接宣传保险产品具备投资理财功能。",
+                keywords=["理财", "投资", "收益"],
+                violation_terms=["理财", "理财产品", "投资", "收益", "像储蓄一样"],
+                condition_terms=["保险", "产品", "保单"],
+                category_group="financial_confusion",
+            ),
+            "R_ABS_PRODUCT": RuleCard(
+                rule_id="R_ABS_PRODUCT",
+                rule_name="知识库规则-国家级 / 最高级",
+                risk_level="high",
+                violation_definition="绝对化夸大产品能力。",
+                keywords=["最佳"],
+                violation_terms=["最佳", "最好的", "第一", "唯一"],
+                category_group="absolute_expression",
+            ),
+            "R_ABS_EXPLAIN": RuleCard(
+                rule_id="R_ABS_EXPLAIN",
+                rule_name="知识库规则-解释权",
+                risk_level="high",
+                violation_definition="最终解释权归公司。",
+                keywords=["解释权"],
+                violation_terms=["解释权"],
+                category_group="absolute_expression",
+            ),
+        }
+
+    def test_prefers_text_matched_rule_within_group(self):
+        rule_cards = self._build_rule_cards()
+        index = build_category_group_index(rule_cards)
+        result = _extend_rules_from_directions(
+            chunk_text="这款保险产品像银行存款一样安全，收益更高",
+            directions=["financial_confusion"],
+            category_group_index=index,
+            rule_cards=rule_cards,
+            max_rules=2,
+        )
+        assert result[0] == "R_INVEST"
+        assert "R_FAMILY" not in result
+
+    def test_different_texts_expand_to_different_rules(self):
+        rule_cards = self._build_rule_cards()
+        index = build_category_group_index(rule_cards)
+        family_result = _extend_rules_from_directions(
+            chunk_text="这份保险可以帮助解决家庭纠纷",
+            directions=["financial_confusion"],
+            category_group_index=index,
+            rule_cards=rule_cards,
+            max_rules=2,
+        )
+        invest_result = _extend_rules_from_directions(
+            chunk_text="这款保险产品收益稳定，像理财一样灵活",
+            directions=["financial_confusion"],
+            category_group_index=index,
+            rule_cards=rule_cards,
+            max_rules=2,
+        )
+        assert family_result[0] == "R_FAMILY"
+        assert invest_result[0] == "R_INVEST"

@@ -1,0 +1,18 @@
+{
+  "status": "ok",
+  "module": "stage2_deep_judge",
+  "agent_name": "skill_收益承诺/稳定收益暗示识别",
+  "duration_seconds": 158.9149,
+  "result": {
+    "rule_id": "KB0027",
+    "chunk_id": "chunk_002",
+    "verdict": "compliant",
+    "reasoning_cot": "该文本属于合规培训材料，核心目的是警示营销人员避免违规。文中多次出现'不能'、'不要'、'而不是'等否定词，明确禁止将保险包装成'确定收益'或制造'保本理财'感受。根据规则例外条款，在否定语境下批评或禁止使用违规词汇的行为视为合规，不构成对客户的收益承诺或暗示。",
+    "evidence_span_ids": [],
+    "evidence_texts": [],
+    "reason_codes": [],
+    "decision_basis": "negation_context",
+    "primary_category": "guaranteed_return",
+    "secondary_category": "stable_return_implication"
+  }
+}

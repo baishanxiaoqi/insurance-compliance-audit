@@ -1,0 +1,123 @@
+# 生产环境配置
+# API Key 等敏感值必须通过环境变量注入，例如：export OPENAI_API_KEY=sk-xxx
+# 切勿将真实 API Key 写入此文件并提交到版本控制
+
+# ==================== LLM 基础兼容配置 ====================
+llm:
+  api_base: https://api.openai.com/v1
+  api_key: ""          # 必须通过环境变量 LLM_API_KEY 注入
+  model: gpt-4o-mini
+  provider: default
+  model_preset: ""
+  enable_thinking: false
+
+# ==================== 供应商档案 ====================
+providers:
+  openai:
+    api_base: https://api.openai.com/v1
+    api_key: ""        # 必须通过环境变量 OPENAI_API_KEY 注入
+    default_model: gpt-4o-mini
+  dashscope:
+    api_base: https://dashscope.aliyuncs.com/compatible-mode/v1
+    api_key: ""        # 必须通过环境变量 DASHSCOPE_API_KEY 注入
+    default_model: qwen3.5-27b
+  siliconflow:
+    api_base: https://api.siliconflow.cn/v1
+    api_key: ""        # 必须通过环境变量 SILICONFLOW_API_KEY 注入
+    default_model: Qwen/Qwen3.5-27B
+  glm:
+    api_base: https://open.bigmodel.cn/api/paas/v4
+    api_key: ""        # 必须通过环境变量 GLM_API_KEY 注入
+    default_model: glm-4.5-flash
+
+# ==================== Stage 1 粗筛模型 ====================
+stage1_filter:
+  enable_thinking: false
+  max_tokens: 10000
+  timeout_seconds: 15.0
+  max_retries: 3
+  fallback_keep_head: 4
+  fallback_max_rules: 8
+
+# ==================== Stage 2 深度精判 ====================
+stage2:
+  max_concurrent_calls: 10
+  max_tokens: 10000
+  timeout_seconds: 90.0
+  max_retries: 3
+  thinking_budget: 128
+
+# ==================== Stage 2.6 全文审核模型 ====================
+fulldoc_model:
+  max_tokens: 10000
+  timeout_seconds: 90.0
+  max_retries: 3
+  enable_thinking: false
+  thinking_budget: 128
+
+# ==================== Stage 2.7 建议生成模型 ====================
+suggestion_model:
+  use_llm_renderer: false
+  max_tokens: 10000
+  timeout_seconds: 45.0
+  max_retries: 3
+  enable_thinking: false
+  thinking_budget: null
+
+# ==================== 文本处理参数 ====================
+text_processing:
+  chunk_size: 300
+  chunk_min_size: 80
+  longdoc_threshold: 1500
+  longdoc_chunk_size: 1000
+  longdoc_chunk_min_size: 200
+  longdoc_chunk_overlap: 220
+  longdoc_context_chars: 240
+
+# ==================== 全文审核（Stage 2.6）参数 ====================
+fulldoc:
+  inline_text_limit: 12000
+  context_window: 220
+
+# ==================== 规则引擎缓存 ====================
+rule_engine:
+  cache_max_size: 4096
+
+# ==================== 规则召回参数 ====================
+rule_recall:
+  top_k_rules: 20
+  top_k_filter: 3
+
+# ==================== 并发控制 ====================
+concurrency:
+  max_concurrent_calls: 10
+
+# ==================== 语义预检（Stage 1.1）====================
+semantic_prescreen:
+  enabled: false
+  max_directions: 2
+  max_extended_rules: 4
+  enable_llm: true
+  timeout_seconds: 15.0
+  max_retries: 2
+  enabled_groups:
+    - financial_confusion
+    - absolute_expression
+
+# ==================== 数据路径 ====================
+paths:
+  rule_cards: data/rule_cards.json
+  audit_point_workbook: "plan/smoke数据构造种子集.xlsx"
+
+# ==================== API 服务配置 ====================
+api:
+  host: 0.0.0.0
+  port: 8000
+
+# ==================== 日志 ====================
+logging:
+  enable_trace_log: false
+
+# ==================== Feature Flags ====================
+feature_flags:
+  benchmark_stable_mode: false

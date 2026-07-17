@@ -1,0 +1,11 @@
+{
+  "total_cases": 33,
+  "successful": 33,
+  "errors": 0,
+  "violations_detected": 17,
+  "total_duration_seconds": 10935.88,
+  "avg_duration_seconds": 331.39,
+  "max_duration_seconds": 1351.49,
+  "min_duration_seconds": 3.57,
+  "output_path": "/Users/junqi/Desktop/工作/01-demo/03-demo/claude-moderation/benchmark/reports/smoke_33_optimized/raw_results.jsonl"
+}

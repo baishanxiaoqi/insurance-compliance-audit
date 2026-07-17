@@ -1,0 +1,18 @@
+{
+  "status": "ok",
+  "module": "stage2_deep_judge",
+  "agent_name": "skill_收益承诺/稳定收益暗示识别",
+  "duration_seconds": 146.8916,
+  "result": {
+    "rule_id": "KB0027",
+    "chunk_id": "chunk_001",
+    "verdict": "compliant",
+    "reasoning_cot": "文本虽包含“保本”“固定收益”等敏感词，但均用于警示错误话术或描述第三方误解，如“如果直接用于...就会让受众误以为”“但不能把保险直接宣传成”。这属于规则例外中批评禁止使用相关表述的情形，且存在明确否定词表达劝阻，未构成直接收益承诺，故判定合规。",
+    "evidence_span_ids": [],
+    "evidence_texts": [],
+    "reason_codes": [],
+    "decision_basis": "negation_context",
+    "primary_category": null,
+    "secondary_category": null
+  }
+}

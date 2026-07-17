@@ -1,0 +1,24 @@
+{
+  "status": "ok",
+  "module": "stage2_deep_judge",
+  "agent_name": "base_verify_llm",
+  "duration_seconds": 20.7105,
+  "result": {
+    "rule_id": "KB0014",
+    "chunk_id": "chunk_000",
+    "verdict": "violation",
+    "reasoning_cot": "规则引擎命中'投资'一词，出现在文本片段'适合长期投资'中。该片段主语为'这款产品'，直接指向待审保险产品。文本将保险产品描述为'适合长期投资'，直接宣传了产品的投资理财功能，使用了具有投资属性的术语。该表述不属于负面说明、禁令说明、培训材料或客观背景介绍，而是直接的营销宣传语。因此，该证据构成规则定义的直接违规宣传，属于将保险产品与投资理财功能混淆。",
+    "evidence_span_ids": [
+      "S_chunk_000_01"
+    ],
+    "evidence_texts": [
+      "适合长期投资"
+    ],
+    "reason_codes": [
+      "financial_confusion"
+    ],
+    "decision_basis": "explicit_violation",
+    "primary_category": "financial_confusion",
+    "secondary_category": "investment_function_claim"
+  }
+}

@@ -19,6 +19,7 @@ from pydantic import BaseModel, Field
 from .. import config
 from ..llm_agent import create_agent, safe_arun
 from ..log import get_logger
+from ..rule_indexes import select_group_rule_ids_for_text
 from ..schemas import Chunk, ChunkCandidates, RuleCard
 
 logger = get_logger(__name__)
@@ -85,7 +86,11 @@ def _detect_absolute_expression_signal(text: str) -> bool:
     """
     has_abs = any(w in text for w in _AE_ABSOLUTE)
     has_obj = any(w in text for w in _AE_HIGH_RISK_OBJECTS)
-    return has_abs and has_obj
+    if not (has_abs and has_obj):
+        return False
+    if any(w in text for w in _AE_NEGATIVE):
+        return False
+    return True
 
 
 def _detect_signals(text: str, enabled_groups: List[str]) -> List[str]:
@@ -160,17 +165,21 @@ def _build_prescreen_prompt(
 # ============================================================
 
 def _extend_rules_from_directions(
+    chunk_text: str,
     directions: List[str],
     category_group_index: Dict[str, List[str]],
+    rule_cards: Dict[str, RuleCard],
     max_rules: int,
 ) -> List[str]:
-    """
-    根据命中的风险方向，从 category_group_index 中补充对应规则 ID。
-    最多返回 max_rules 条。
-    """
     extended: List[str] = []
     for direction in directions:
-        rule_ids = category_group_index.get(direction, [])
+        rule_ids = select_group_rule_ids_for_text(
+            text=chunk_text,
+            category_group=direction,
+            category_group_index=category_group_index,
+            rule_cards=rule_cards,
+            max_rules=max_rules,
+        )
         for rid in rule_ids:
             if rid not in extended:
                 extended.append(rid)
@@ -186,6 +195,7 @@ def _extend_rules_from_directions(
 async def _process_single_chunk(
     chunk: Chunk,
     category_group_index: Dict[str, List[str]],
+    rule_cards: Dict[str, RuleCard],
     enabled_groups: List[str],
     max_directions: int,
     max_extended_rules: int,
@@ -240,7 +250,11 @@ async def _process_single_chunk(
 
     # Step 3: 代码扩展规则 ID
     extended_rule_ids = _extend_rules_from_directions(
-        llm_directions, category_group_index, max_extended_rules
+        chunk_text=text,
+        directions=llm_directions,
+        category_group_index=category_group_index,
+        rule_cards=rule_cards,
+        max_rules=max_extended_rules,
     )
 
     logger.info(
@@ -264,6 +278,7 @@ async def _process_single_chunk(
 async def run_stage1_1_semantic_prescreen(
     chunks: List[Chunk],
     category_group_index: Dict[str, List[str]],
+    rule_cards: Dict[str, RuleCard],
     semaphore: asyncio.Semaphore,
     enabled_groups: Optional[List[str]] = None,
     max_directions: Optional[int] = None,
@@ -299,6 +314,7 @@ async def run_stage1_1_semantic_prescreen(
         _process_single_chunk(
             chunk=chunk,
             category_group_index=category_group_index,
+            rule_cards=rule_cards,
             enabled_groups=enabled_groups,
             max_directions=max_directions,
             max_extended_rules=max_extended_rules,

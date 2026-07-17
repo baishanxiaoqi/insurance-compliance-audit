@@ -6,7 +6,11 @@ from unittest.mock import AsyncMock, Mock, patch
 from src.moderation import config
 from src.moderation.llm_agent import create_model, safe_arun
 from src.moderation.schemas import Chunk, FilterResult, RuleCard, Span
-from src.moderation.stages.stage1_recall_filter import _filter_single_chunk, build_filter_agent
+from src.moderation.stages.stage1_recall_filter import (
+    _compress_fallback_candidates,
+    _filter_single_chunk,
+    build_filter_agent,
+)
 
 
 class _DummyRetriever:
@@ -204,6 +208,70 @@ class TestStage1FilterTimeoutControls(unittest.IsolatedAsyncioTestCase):
 
         self.assertIsNotNone(result)
         self.assertEqual(result.candidate_rule_ids, ["KB_A", "KB_B", "KB_C"])
+
+    def test_compress_fallback_candidates_keeps_head_and_reduces_duplicates(self):
+        rule_cards = {
+            "KB_A": RuleCard(
+                rule_id="KB_A",
+                rule_name="规则-A",
+                risk_level="high",
+                violation_definition="测试",
+                keywords=["收益"],
+                violation_terms=["收益"],
+                audit_point_id="1.1.1",
+                primary_category="financial_product_confusion",
+                secondary_category="investment_terminology_usage",
+                category_group="financial_confusion",
+            ),
+            "KB_B": RuleCard(
+                rule_id="KB_B",
+                rule_name="规则-B",
+                risk_level="high",
+                violation_definition="测试",
+                keywords=["收益"],
+                violation_terms=["收益"],
+                audit_point_id="1.1.1",
+                primary_category="financial_product_confusion",
+                secondary_category="investment_terminology_usage",
+                category_group="financial_confusion",
+            ),
+            "KB_C": RuleCard(
+                rule_id="KB_C",
+                rule_name="规则-C",
+                risk_level="high",
+                violation_definition="测试",
+                keywords=["收益"],
+                violation_terms=["收益"],
+                audit_point_id="1.2.1",
+                primary_category="guaranteed_return",
+                secondary_category="stable_return_implication",
+                category_group="guaranteed_return",
+            ),
+            "KB_D": RuleCard(
+                rule_id="KB_D",
+                rule_name="规则-D",
+                risk_level="high",
+                violation_definition="测试",
+                keywords=["收益"],
+                violation_terms=["收益"],
+                audit_point_id="6.5.2",
+                primary_category="gifts_or_extra_benefits",
+                secondary_category="warm_service",
+                category_group="gifts_benefits",
+            ),
+        }
+        candidate_ids = ["KB_A", "KB_B", "KB_C", "KB_D", "KB_B", "KB_C"]
+
+        compressed = _compress_fallback_candidates(
+            candidate_ids,
+            rule_cards,
+            keep_head=2,
+            max_rules=3,
+        )
+
+        self.assertEqual(compressed[:2], ["KB_A", "KB_B"])
+        self.assertEqual(len(compressed), 3)
+        self.assertIn("KB_C", compressed)
 
     async def test_safe_arun_retries_after_timeout(self):
         agent = Mock()

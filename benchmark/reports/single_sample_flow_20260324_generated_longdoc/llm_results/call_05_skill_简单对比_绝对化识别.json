@@ -1,0 +1,18 @@
+{
+  "status": "ok",
+  "module": "stage2_deep_judge",
+  "agent_name": "skill_简单对比/绝对化识别",
+  "duration_seconds": 139.4059,
+  "result": {
+    "rule_id": "KB0430",
+    "chunk_id": "chunk_000",
+    "verdict": "compliant",
+    "reasoning_cot": "经核查，文本中虽提及'社保缴纳情况'及'夫妻二人都有社保'，但均为客观事实陈述或需求梳理环节，未使用负面词汇贬低社保。文中关于'不能覆盖'的表述（S_chunk_000_33）针对的是'单纯依靠储蓄'，而非社保。未出现将保险与社保进行对比并暗示保险优于社保的违规主张，符合例外条款中'没有将保险和社保进行对比'的情形。",
+    "evidence_span_ids": [],
+    "evidence_texts": [],
+    "reason_codes": [],
+    "decision_basis": "exception_applied",
+    "primary_category": null,
+    "secondary_category": null
+  }
+}

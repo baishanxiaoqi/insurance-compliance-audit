@@ -13,11 +13,49 @@
 
 from __future__ import annotations
 
+import threading
+from collections import OrderedDict
 from dataclasses import dataclass, field
 from typing import Dict, List
 
+from . import config
 from .schemas import RuleCard
 from .ac_matcher import AhocorasickMatcher
+
+# 跨 Stage 结果缓存：相同 (chunk_text, rule_id) 只评估一次
+# 使用有上限的 LRU，避免长时间运行进程无限增长
+# threading.Lock 保证在 run_in_executor 等多线程场景下的安全访问
+_eval_cache: OrderedDict[tuple[str, str], "RuleEvalReport"] = OrderedDict()
+_eval_cache_lock = threading.Lock()
+
+
+def clear_eval_cache() -> None:
+    with _eval_cache_lock:
+        _eval_cache.clear()
+
+
+def get_eval_cache_size() -> int:
+    with _eval_cache_lock:
+        return len(_eval_cache)
+
+
+def _get_cached_report(cache_key: tuple[str, str]) -> "RuleEvalReport" | None:
+    with _eval_cache_lock:
+        report = _eval_cache.get(cache_key)
+        if report is not None:
+            _eval_cache.move_to_end(cache_key)
+        return report
+
+
+def _set_cached_report(cache_key: tuple[str, str], report: "RuleEvalReport") -> None:
+    max_size = max(0, config.RULE_ENGINE_CACHE_MAX_SIZE)
+    if max_size <= 0:
+        return
+    with _eval_cache_lock:
+        _eval_cache[cache_key] = report
+        _eval_cache.move_to_end(cache_key)
+        while len(_eval_cache) > max_size:
+            _eval_cache.popitem(last=False)
 
 
 @dataclass
@@ -98,6 +136,11 @@ def _filter_positions_by_no_match(
 
 
 def evaluate_rule_on_text(text: str, rule_card: RuleCard) -> RuleEvalReport:
+    cache_key = (text, rule_card.rule_id)
+    cached = _get_cached_report(cache_key)
+    if cached is not None:
+        return cached
+
     report = RuleEvalReport(rule_id=rule_card.rule_id)
 
     violation_terms = rule_card.violation_terms or rule_card.keywords
@@ -135,6 +178,7 @@ def evaluate_rule_on_text(text: str, rule_card: RuleCard) -> RuleEvalReport:
     if not report.has_violation_hit:
         report.hard_block = True
         report.summary = "无有效违规词命中（或被前后缀不匹配规则过滤）"
+        _set_cached_report(cache_key, report)
         return report
 
     # 2) 条件词约束
@@ -156,6 +200,7 @@ def evaluate_rule_on_text(text: str, rule_card: RuleCard) -> RuleEvalReport:
         if not report.condition_pass:
             report.hard_block = True
             report.summary = "条件词未满足距离约束"
+            _set_cached_report(cache_key, report)
             return report
 
     # 3) 排除词约束（命中则硬阻断）
@@ -177,7 +222,9 @@ def evaluate_rule_on_text(text: str, rule_card: RuleCard) -> RuleEvalReport:
         if report.exclusion_blocked:
             report.hard_block = True
             report.summary = "命中排除词距离约束，判定为例外"
+            _set_cached_report(cache_key, report)
             return report
 
     report.summary = "通过可执行规则前置校验"
+    _set_cached_report(cache_key, report)
     return report

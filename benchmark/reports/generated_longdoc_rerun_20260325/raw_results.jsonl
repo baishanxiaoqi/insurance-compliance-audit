@@ -1,0 +1,33 @@
+{
+  "sample_id": "generated_longdoc_20260324_01",
+  "label": "violation",
+  "expected_categories": [
+    "financial_product_confusion",
+    "guaranteed_return",
+    "data_citation"
+  ],
+  "expected_audit_point_id": "",
+  "expected_text_slices": [
+    "适合有保本需求的人群",
+    "锁定长期固定收益",
+    "某机构研究显示"
+  ],
+  "source_sheet": "generated",
+  "quality_status": "synthetic_reviewed",
+  "status": "ok",
+  "error": "",
+  "duration_seconds": 1422.241,
+  "predicted_verdict": "compliant",
+  "predicted_rule_ids": [],
+  "predicted_audit_point_ids": [],
+  "predicted_location_slices": [],
+  "predicted_categories": [],
+  "predicted_decision_bases": [],
+  "predicted_suggestion_types": [],
+  "response": {
+    "doc_id": "generated_longdoc_20260324_01",
+    "total_violations": 0,
+    "violations": [],
+    "processing_time_seconds": 1420.77
+  }
+}

@@ -15,7 +15,8 @@ uvicorn>=0.24.0
 jieba>=0.42.1
 pyahocorasick>=2.1.0
 
-# Environment
+# Configuration
+pyyaml>=6.0.0
 python-dotenv>=1.0.0
 
 # Async HTTP

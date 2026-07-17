@@ -92,6 +92,46 @@ def _normalize_fragment(text: str) -> str:
     return "".join(_trim_fragment(text).split())
 
 
+def _clip_for_context(text: str, max_chars: int, from_tail: bool = False) -> str:
+    cleaned = (text or "").strip()
+    if max_chars <= 0 or len(cleaned) <= max_chars:
+        return cleaned
+    if from_tail:
+        return "…" + cleaned[-max_chars:]
+    return cleaned[:max_chars] + "…"
+
+
+def _build_longdoc_context_bundle(
+    document: DocumentState,
+    chunk: Chunk,
+) -> str | None:
+    if len(document.normalized_text) < config.LONGDOC_THRESHOLD or len(document.chunks) <= 1:
+        return None
+
+    max_chars = max(0, config.LONGDOC_CONTEXT_CHARS)
+    if max_chars <= 0:
+        return None
+
+    chunk_index = next(
+        (index for index, item in enumerate(document.chunks) if item.chunk_id == chunk.chunk_id),
+        None,
+    )
+    if chunk_index is None:
+        return None
+
+    sections: list[str] = []
+    if chunk_index > 0:
+        prev_text = _clip_for_context(document.chunks[chunk_index - 1].chunk_text, max_chars, from_tail=True)
+        if prev_text:
+            sections.append(f"前文审核块摘要：\n{prev_text}")
+    if chunk_index + 1 < len(document.chunks):
+        next_text = _clip_for_context(document.chunks[chunk_index + 1].chunk_text, max_chars, from_tail=False)
+        if next_text:
+            sections.append(f"后文审核块摘要：\n{next_text}")
+
+    return "\n\n".join(sections) if sections else None
+
+
 def _collect_rule_anchor_terms(rule_card: RuleCard) -> List[str]:
     candidates: List[str] = []
     candidates.extend(rule_card.keywords)
@@ -387,6 +427,12 @@ async def judge_with_base_verify_llm(
         f"  {s.span_id}: {s.span_text}"
         for s in chunk.spans[:10]
     )
+    context_bundle = _build_longdoc_context_bundle(document, chunk)
+    context_section = (
+        f"\n【邻近上下文（辅助判断，不直接作为定位证据）】\n{context_bundle}\n"
+        if context_bundle
+        else ""
+    )
     prompt = (
         f"【规则 ID】{rule_card.rule_id}\n"
         f"【规则名称】{rule_card.rule_name}\n"
@@ -395,6 +441,7 @@ async def judge_with_base_verify_llm(
         f"\n"
         f"【待审文本 chunk_id={chunk.chunk_id}】\n"
         f"{chunk.chunk_text}\n"
+        f"{context_section}"
         f"\n"
         f"【规则引擎命中的违规词/片段】\n"
         f"{violation_hits}\n"
@@ -432,9 +479,16 @@ async def judge_with_base_verify_llm(
     except Exception as e:
         logger.warning(
             f"base_verify_llm 调用失败 [{chunk.chunk_id} x {rule_card.rule_id}]: {e}，"
-            f"回退到规则引擎原判 violation"
+            f"降级为 unsure（避免误判）"
         )
-        return base_result
+        return JudgmentResult(
+            chunk_id=base_result.chunk_id,
+            rule_id=base_result.rule_id,
+            verdict="unsure",
+            reasoning_cot=f"base_verify_llm 调用失败，降级为 unsure: {e}",
+            evidence_span_ids=base_result.evidence_span_ids,
+            strategy="base_verify_llm_error",
+        )
 
     # 后验证：过滤幻觉 span_id
     valid_span_ids = {s.span_id for s in chunk.spans}
@@ -540,6 +594,7 @@ async def judge_with_skill_strategy(
     # 可选：先执行规则引擎获取前置证据
     deterministic_report = evaluate_rule_on_text(chunk.chunk_text, rule_card)
     prompt_deterministic_report = _select_prompt_deterministic_report(deterministic_report)
+    context_bundle = _build_longdoc_context_bundle(document, chunk)
 
     # 构建 Prompt（包含 Few-shot）
     prompt = skill.build_prompt(
@@ -548,6 +603,7 @@ async def judge_with_skill_strategy(
         spans_dict=spans_dict,
         chunk_fact=chunk_fact,
         deterministic_report=prompt_deterministic_report,
+        context_bundle=context_bundle,
     )
 
     # 创建 Agent
@@ -620,6 +676,7 @@ async def retry_unsure_judgment(
     document: DocumentState,
     chunk_fact: ChunkFactProfile | None = None,
     skill_type: str | None = None,
+    semaphore: asyncio.Semaphore | None = None,
 ) -> JudgmentResult:
     """
     对 unsure 且高风险的判定进行二次审查。
@@ -655,14 +712,17 @@ async def retry_unsure_judgment(
         rule_card=rule_card,
         spans_dict=spans_dict,
         chunk_fact=chunk_fact,
+        context_bundle=_build_longdoc_context_bundle(document, chunk),
     )
 
     retry_prompt = f"""{base_prompt}
 
 ========== 二次审查要求 ==========
 这是一次二次审查。之前的判定结果为 unsure（不确定）。
-请更加仔细地分析文本，结合规则定义和例外条款，给出明确的判定（violation 或 compliant）。
-如果确实无法判定，请在 reasoning_cot 中详细说明原因。"""
+请更加仔细地分析文本，结合规则定义和例外条款，给出明确的判定。
+【强制约束】verdict 字段必须输出 violation 或 compliant，禁止再次输出 unsure。
+若证据倾向违规但不充分，输出 violation 并在 reasoning_cot 中说明置信度。
+若无充分证据支持违规，输出 compliant（无罪推定原则）。"""
 
     # 提高 temperature
     agent = create_agent(
@@ -673,12 +733,21 @@ async def retry_unsure_judgment(
         profile=config.JUDGE_MODEL_PROFILE,
     )
 
-    result = await safe_arun(
-        agent,
-        retry_prompt,
-        max_retries=config.JUDGE_MODEL_PROFILE.max_retries,
-        timeout_seconds=config.JUDGE_MODEL_PROFILE.timeout_seconds,
-    )
+    if semaphore:
+        async with semaphore:
+            result = await safe_arun(
+                agent,
+                retry_prompt,
+                max_retries=config.JUDGE_MODEL_PROFILE.max_retries,
+                timeout_seconds=config.JUDGE_MODEL_PROFILE.timeout_seconds,
+            )
+    else:
+        result = await safe_arun(
+            agent,
+            retry_prompt,
+            max_retries=config.JUDGE_MODEL_PROFILE.max_retries,
+            timeout_seconds=config.JUDGE_MODEL_PROFILE.timeout_seconds,
+        )
 
     # 后验证
     valid_span_ids = {s.span_id for s in chunk.spans}
@@ -719,7 +788,8 @@ async def run_stage2(
     routed_pairs: List[RoutedPair],
     chunk_facts: Dict[str, ChunkFactProfile] | None = None,
     gate_results: Dict[str, Any] | None = None,
-    max_concurrent: int = 3,
+    max_concurrent: int = 6,
+    shared_semaphore: asyncio.Semaphore | None = None,
 ) -> List[JudgmentResult]:
     """
     Stage 2 主入口：双策略混合架构。
@@ -740,6 +810,7 @@ async def run_stage2(
       chunk_facts: Stage 1.5 事实画像
       gate_results: Stage 1.9 Gate 结果字典
       max_concurrent: 最大并发 LLM 调用数
+      shared_semaphore: 可选的共享并发信号量，用于与全文审核共用预算
     """
     # 过滤掉 should_skip=True 的组合
     filtered_pairs = []
@@ -760,7 +831,7 @@ async def run_stage2(
     chunk_map = {c.chunk_id: c for c in document.chunks}
 
     # 并发控制信号量
-    semaphore = asyncio.Semaphore(max_concurrent)
+    semaphore = shared_semaphore or asyncio.Semaphore(max_concurrent)
 
     # 分离 base 轨和 skill 轨
     base_tasks = []
@@ -893,7 +964,8 @@ async def run_stage2(
                             rule_card=rule_card,
                             document=document,
                             chunk_fact=chunk_fact,
-                            skill_type=original_skill_type,  # 传递原始 skill_type
+                            skill_type=original_skill_type,
+                            semaphore=semaphore,
                         )
                     )
                     retry_indices.append(i)

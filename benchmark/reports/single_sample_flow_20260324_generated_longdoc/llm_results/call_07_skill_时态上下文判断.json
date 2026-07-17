@@ -1,0 +1,18 @@
+{
+  "status": "ok",
+  "module": "stage2_deep_judge",
+  "agent_name": "skill_时态上下文判断",
+  "duration_seconds": 445.398,
+  "result": {
+    "rule_id": "KB0029",
+    "chunk_id": "chunk_001",
+    "verdict": "compliant",
+    "reasoning_cot": "文本在【第三方数据表述】部分虽然提及了‘某机构研究显示’及'82%'等数据，但语境为警示性说明，明确指出若未注明来源‘容易在全文层面形成引用第三方数据但未注明来源的问题’。根据规则例外条款，材料中批评、禁止使用此类表述的行为属于合规。该文本旨在教育合规边界，而非实际违规宣传，故判定为合规。",
+    "evidence_span_ids": [],
+    "evidence_texts": [],
+    "reason_codes": [],
+    "decision_basis": "negation_context",
+    "primary_category": null,
+    "secondary_category": null
+  }
+}

@@ -84,23 +84,22 @@ def _build_coordinate_map(source_text: str, target_text: str) -> Dict[int, int]:
 
     # 处理未映射的字符（插入的字符）
     # 策略：将插入的字符映射到最近的已映射位置
+    # 线性双扫描，O(n) 替代原来的 O(n²) 嵌套查找
+    last_mapped: int | None = None
     for source_idx in range(len(source_text)):
-        if source_idx not in coord_map:
-            # 查找最近的已映射位置
-            # 优先向前查找
-            for i in range(source_idx - 1, -1, -1):
-                if i in coord_map:
-                    coord_map[source_idx] = coord_map[i]
-                    break
-            else:
-                # 如果前面没有，向后查找
-                for i in range(source_idx + 1, len(source_text)):
-                    if i in coord_map:
-                        coord_map[source_idx] = coord_map[i]
-                        break
-                else:
-                    # 如果都没有，映射到 0
-                    coord_map[source_idx] = 0
+        if source_idx in coord_map:
+            last_mapped = coord_map[source_idx]
+        elif last_mapped is not None:
+            coord_map[source_idx] = last_mapped
+    # 反向扫描：处理开头连续未映射的字符（向后借用最近映射值）
+    last_mapped = None
+    for source_idx in range(len(source_text) - 1, -1, -1):
+        if source_idx in coord_map:
+            last_mapped = coord_map[source_idx]
+        elif last_mapped is not None:
+            coord_map[source_idx] = last_mapped
+        else:
+            coord_map[source_idx] = 0
 
     return coord_map
 
@@ -216,17 +215,19 @@ def adaptive_split_chunks(
     text: str,
     max_size: int = 300,
     min_size: int = 80,
+    overlap_chars: int | None = None,
 ) -> List[Tuple[str, int, int]]:
     """
     自适应 Chunk 切分：
     1. 按自然段切分
     2. 短段合并（合并后不超过 max_size）
     3. 长段在句子边界处二次切分
-    4. 上下文回溯重叠：每个 Chunk 开头追加前一个 Chunk 的最后一句（不超过 min_size 字）
+    4. 上下文回溯重叠：每个 Chunk 开头追加前一个 Chunk 的最后一句
 
     参数:
       max_size: 单个 Chunk 的最大字数（默认 300）
       min_size: 低于此字数的段落尝试与相邻段合并（默认 80）
+      overlap_chars: overlap 上限（字符）；为空时默认等于 min_size
 
     返回 [(chunk_text, start_index, end_index), ...]
     """
@@ -272,6 +273,7 @@ def adaptive_split_chunks(
     if len(raw_chunks) <= 1:
         return raw_chunks
 
+    overlap_limit = min_size if overlap_chars is None else max(0, overlap_chars)
     final_chunks: List[Tuple[str, int, int]] = [raw_chunks[0]]
     for i in range(1, len(raw_chunks)):
         prev_text = raw_chunks[i - 1][0]
@@ -281,9 +283,9 @@ def adaptive_split_chunks(
         prev_sentences = _sentence_split(prev_text)
         if prev_sentences:
             overlap_sentence = prev_sentences[-1].strip()
-            if len(overlap_sentence) > min_size:
+            if overlap_limit and len(overlap_sentence) > overlap_limit:
                 # 句子太长，截断
-                overlap_sentence = overlap_sentence[-min_size:]
+                overlap_sentence = overlap_sentence[-overlap_limit:]
             # 在原始文本中定位 overlap 的起始位置
             prev_chunk_end = raw_chunks[i - 1][1] + len(prev_text)
             overlap_start = prev_chunk_end - len(overlap_sentence)
@@ -341,8 +343,9 @@ def split_into_spans(
                 search_end = min(len(normalized_text), chunk_start + len(chunk_text) + 100)
                 search_text = normalized_text[search_start:search_end]
 
-                # 在搜索范围内查找 part
-                idx = search_text.find(part)
+                # 在搜索范围内查找 part（从 chunk 起点相对偏移处开始，避免命中前面 overlap 区域的重复文本）
+                search_offset = chunk_start - search_start
+                idx = search_text.find(part, max(0, search_offset - 50))
                 if idx != -1:
                     abs_start = search_start + idx
                     abs_end = abs_start + len(part)
@@ -371,6 +374,7 @@ def preprocess(
     doc_id: str | None = None,
     chunk_size: int = 300,
     chunk_min_size: int = 80,
+    chunk_overlap_chars: int | None = None,
 ) -> DocumentState:
     """
     Stage 0 主函数：
@@ -384,6 +388,7 @@ def preprocess(
       working_text: 经过 OCR 修复后的工作文本（用于审核处理）
       chunk_size: 单个 Chunk 的最大字数
       chunk_min_size: 低于此字数的段落尝试合并
+      chunk_overlap_chars: chunk 间回溯 overlap 上限（字符）
 
     注意：自适应切分使用句级回溯重叠策略，不再使用固定 overlap 参数
     """
@@ -401,6 +406,7 @@ def preprocess(
         normalized_text,
         max_size=chunk_size,
         min_size=chunk_min_size,
+        overlap_chars=chunk_overlap_chars,
     )
 
     # Step 4: 在每个 chunk 内切分 spans

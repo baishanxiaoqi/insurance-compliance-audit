@@ -1,0 +1,18 @@
+{
+  "status": "ok",
+  "module": "stage2_deep_judge",
+  "agent_name": "skill_时态上下文判断",
+  "duration_seconds": 83.0636,
+  "result": {
+    "rule_id": "KB0029",
+    "chunk_id": "chunk_002",
+    "verdict": "compliant",
+    "reasoning_cot": "该文本属于合规培训与提醒内容，并非商业宣传。文中明确警示“如果这里只写了‘某机构研究显示’而没有给出明确来源...就容易...形成‘引用第三方数据但未注明来源’的问题”，这是对违规行为的批评与禁止。同时文末建议“把引用来源标清楚”。根据规则例外条款中关于否定语境合规的规定，材料中批评、处罚、禁止使用违规表述的行为视为合规。因此，尽管文中出现了相关词汇，但语境为合规教育，判定为合规。",
+    "evidence_span_ids": [],
+    "evidence_texts": [],
+    "reason_codes": [],
+    "decision_basis": "negation_context",
+    "primary_category": null,
+    "secondary_category": null
+  }
+}

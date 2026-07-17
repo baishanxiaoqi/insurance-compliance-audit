@@ -500,9 +500,14 @@ def safe_run(
 
         except Exception as e:
             if attempt < max_retries:
+                import random
+                import time
+                wait = min(2 ** attempt + random.uniform(0, 1), 30.0)
                 logger.warning(
                     f"Agent [{agent.name}] 同步调用失败 "
-                    f"(尝试 {attempt + 1}/{max_retries + 1}): {e}"
+                    f"(尝试 {attempt + 1}/{max_retries + 1}): {e}，"
+                    f"等待 {wait:.1f}s 后重试"
                 )
+                time.sleep(wait)
                 continue
             raise
